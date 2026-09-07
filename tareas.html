@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    document.documentElement.classList.add('js');
+    window.setTimeout(function () {
+      if (!document.documentElement.classList.contains('reveal-ready')) {
+        document.documentElement.classList.add('reveal-fallback');
+      }
+    }, 3000);
+  </script>
+  <title>Tareas repetitivas que se pueden quitar de en medio — ProceLaos</title>
+  <meta name="description" content="Entrada de datos, atención, agenda, presupuestos, seguimiento comercial e informes: las tareas manuales más comunes en cualquier empresa.">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ProceLaos">
+  <meta property="og:title" content="Tareas repetitivas que se pueden quitar de en medio — ProceLaos">
+  <meta property="og:description" content="Entrada de datos, atención, agenda, presupuestos, seguimiento comercial e informes: las tareas manuales más comunes en cualquier empresa.">
+  <!-- TODO: sustituir por la URL real una vez publicada -->
+  <meta property="og:url" content="https://procelaos.com/tareas.html">
+  <!-- TODO: añadir images/og-image.jpg (1200x630px) -->
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230D1321'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23FF6B1A' font-family='Arial' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="has-brand-band">
+
+  <noscript>
+    <style>.reveal { opacity: 1 !important; transform: none !important; }</style>
+  </noscript>
+
+  <div class="brand-band">
+    <div class="brand-band__track" aria-hidden="true">
+      <div class="brand-band__group">
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+      </div>
+      <div class="brand-band__group">
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+      </div>
+    </div>
+  </div>
+
+  <canvas class="particles-canvas" id="particlesCanvas" aria-hidden="true"></canvas>
+
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="index.html" class="logo logo--silent" aria-hidden="true" tabindex="-1">Proce<span>Laos</span></a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav">
+        <div class="site-nav__links">
+          <a href="index.html">Inicio</a>
+          <a href="tareas.html" class="is-active">Tareas</a>
+          <a href="proceso.html">Cómo trabajamos</a>
+          <a href="capacidades.html">Qué controlas tú</a>
+          <a href="nosotros.html">Nosotros</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="site-nav__actions">
+          <a href="diagnostico.html" class="btn btn--primary">Diagnóstico gratis</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+
+    <section class="page-header">
+      <div class="container">
+        <p class="eyebrow reveal">Reconoce tu semana</p>
+        <h1 class="reveal">Tareas que se repiten, <span class="highlight">da igual el sector</span></h1>
+        <p class="page-header__lead reveal">No hace falta que tu negocio se parezca al de nadie más. Si haces alguna de estas cosas a mano cada semana, hay margen.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cards-grid">
+          <article class="card reveal">
+            <h3>Se acabó copiar lo mismo dos veces</h3>
+            <p>Cada factura de proveedor, cada pedido, cada formulario que llega por email acaba tecleado a mano en un Excel o un ERP. A un despacho le cuesta ahí una mañana a la semana; a una tienda, el cierre de caja. El sistema lee el documento y lo coloca solo donde tiene que ir.</p>
+          </article>
+
+          <article class="card reveal">
+            <h3>Deja de contestar lo mismo diez veces al día</h3>
+            <p>Horario, precio, disponibilidad, cómo se hace un pedido... las mismas preguntas llegan por WhatsApp, email y teléfono, y alguien tiene que soltar lo que está haciendo. Un agente contesta al momento, a cualquier hora, y te avisa a ti solo cuando hace falta decidir algo.</p>
+          </article>
+
+          <article class="card reveal">
+            <h3>La agenda deja de vivir en la cabeza de alguien</h3>
+            <p>Coordinar una reunión a base de correos, avisar de una cita, perseguir a quien no confirma. Una clínica pierde huecos por olvidos; una agencia, horas en idas y vueltas de email. Se coordina y recuerda solo.</p>
+          </article>
+
+          <article class="card reveal">
+            <h3>El mismo presupuesto, sin rehacerlo a mano</h3>
+            <p>Cambiar dos líneas de un presupuesto y maquetarlo entero otra vez, o perseguir un cobro vencido llamando uno a uno. Un taller y una consultora pierden ahí el mismo rato en trabajo distinto. Se genera desde una plantilla y avisa solo de lo pendiente.</p>
+          </article>
+
+          <article class="card reveal">
+            <h3>Los leads dejan de enfriarse en la bandeja</h3>
+            <p>Un cliente pregunta y, si nadie contesta en la hora siguiente, se va a mirar a otro lado. Sin un CRM que se actualice solo, esos contactos se pierden entre correos. El sistema responde primero y avisa a quien tiene que cerrar.</p>
+          </article>
+
+          <article class="card reveal">
+            <h3>El informe del lunes se escribe solo</h3>
+            <p>Juntar ventas, stock y facturación de tres sitios distintos para un informe que casi nadie llega a leer con calma. Una fábrica y una agencia dedican ahí la misma mañana perdida. El informe se monta solo y llega listo a primera hora.</p>
+          </article>
+        </div>
+
+        <p class="section__outro reveal">Y esto son solo seis. Si tu tarea repetitiva no está aquí, <a href="diagnostico.html">cuéntanosla en el diagnóstico</a> — es probable que también tenga arreglo.</p>
+      </div>
+    </section>
+
+    <section class="section cta-band">
+      <div class="container">
+        <h2 class="reveal">Cuéntanos qué tarea quieres quitarte de encima</h2>
+        <p class="reveal">Gratis y sin compromiso.</p>
+        <div class="cta-band__actions reveal">
+          <a href="diagnostico.html" class="btn btn--primary btn--lg">Pedir diagnóstico gratuito</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <div>
+        <p class="site-footer__brand">ProceLaos</p>
+        <p class="site-footer__contact">
+          <!-- TODO: sustituir por email y WhatsApp reales del negocio general -->
+          <a href="mailto:hola@procelaos.example">hola@procelaos.example</a> ·
+          <a href="https://wa.me/34600000000" target="_blank" rel="noopener">WhatsApp</a>
+        </p>
+      </div>
+      <p class="site-footer__legal">© <span id="year"></span> ProceLaos.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

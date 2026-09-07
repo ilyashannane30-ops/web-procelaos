@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    document.documentElement.classList.add('js');
+    window.setTimeout(function () {
+      if (!document.documentElement.classList.contains('reveal-ready')) {
+        document.documentElement.classList.add('reveal-fallback');
+      }
+    }, 3000);
+  </script>
+  <title>Diagnóstico gratuito — ProceLaos</title>
+  <meta name="description" content="Pide tu diagnóstico gratuito: te decimos qué tareas de tu empresa se pueden dejar de hacer a mano y cuánto costaría.">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ProceLaos">
+  <meta property="og:title" content="Diagnóstico gratuito — ProceLaos">
+  <meta property="og:description" content="Pide tu diagnóstico gratuito: te decimos qué tareas de tu empresa se pueden dejar de hacer a mano y cuánto costaría.">
+  <!-- TODO: sustituir por la URL real una vez publicada -->
+  <meta property="og:url" content="https://procelaos.com/diagnostico.html">
+  <!-- TODO: añadir images/og-image.jpg (1200x630px) -->
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230D1321'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23FF6B1A' font-family='Arial' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="has-brand-band">
+
+  <noscript>
+    <style>.reveal { opacity: 1 !important; transform: none !important; }</style>
+  </noscript>
+
+  <div class="brand-band">
+    <div class="brand-band__track" aria-hidden="true">
+      <div class="brand-band__group">
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+      </div>
+      <div class="brand-band__group">
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+      </div>
+    </div>
+  </div>
+
+  <canvas class="particles-canvas" id="particlesCanvas" aria-hidden="true"></canvas>
+
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="index.html" class="logo logo--silent" aria-hidden="true" tabindex="-1">Proce<span>Laos</span></a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav">
+        <div class="site-nav__links">
+          <a href="index.html">Inicio</a>
+          <a href="tareas.html">Tareas</a>
+          <a href="proceso.html">Cómo trabajamos</a>
+          <a href="capacidades.html">Qué controlas tú</a>
+          <a href="nosotros.html">Nosotros</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="site-nav__actions">
+          <a href="diagnostico.html" class="btn btn--primary">Diagnóstico gratis</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+
+    <section class="page-header">
+      <div class="container container--narrow">
+        <p class="eyebrow reveal">¿Hablamos?</p>
+        <h1 class="reveal">Cuéntanos qué tarea quieres quitarte de encima</h1>
+        <p class="page-header__lead reveal">Gratis y sin compromiso. Te decimos si tiene sentido antes de hablar de precio.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container container--narrow">
+        <form class="lead-form lead-form--wizard reveal" id="leadForm" novalidate>
+          <div class="lead-form__hp" aria-hidden="true">
+            <label for="website_hp">No rellenar</label>
+            <input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="wizard-progress">
+            <div class="wizard-progress__bar"><div class="wizard-progress__fill" id="wizardFill"></div></div>
+            <p class="wizard-progress__label">Paso <span id="wizardStepNum">1</span> de 5 — <span id="wizardStepTitle">Contacto</span></p>
+          </div>
+
+          <!-- Paso 1: Contacto -->
+          <fieldset class="wizard-step" data-step="1">
+            <legend class="wizard-step__title">¿Con quién hablamos?</legend>
+            <div class="lead-form__row">
+              <label for="fNombre">Nombre completo <span class="lead-form__req">*</span></label>
+              <input type="text" id="fNombre" name="nombre" required>
+            </div>
+            <div class="lead-form__row">
+              <label for="fEmpresa">Empresa</label>
+              <input type="text" id="fEmpresa" name="empresa">
+            </div>
+            <div class="lead-form__row lead-form__row--2col">
+              <div>
+                <label for="fEmail">Email <span class="lead-form__req">*</span></label>
+                <input type="email" id="fEmail" name="email" required>
+              </div>
+              <div>
+                <label for="fTelefono">Teléfono</label>
+                <input type="tel" id="fTelefono" name="telefono" placeholder="+34 600 000 000">
+              </div>
+            </div>
+            <div class="lead-form__row">
+              <label for="fWeb">Sitio web</label>
+              <input type="text" id="fWeb" name="web" placeholder="https://">
+            </div>
+          </fieldset>
+
+          <!-- Paso 2: Tu negocio -->
+          <fieldset class="wizard-step" data-step="2" hidden>
+            <legend class="wizard-step__title">Contexto de tu empresa</legend>
+            <div class="lead-form__row lead-form__row--2col">
+              <div>
+                <label for="fIndustria">Sector o industria <span class="lead-form__req">*</span></label>
+                <input type="text" id="fIndustria" name="industria" required placeholder="Ej. E-commerce, consultoría, salud…">
+              </div>
+              <div>
+                <label for="fRol">Tu rol</label>
+                <input type="text" id="fRol" name="rol" placeholder="Ej. Fundador, Ops, Marketing…">
+              </div>
+            </div>
+            <div class="lead-form__row">
+              <label>Tamaño del equipo <span class="lead-form__req">*</span></label>
+              <div class="pill-group" data-field="teamSize" data-required="true">
+                <button type="button" class="pill" data-value="Solo yo">Solo yo</button>
+                <button type="button" class="pill" data-value="2–4">2–4</button>
+                <button type="button" class="pill" data-value="5–10">5–10</button>
+                <button type="button" class="pill" data-value="11–50">11–50</button>
+                <button type="button" class="pill" data-value="51–200">51–200</button>
+                <button type="button" class="pill" data-value="+200">+200</button>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Paso 3: Situación actual -->
+          <fieldset class="wizard-step" data-step="3" hidden>
+            <legend class="wizard-step__title">Los problemas del día a día</legend>
+            <div class="lead-form__row">
+              <label for="fTareas">¿Qué tareas repetitivas te consumen más tiempo? <span class="lead-form__req">*</span></label>
+              <p class="lead-form__hint">Descríbelas como las vives: qué haces, cada cuánto y qué te frustra.</p>
+              <textarea id="fTareas" name="tareas" rows="4" required placeholder="Ej. Cada mañana copio pedidos de emails a una hoja de cálculo y luego los paso al ERP a mano…"></textarea>
+            </div>
+            <div class="lead-form__row">
+              <label for="fHerramientas">¿Qué herramientas o software usas hoy?</label>
+              <input type="text" id="fHerramientas" name="herramientas" placeholder="Ej. Excel, Gmail, HubSpot, Notion, Shopify…">
+            </div>
+            <div class="lead-form__row">
+              <label>¿Cuántas horas a la semana se van en tareas manuales?</label>
+              <div class="pill-group" data-field="horas">
+                <button type="button" class="pill" data-value="Menos de 5 h">Menos de 5 h</button>
+                <button type="button" class="pill" data-value="5–15 h">5–15 h</button>
+                <button type="button" class="pill" data-value="15–30 h">15–30 h</button>
+                <button type="button" class="pill" data-value="Más de 30 h">Más de 30 h</button>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Paso 4: Qué automatizar -->
+          <fieldset class="wizard-step" data-step="4" hidden>
+            <legend class="wizard-step__title">Tu proceso ideal</legend>
+            <div class="lead-form__row">
+              <label>¿Qué procesos te gustaría automatizar? <span class="lead-form__req">*</span></label>
+              <p class="lead-form__hint">Selecciona todos los que apliquen.</p>
+              <div class="option-grid" data-field="areas" data-required="true" data-multi="true">
+                <button type="button" class="option-card" data-value="Emails y comunicaciones">
+                  <span class="option-card__check" aria-hidden="true"></span>
+                  <span class="option-card__body">
+                    <span class="option-card__label">Emails y comunicaciones</span>
+                    <span class="option-card__desc">Respuestas, seguimientos, plantillas</span>
+                  </span>
+                </button>
+                <button type="button" class="option-card" data-value="Gestión de leads / CRM">
+                  <span class="option-card__check" aria-hidden="true"></span>
+                  <span class="option-card__body">
+                    <span class="option-card__label">Gestión de leads / CRM</span>
+                    <span class="option-card__desc">Captura, calificación, asignación</span>
+                  </span>
+                </button>
+                <button type="button" class="option-card" data-value="Reportes e informes">
+                  <span class="option-card__check" aria-hidden="true"></span>
+                  <span class="option-card__body">
+                    <span class="option-card__label">Reportes e informes</span>
+                    <span class="option-card__desc">Datos, dashboards, exportaciones</span>
+                  </span>
+                </button>
+                <button type="button" class="option-card" data-value="Atención al cliente">
+                  <span class="option-card__check" aria-hidden="true"></span>
+                  <span class="option-card__body">
+                    <span class="option-card__label">Atención al cliente</span>
+                    <span class="option-card__desc">Tickets, FAQs, chatbots</span>
+                  </span>
+                </button>
+                <button type="button" class="option-card" data-value="Otros procesos">
+                  <span class="option-card__check" aria-hidden="true"></span>
+                  <span class="option-card__body">
+                    <span class="option-card__label">Otros procesos</span>
+                    <span class="option-card__desc">Cuéntanos en el siguiente paso</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+            <div class="lead-form__row">
+              <label for="fProcesoIdeal">Describe tu proceso ideal</label>
+              <p class="lead-form__hint">Si todo funcionara solo, ¿cómo sería?</p>
+              <textarea id="fProcesoIdeal" name="proceso_ideal" rows="3" placeholder="Ej. Que cuando entre un pedido se cree la factura, se avise al cliente y se actualice el stock automáticamente."></textarea>
+            </div>
+            <div class="lead-form__row">
+              <label>¿Qué prioridad tiene para ti?</label>
+              <div class="option-grid option-grid--3" data-field="prioridad">
+                <button type="button" class="option-card" data-value="Explorando ideas">
+                  <span class="option-card__check option-card__check--radio" aria-hidden="true"></span>
+                  <span class="option-card__body">
+                    <span class="option-card__label">Explorando ideas</span>
+                    <span class="option-card__desc">Aún investigando opciones</span>
+                  </span>
+                </button>
+                <button type="button" class="option-card" data-value="Lo necesito pronto">
+                  <span class="option-card__check option-card__check--radio" aria-hidden="true"></span>
+                  <span class="option-card__body">
+                    <span class="option-card__label">Lo necesito pronto</span>
+                    <span class="option-card__desc">En los próximos meses</span>
+                  </span>
+                </button>
+                <button type="button" class="option-card" data-value="Es urgente">
+                  <span class="option-card__check option-card__check--radio" aria-hidden="true"></span>
+                  <span class="option-card__body">
+                    <span class="option-card__label">Es urgente</span>
+                    <span class="option-card__desc">Me está frenando ahora mismo</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Paso 5: Plazos -->
+          <fieldset class="wizard-step" data-step="5" hidden>
+            <legend class="wizard-step__title">Alcance y plazos</legend>
+            <div class="lead-form__row">
+              <label>¿Para cuándo lo necesitas? <span class="lead-form__req">*</span></label>
+              <div class="pill-group" data-field="plazo" data-required="true">
+                <button type="button" class="pill" data-value="Cuanto antes">Cuanto antes</button>
+                <button type="button" class="pill" data-value="1–3 meses">1–3 meses</button>
+                <button type="button" class="pill" data-value="3–6 meses">3–6 meses</button>
+                <button type="button" class="pill" data-value="Sin fecha definida">Sin fecha definida</button>
+              </div>
+            </div>
+            <div class="lead-form__row">
+              <label for="fExtra">¿Algo más que debamos saber?</label>
+              <textarea id="fExtra" name="extra" rows="3" placeholder="Contexto, restricciones, integraciones concretas… lo que quieras."></textarea>
+            </div>
+
+            <div class="lead-form__check">
+              <input type="checkbox" id="fRgpd" name="rgpd" required>
+              <label for="fRgpd">He leído y acepto la política de privacidad. Mis datos se usan solo para contactarme sobre esta consulta.</label>
+            </div>
+
+            <div class="lead-form__check">
+              <input type="checkbox" id="fNewsletter" name="newsletter">
+              <label for="fNewsletter">Quiero recibir un email al mes con automatizaciones que funcionan en empresas como la mía.</label>
+            </div>
+          </fieldset>
+
+          <p class="lead-form__error" id="leadFormError" role="alert" hidden></p>
+
+          <div class="wizard-nav">
+            <button type="button" class="btn btn--outline" id="wizardBack" hidden>Atrás</button>
+            <button type="button" class="btn btn--primary" id="wizardNext">Continuar</button>
+            <button type="submit" class="btn btn--primary lead-form__submit" id="wizardSubmit" hidden>Enviar diagnóstico</button>
+          </div>
+        </form>
+
+        <div class="lead-form__success" id="leadFormSuccess" hidden>
+          <div class="lead-form__success-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="32" height="32">
+              <circle class="success-icon__circle" cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"></circle>
+              <path class="success-icon__check" d="M7 12.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <p><strong>Recibido.</strong> Te escribimos lo antes posible para presentarte nuestra solución.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <div>
+        <p class="site-footer__brand">ProceLaos</p>
+        <p class="site-footer__contact">
+          <!-- TODO: sustituir por email y WhatsApp reales del negocio general -->
+          <a href="mailto:hola@procelaos.example">hola@procelaos.example</a> ·
+          <a href="https://wa.me/34600000000" target="_blank" rel="noopener">WhatsApp</a>
+        </p>
+      </div>
+      <p class="site-footer__legal">© <span id="year"></span> ProceLaos.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

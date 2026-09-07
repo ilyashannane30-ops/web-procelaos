@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    document.documentElement.classList.add('js');
+    window.setTimeout(function () {
+      if (!document.documentElement.classList.contains('reveal-ready')) {
+        document.documentElement.classList.add('reveal-fallback');
+      }
+    }, 3000);
+  </script>
+  <title>ProceLaos — Deja de perder horas en tareas repetitivas</title>
+  <meta name="description" content="Diagnóstico gratuito: te decimos qué tareas de tu empresa se pueden dejar de hacer a mano y cuánto costaría.">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ProceLaos">
+  <meta property="og:title" content="ProceLaos — Deja de perder horas en tareas repetitivas">
+  <meta property="og:description" content="Diagnóstico gratuito: te decimos qué tareas de tu empresa se pueden dejar de hacer a mano y cuánto costaría.">
+  <!-- TODO: sustituir por la URL real una vez publicada -->
+  <meta property="og:url" content="https://procelaos.com/index.html">
+  <!-- TODO: añadir images/og-image.jpg (1200x630px) -->
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230D1321'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23FF6B1A' font-family='Arial' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="has-brand-band">
+
+  <noscript>
+    <style>.reveal { opacity: 1 !important; transform: none !important; }</style>
+  </noscript>
+
+  <div class="brand-band">
+    <div class="brand-band__track" aria-hidden="true">
+      <div class="brand-band__group">
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+      </div>
+      <div class="brand-band__group">
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+      </div>
+    </div>
+  </div>
+
+  <canvas class="particles-canvas" id="particlesCanvas" aria-hidden="true"></canvas>
+
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="index.html" class="logo logo--silent" aria-hidden="true" tabindex="-1">Proce<span>Laos</span></a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav">
+        <div class="site-nav__links">
+          <a href="index.html" class="is-active">Inicio</a>
+          <a href="tareas.html">Tareas</a>
+          <a href="proceso.html">Cómo trabajamos</a>
+          <a href="capacidades.html">Qué controlas tú</a>
+          <a href="nosotros.html">Nosotros</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="site-nav__actions">
+          <a href="diagnostico.html" class="btn btn--primary">Diagnóstico gratis</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <h1>Deja de pagar horas para hacer tareas <span class="highlight">que una IA puede hacer por ti</span></h1>
+          <p class="hero__subtitle">Una IA diseñada a tu medida que trabaja como un empleado más de tu empresa. Automatiza las tareas manuales y repetitivas, ahorra horas de trabajo y funciona 24/7. Sin pausas. Sin vacaciones. Sin límites. Centraliza toda la información y te permite tenerlo todo bajo control de un solo vistazo.</p>
+          <div class="hero__actions">
+            <a href="diagnostico.html" class="btn btn--primary btn--lg">Pedir diagnóstico gratuito</a>
+            <a href="tareas.html" class="btn btn--outline btn--lg">Ver qué tareas desaparecen</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Escena del relevo. Fase 2: solo el contenedor maquetado y el
+         fotograma final estático. Ese mismo SVG es el fallback definitivo
+         (sin WebGL o con movimiento reducido), no un placeholder de usar y
+         tirar. El canvas 3D se montará dentro de .escena__lienzo. -->
+    <section class="section escena-seccion">
+      <div class="container">
+        <h2 class="escena__titulo reveal">El trabajo repetitivo cambia de manos</h2>
+
+        <div class="escena reveal" id="escena">
+          <div class="escena__lienzo" id="escenaLienzo">
+            <svg class="escena__estatico" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Una persona de pie, sin tareas en las manos, mientras un robot procesa documentos a su lado.">
+              <line class="es-piso" x1="60" y1="252" x2="420" y2="252"/>
+
+              <g>
+                <path class="es-brazo" d="M114,146 Q120,176 116,206"/>
+                <path class="es-brazo" d="M86,146 Q80,176 84,206"/>
+                <path class="es-fig" d="M85,140 Q100,132 115,140 L119,214 Q100,220 81,214 Z"/>
+                <circle class="es-fig" cx="100" cy="112" r="17"/>
+              </g>
+
+              <rect class="es-mesa" x="150" y="216" width="120" height="7" rx="3"/>
+
+              <g opacity="0.55">
+                <path class="es-rb-brazo" d="M304,150 L292,144"/>
+                <path class="es-rb-brazo" d="M352,150 L364,144"/>
+                <rect class="es-rb-cuerpo" x="300" y="126" width="52" height="68" rx="12"/>
+                <rect class="es-rb-cuerpo" x="305" y="86" width="42" height="36" rx="10"/>
+                <rect class="es-rb-cara" x="312" y="95" width="28" height="16" rx="5"/>
+                <rect class="es-rb-ojo" x="317" y="101" width="8" height="3.5" rx="1.7"/>
+                <rect class="es-rb-ojo" x="329" y="101" width="8" height="3.5" rx="1.7"/>
+                <line x1="326" y1="86" x2="326" y2="76" stroke="#33415C" stroke-width="3"/>
+                <circle class="es-rb-led" cx="326" cy="74" r="4.5"/>
+                <ellipse cx="326" cy="252" rx="30" ry="4" fill="#000" opacity="0.25"/>
+              </g>
+
+              <g opacity="0.3">
+                <rect class="es-papel" x="372" y="112" width="38" height="8" rx="3"/>
+                <rect class="es-papel" x="372" y="130" width="38" height="8" rx="3"/>
+                <rect class="es-papel" x="372" y="148" width="38" height="8" rx="3"/>
+                <rect class="es-papel" x="250" y="130" width="34" height="8" rx="3"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <p class="eyebrow reveal">Reconoce tu semana</p>
+        <h2 class="section__title reveal">Tareas que se repiten, da igual el sector</h2>
+        <p class="section__lead reveal">Tres ejemplos para empezar. El resto de tareas que solemos quitar de en medio están en la página completa.</p>
+
+        <div class="cards-grid cards-grid--3">
+          <article class="card reveal">
+            <h3>Se acabó copiar lo mismo dos veces</h3>
+            <p>Cada factura de proveedor, cada pedido, cada formulario que llega por email acaba tecleado a mano en un Excel o un ERP. El sistema lee el documento y lo coloca solo donde tiene que ir.</p>
+          </article>
+
+          <article class="card reveal">
+            <h3>Deja de contestar lo mismo diez veces al día</h3>
+            <p>Horario, precio, disponibilidad, cómo se hace un pedido... Un agente contesta al momento, a cualquier hora, y te avisa a ti solo cuando hace falta decidir algo.</p>
+          </article>
+
+          <article class="card reveal">
+            <h3>Los leads dejan de enfriarse en la bandeja</h3>
+            <p>Un cliente pregunta y, si nadie contesta en la hora siguiente, se va a mirar a otro lado. El sistema responde primero y avisa a quien tiene que cerrar.</p>
+          </article>
+        </div>
+
+        <p class="section__outro reveal"><a href="tareas.html">Ver las seis tareas que solemos quitar de en medio →</a></p>
+      </div>
+    </section>
+
+    <section class="section cta-band">
+      <div class="container">
+        <h2 class="reveal">Cuéntanos qué tarea quieres quitarte de encima</h2>
+        <p class="reveal">Gratis y sin compromiso.</p>
+        <div class="cta-band__actions reveal">
+          <a href="diagnostico.html" class="btn btn--primary btn--lg">Pedir diagnóstico gratuito</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <div>
+        <p class="site-footer__brand">ProceLaos</p>
+        <p class="site-footer__contact">
+          <!-- TODO: sustituir por email y WhatsApp reales del negocio general -->
+          <a href="mailto:hola@procelaos.example">hola@procelaos.example</a> ·
+          <a href="https://wa.me/34600000000" target="_blank" rel="noopener">WhatsApp</a>
+        </p>
+      </div>
+      <p class="site-footer__legal">© <span id="year"></span> ProceLaos.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+
+  <!--
+    Import map: los addons de Three (RoundedBoxGeometry, etc.) importan
+    internamente desde el especificador 'three', así que sin este mapa no
+    resuelven. Tiene que ir ANTES de cualquier script type="module".
+  -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js"
+    }
+  }
+  </script>
+
+  <!--
+    Cargador de la escena 3D. Tres decisiones aquí:
+
+    1. type="module" => los navegadores sin soporte lo ignoran por completo
+       y se quedan con el SVG estático. No hace falta detectarlo.
+    2. El import() es dinámico y lo dispara un IntersectionObserver con 400px
+       de margen: nada de esto se descarga durante el arranque de la página,
+       así que no toca el LCP.
+    3. Si falla cualquier cosa (red, WebGL, CDN caída), el catch no hace nada:
+       el SVG estático ya está pintado y sigue siendo la respuesta correcta.
+  -->
+  <script type="module">
+    (function () {
+      var escena = document.getElementById('escena');
+      var lienzo = document.getElementById('escenaLienzo');
+      if (!escena || !lienzo) return;
+
+      // Movimiento reducido: el fotograma final estático ya cuenta el
+      // resultado. No se descarga ni un byte de Three.js.
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      // Ahorro de datos declarado por el usuario: mismo criterio.
+      var conexion = navigator.connection;
+      if (conexion && conexion.saveData) return;
+
+      function hayWebGL() {
+        try {
+          var c = document.createElement('canvas');
+          return !!(window.WebGLRenderingContext &&
+                    (c.getContext('webgl') || c.getContext('experimental-webgl')));
+        } catch (e) {
+          return false;
+        }
+      }
+
+      if (!hayWebGL()) return;
+
+      var instancia = null;
+      var cargando = false;
+
+      function cargar() {
+        if (cargando) return;
+        cargando = true;
+
+        import('./escena3d.js')
+          .then(function (mod) {
+            instancia = mod.iniciarEscena(lienzo);
+            escena.classList.add('escena--viva');
+            instancia.reanudar();
+            observarVisibilidad();
+          })
+          .catch(function (error) {
+            // El SVG estático se queda como está: para el visitante, esto
+            // es una degradación correcta, no un error.
+            //
+            // Pero en silencio total es imposible depurar -- un fallo de la
+            // escena se ve exactamente igual que "aún no ha cargado". Se
+            // deja la traza en consola a propósito.
+            console.error('[escena3d] no se pudo iniciar la escena:', error);
+          });
+      }
+
+      // Descarga anticipada: 400px antes de que la sección entre en pantalla.
+      var observadorCarga = new IntersectionObserver(function (entradas) {
+        entradas.forEach(function (entrada) {
+          if (!entrada.isIntersecting) return;
+          observadorCarga.unobserve(escena);
+          cargar();
+        });
+      }, { rootMargin: '400px' });
+
+      observadorCarga.observe(escena);
+
+      // Una vez viva, el bucle solo corre con la escena a la vista y la
+      // pestaña en primer plano.
+      function observarVisibilidad() {
+        var enPantalla = true;
+
+        new IntersectionObserver(function (entradas) {
+          entradas.forEach(function (entrada) {
+            enPantalla = entrada.isIntersecting;
+            if (enPantalla && !document.hidden) instancia.reanudar();
+            else instancia.pausar();
+          });
+        }, { threshold: 0.05 }).observe(escena);
+
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden || !enPantalla) instancia.pausar();
+          else instancia.reanudar();
+        });
+      }
+    }());
+  </script>
+</body>
+</html>
