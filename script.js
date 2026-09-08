@@ -672,12 +672,13 @@ document.addEventListener('DOMContentLoaded', function () {
         info_adicional: form.querySelector('#fExtra').value.trim(),
         newsletter: form.querySelector('#fNewsletter').checked
       };
-      console.log('Lead capturado (pendiente de enviar a webhook):', payload);
-      // fetch('https://TU-WEBHOOK-N8N/lead', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload)
-      // });
+      fetch('https://primerproyectoilyes-n8n.3lluzl.easypanel.host/webhook/5e78b5ac-2930-4258-a7d7-24ced7b237d0', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(function (err) {
+        console.error('Error enviando el lead al webhook:', err);
+      });
       // --- FIN bloque a sustituir ---
 
       form.hidden = true;
