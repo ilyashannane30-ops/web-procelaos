@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (navToggle && siteNav) {
     navToggle.addEventListener('click', function () {
       var isOpen = siteNav.classList.toggle('is-open');
+      document.body.classList.toggle('nav-open', isOpen);
       navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       navToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
     });
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     siteNav.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', function () {
         siteNav.classList.remove('is-open');
+        document.body.classList.remove('nav-open');
         navToggle.setAttribute('aria-expanded', 'false');
         navToggle.setAttribute('aria-label', 'Abrir menú');
       });

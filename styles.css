@@ -172,12 +172,10 @@ img {
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(13, 19, 33, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(13, 19, 33, 0.98);
   border-bottom: 1px solid var(--border);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transition: backdrop-filter 0.3s var(--ease-decel), box-shadow 0.3s var(--ease-decel);
+  transition: background 0.3s var(--ease-decel), backdrop-filter 0.3s var(--ease-decel), box-shadow 0.3s var(--ease-decel);
 }
 
 .site-header::before {
@@ -200,8 +198,6 @@ img {
 }
 
 .site-header--scrolled {
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
@@ -260,11 +256,14 @@ img {
 
 .site-nav {
   position: fixed;
-  top: 72px;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--bg);
+  z-index: 105;
+  background: rgba(22, 29, 46, 0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -276,6 +275,10 @@ img {
 
 .site-nav.is-open {
   transform: translateX(0);
+}
+
+body.nav-open {
+  overflow: hidden;
 }
 
 .site-nav__links {
@@ -313,12 +316,25 @@ img {
     display: none;
   }
 
+  .site-header {
+    background: rgba(13, 19, 33, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .site-header--scrolled {
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+  }
+
   .site-nav {
     position: static;
     flex-direction: row;
     justify-content: space-between;
     flex: 1;
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     transform: none;
     height: auto;
     margin-left: 40px;
@@ -510,10 +526,6 @@ body.has-brand-band .site-header {
 body.has-brand-band .hero,
 body.has-brand-band .page-header {
   padding-top: calc(160px + 40px);
-}
-
-body.has-brand-band .site-nav {
-  top: calc(72px + 40px);
 }
 
 body.has-brand-band .section {
