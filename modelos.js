@@ -16,17 +16,17 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 export var PALETA = {
-  acento:     0xFF6B1A,
-  figura:     0xC7CEDB,
-  figuraOsc:  0x8E99AC,
-  robot:      0x27324A,
-  robotOsc:   0x1B2433,
-  robotBrazo: 0x3E4B69,
-  robotCara:  0x0D1321,
+  acento:     0xF8894B,
+  figura:     0xDBD1C7,
+  figuraOsc:  0xAC9D8E,
+  robot:      0x45392C,
+  robotOsc:   0x30271E,
+  robotBrazo: 0x665441,
+  robotCara:  0x1C1712,
   papel:      0xF2EEE3,
-  movil:      0x1B2233,
-  mesa:       0x2E3850,
-  mesaOsc:    0x232B3D
+  movil:      0x30271E,
+  mesa:       0x4D3F31,
+  mesaOsc:    0x3B3025
 };
 
 // Cache de materiales: un solo MeshLambertMaterial por color para toda la
@@ -547,7 +547,7 @@ export function crearBoli() {
 export function crearSuelo() {
   var g = new THREE.Mesh(
     new THREE.PlaneGeometry(26, 9),
-    new THREE.MeshBasicMaterial({ color: 0x161D2E, transparent: true, opacity: 0.55 })
+    new THREE.MeshBasicMaterial({ color: 0x1C1611, transparent: true, opacity: 0.55 })
   );
   g.rotation.x = -Math.PI / 2;
   return g;

@@ -115,12 +115,122 @@ document.addEventListener('DOMContentLoaded', function () {
   inicializarParticulasFondo();
   inicializarRevealGenerico();
   inicializarFormularioLead();
+  inicializarWidgetJornada();
 
   // Lightbox de la galería de capturas (capacidades.html).
   inicializarLightboxGaleria();
 
   function prefiereMovimientoReducido() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  // Widget "tu-jornada-laboral.exe" del hero: reloj analógico (hora + minutero)
+  // que recorre una jornada de 09:00 a 18:00 en cámara rápida y compara, con
+  // contadores que suben de uno en uno, las mismas seis tareas hechas a mano
+  // frente a hechas con IA.
+  function inicializarWidgetJornada() {
+    var widget = document.getElementById('jornadaWidget');
+    if (!widget) return;
+
+    var RADIUS = 74;
+    var CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+    var INICIO_MIN = 9 * 60;   // 09:00
+    var FIN_MIN = 18 * 60;     // 18:00
+    var DURACION_DIA_MIN = FIN_MIN - INICIO_MIN; // 540 minutos simulados
+    var CICLO_MS = 9000;       // 9s reales = toda la jornada, en bucle
+
+    var MANUAL_TOTAL = 6;
+    var MANUAL_TAREAS_FINALES = 3; // a mano solo da tiempo a 3 de las 6
+    var MANUAL_TASKS = [
+      'Copiar facturas al Excel',
+      'Redactar 20 emails de seguimiento',
+      'Analizar 5.000 filas de ventas'
+    ];
+
+    var IA_TOTAL = 6;
+    var IA_INICIO_DONE = 2;
+    var IA_LIBRE_MIN = 3 * 60 + 24; // libre a las 12:24 (204 min tras las 9:00)
+    var AI_TASKS = [
+      'Responder consultas de clientes',
+      'Montar el vídeo de la campaña',
+      'Generar 30 creatividades para redes',
+      'Revisar el inventario'
+    ];
+
+    var ringProgress = document.getElementById('jornadaRingProgress');
+    var handHora = document.getElementById('jornadaHandHora');
+    var handMin = document.getElementById('jornadaHandMin');
+    var timeEl = document.getElementById('jornadaTime');
+    var manualQuedan = document.getElementById('jornadaManualQuedan');
+    var manualTask = document.getElementById('jornadaManualTask');
+    var manualCount = document.getElementById('jornadaManualCount');
+    var aiQuedan = document.getElementById('jornadaAiQuedan');
+    var aiIcon = document.getElementById('jornadaAiIcon');
+    var aiTask = document.getElementById('jornadaAiTask');
+    var aiCount = document.getElementById('jornadaAiCount');
+    var recovered = document.getElementById('jornadaRecovered');
+
+    ringProgress.style.strokeDasharray = CIRCUMFERENCE;
+
+    function formatearHora(totalMin) {
+      var h = Math.floor(totalMin / 60);
+      var m = Math.floor(totalMin % 60);
+      return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    }
+
+    function pintar(simMin) {
+      simMin = Math.min(simMin, DURACION_DIA_MIN);
+      var totalMin = INICIO_MIN + simMin;
+
+      timeEl.textContent = formatearHora(totalMin);
+      ringProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - simMin / DURACION_DIA_MIN);
+
+      var anguloHora = ((totalMin % (12 * 60)) / (12 * 60)) * 360;
+      var anguloMin = ((totalMin % 60) / 60) * 360;
+      handHora.style.transform = 'rotate(' + anguloHora + 'deg)';
+      handMin.style.transform = 'rotate(' + anguloMin + 'deg)';
+
+      var pasoManual = DURACION_DIA_MIN / MANUAL_TAREAS_FINALES;
+      var manualDone = Math.min(MANUAL_TAREAS_FINALES, Math.floor(simMin / pasoManual));
+      manualQuedan.textContent = 'Quedan ' + (MANUAL_TOTAL - manualDone);
+      manualTask.textContent = MANUAL_TASKS[Math.min(manualDone, MANUAL_TASKS.length - 1)];
+      manualCount.textContent = manualDone + '/' + MANUAL_TOTAL;
+
+      var pasosIA = IA_TOTAL - IA_INICIO_DONE;
+      var pasoIA = IA_LIBRE_MIN / pasosIA;
+      var aiComplete = simMin >= IA_LIBRE_MIN;
+      var aiDone = aiComplete ? IA_TOTAL : Math.min(IA_TOTAL, IA_INICIO_DONE + Math.floor(simMin / pasoIA));
+
+      aiQuedan.textContent = aiComplete ? 'Todo hecho' : ('Quedan ' + (IA_TOTAL - aiDone));
+      aiTask.textContent = aiComplete ? 'Libre desde las 12:24' : AI_TASKS[Math.min(aiDone - IA_INICIO_DONE, AI_TASKS.length - 1)];
+      aiCount.textContent = aiDone + '/' + IA_TOTAL;
+      aiIcon.classList.toggle('is-complete', aiComplete);
+
+      if (aiComplete) {
+        var horasRecuperadas = (simMin - IA_LIBRE_MIN) / 60;
+        recovered.textContent = '+' + horasRecuperadas.toFixed(1) + ' h recuperadas';
+        recovered.classList.add('is-visible');
+      } else {
+        recovered.classList.remove('is-visible');
+      }
+    }
+
+    if (prefiereMovimientoReducido()) {
+      pintar(DURACION_DIA_MIN);
+      return;
+    }
+
+    var inicio = null;
+
+    function frame(marca) {
+      if (inicio === null) inicio = marca;
+      var transcurrido = (marca - inicio) % CICLO_MS;
+      pintar((transcurrido / CICLO_MS) * DURACION_DIA_MIN);
+      window.requestAnimationFrame(frame);
+    }
+
+    window.requestAnimationFrame(frame);
   }
 
   function inicializarGraficoDeHitos() {
@@ -289,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!ctx) return;
 
     var BLANCO = '255, 255, 255';
-    var NARANJA = '255, 107, 26';
+    var NARANJA = '248, 137, 75';
     var DPR = Math.min(window.devicePixelRatio || 1, 2);
 
     var RADIO_REPULSION = 110;

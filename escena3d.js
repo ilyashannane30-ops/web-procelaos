@@ -81,7 +81,7 @@ export function iniciarEscena(contenedor) {
   principal.position.set(6, 10, 8);
   escena.add(principal);
 
-  var relleno = new THREE.DirectionalLight(0x9CA3B5, 0.32);
+  var relleno = new THREE.DirectionalLight(0x938A83, 0.32);
   relleno.position.set(-7, 3, -5);
   escena.add(relleno);
 
