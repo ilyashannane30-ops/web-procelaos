@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    document.documentElement.classList.add('js');
+    window.setTimeout(function () {
+      if (!document.documentElement.classList.contains('reveal-ready')) {
+        document.documentElement.classList.add('reveal-fallback');
+      }
+    }, 3000);
+  </script>
+  <title>Agenda una reunión — ProceLaos</title>
+  <meta name="description" content="Reserva una sesión inicial de 20 minutos: vemos tu proceso operativo, detectamos el cuello de botella y valoramos si tiene sentido intervenir.">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ProceLaos">
+  <meta property="og:title" content="Agenda una reunión — ProceLaos">
+  <meta property="og:description" content="Reserva una sesión inicial de 20 minutos: vemos tu proceso operativo, detectamos el cuello de botella y valoramos si tiene sentido intervenir.">
+  <meta property="og:url" content="https://procelaos.com/agendar-reunion">
+  <link rel="canonical" href="https://procelaos.com/agendar-reunion">
+  <meta property="og:image" content="https://procelaos.com/images/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://procelaos.com/images/og-image.png">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23110C08'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23F8894B' font-family='Arial' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="has-brand-band">
+
+  <noscript>
+    <style>.reveal { opacity: 1 !important; transform: none !important; }</style>
+  </noscript>
+
+  <div class="brand-band">
+    <div class="brand-band__track" aria-hidden="true">
+      <div class="brand-band__group">
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+      </div>
+      <div class="brand-band__group">
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+        <span class="brand-band__item">Proce<span>Laos</span></span>
+      </div>
+    </div>
+  </div>
+
+  <canvas class="particles-canvas" id="particlesCanvas" aria-hidden="true"></canvas>
+
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="/" class="logo"><span class="logo__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span class="logo__text">Proce<span>Laos</span></span></a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav">
+        <div class="site-nav__links">
+          <a href="/">Inicio</a>
+          <a href="/tareas">Tareas</a>
+          <a href="/proceso">Cómo trabajamos</a>
+          <a href="/capacidades">Qué controlas tú</a>
+          <a href="/nosotros">Nosotros</a>
+          <a href="/faq">FAQ</a>
+        </div>
+        <div class="site-nav__actions">
+          <a href="/agendar-reunion" class="btn btn--primary">Agendar reunión</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+
+    <section class="page-header">
+      <div class="container container--narrow">
+        <p class="eyebrow reveal">Sesión inicial</p>
+        <h1 class="reveal">Reserva una sesión inicial de 20 minutos</h1>
+        <p class="page-header__lead reveal">20 minutos para entender el proceso operativo, detectar el cuello de botella y valorar si tiene sentido intervenir.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container container--narrow">
+
+        <div class="booking-card" id="bookingCard">
+
+          <!-- Paso 1: calendario + horas -->
+          <div class="booking-grid" id="bookingStepPick">
+            <div class="booking-col">
+              <div class="booking-info__avatar">P</div>
+              <p class="booking-info__org">ProceLaos</p>
+              <p class="booking-info__title">Sesión inicial</p>
+              <p class="booking-info__meta">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                20 min
+              </p>
+              <p class="booking-info__meta">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
+                Europe/Madrid
+              </p>
+            </div>
+
+            <div class="booking-col">
+              <div class="booking-cal__head">
+                <p class="booking-cal__month" id="calMonthLabel">—</p>
+                <div class="booking-cal__nav">
+                  <button type="button" id="calPrev" aria-label="Mes anterior">‹</button>
+                  <button type="button" id="calNext" aria-label="Mes siguiente">›</button>
+                </div>
+              </div>
+              <div class="booking-cal__grid" id="calDow"></div>
+              <div class="booking-cal__grid" id="calGrid" style="margin-top:4px;"></div>
+            </div>
+
+            <div class="booking-col">
+              <p class="booking-slots__head" id="slotsHead">Elige un día</p>
+              <div class="booking-slots__list" id="slotsList">
+                <p class="booking-slots__empty">Selecciona un día del calendario para ver horas disponibles.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 2: confirmar -->
+          <div class="booking-grid booking-grid--confirm" id="bookingStepConfirm" hidden>
+            <div class="booking-col">
+              <div class="booking-info__avatar">P</div>
+              <p class="booking-info__org">ProceLaos</p>
+              <p class="booking-info__title">Sesión inicial</p>
+              <p class="booking-info__meta" id="confirmDateLabel"></p>
+              <p class="booking-info__meta">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                20 min
+              </p>
+              <p class="booking-info__meta">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
+                Europe/Madrid
+              </p>
+            </div>
+            <div class="booking-col">
+              <form id="bookingForm" novalidate>
+                <div class="booking-form__row">
+                  <label for="bNombre">Tu nombre <span class="booking-form__req">*</span></label>
+                  <input type="text" id="bNombre" required>
+                </div>
+                <div class="booking-form__row">
+                  <label for="bEmail">Email <span class="booking-form__req">*</span></label>
+                  <input type="email" id="bEmail" required>
+                </div>
+                <div class="booking-form__row">
+                  <label for="bNotas">Notas adicionales</label>
+                  <textarea id="bNotas" rows="3" placeholder="Por favor, comparta cualquier cosa que ayude a preparar nuestra reunión."></textarea>
+                </div>
+                <p class="booking-error" id="bookingError" role="alert" hidden></p>
+                <div class="booking-form__nav">
+                  <button type="button" class="btn btn--outline" id="bookingBack">Atrás</button>
+                  <button type="submit" class="btn btn--primary" id="bookingSubmit">Confirmar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Paso 3: éxito -->
+          <div class="booking-success" id="bookingSuccess" hidden>
+            <div class="booking-success__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M7 12.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <h3>Reserva confirmada</h3>
+            <p id="successDetail">Te esperamos.</p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <div>
+        <p class="site-footer__brand">ProceLaos</p>
+        <p class="site-footer__contact">
+          <a href="mailto:procelaos@gmail.com">procelaos@gmail.com</a> ·
+          <a href="https://wa.me/34631279662" target="_blank" rel="noopener">WhatsApp: +34 631 279 662</a>
+        </p>
+      </div>
+      <p class="site-footer__legal"><a href="/privacidad">Privacidad</a> · © <span id="year"></span> ProceLaos.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    (function () {
+      var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var DOW = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+      var SLOT_START_H = 9, SLOT_END_H = 19, SLOT_STEP_MIN = 30, DURACION_MIN = 20;
+
+      var hoy = new Date(); hoy.setHours(0,0,0,0);
+      var vista = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+      var diaSeleccionado = null;
+      var slotSeleccionado = null; // Date
+
+      var calMonthLabel = document.getElementById('calMonthLabel');
+      var calDow = document.getElementById('calDow');
+      var calGrid = document.getElementById('calGrid');
+      var calPrev = document.getElementById('calPrev');
+      var calNext = document.getElementById('calNext');
+      var slotsHead = document.getElementById('slotsHead');
+      var slotsList = document.getElementById('slotsList');
+
+      DOW.forEach(function (d) {
+        var el = document.createElement('div');
+        el.className = 'booking-cal__dow';
+        el.textContent = d;
+        calDow.appendChild(el);
+      });
+
+      function esFinde(date) { var d = date.getDay(); return d === 0 || d === 6; }
+
+      function pintarCalendario() {
+        calMonthLabel.innerHTML = MESES[vista.getMonth()] + ' <span>' + vista.getFullYear() + '</span>';
+        calGrid.innerHTML = '';
+
+        var primerDiaSemana = new Date(vista.getFullYear(), vista.getMonth(), 1).getDay();
+        var diasEnMes = new Date(vista.getFullYear(), vista.getMonth() + 1, 0).getDate();
+
+        for (var i = 0; i < primerDiaSemana; i++) {
+          var vacio = document.createElement('span');
+          vacio.className = 'booking-cal__day is-empty';
+          calGrid.appendChild(vacio);
+        }
+
+        for (var dia = 1; dia <= diasEnMes; dia++) {
+          var fecha = new Date(vista.getFullYear(), vista.getMonth(), dia);
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'booking-cal__day';
+          btn.textContent = dia;
+          var pasado = fecha < hoy;
+          var deshabilitado = pasado || esFinde(fecha);
+          if (deshabilitado) btn.disabled = true;
+          if (diaSeleccionado && fecha.getTime() === diaSeleccionado.getTime()) btn.classList.add('is-selected');
+          btn.addEventListener('click', function (f) {
+            return function () { seleccionarDia(f); };
+          }(fecha));
+          calGrid.appendChild(btn);
+        }
+
+        var primerDiaMesVista = new Date(vista.getFullYear(), vista.getMonth(), 1);
+        var mesActualReal = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        calPrev.disabled = primerDiaMesVista <= mesActualReal;
+      }
+
+      function seleccionarDia(fecha) {
+        diaSeleccionado = fecha;
+        pintarCalendario();
+        pintarSlots(fecha);
+      }
+
+      function pintarSlots(fecha) {
+        var formatoDia = fecha.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' });
+        slotsHead.textContent = formatoDia.charAt(0).toUpperCase() + formatoDia.slice(1);
+        slotsList.innerHTML = '';
+
+        var ahora = new Date();
+        var huboSlot = false;
+
+        for (var h = SLOT_START_H; h < SLOT_END_H; h++) {
+          for (var m = 0; m < 60; m += SLOT_STEP_MIN) {
+            var inicio = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), h, m, 0, 0);
+            if (inicio <= ahora) continue;
+            huboSlot = true;
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'booking-slot';
+            btn.textContent = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            btn.addEventListener('click', function (ini) {
+              return function () { seleccionarSlot(ini); };
+            }(inicio));
+            slotsList.appendChild(btn);
+          }
+        }
+
+        if (!huboSlot) {
+          var vacio = document.createElement('p');
+          vacio.className = 'booking-slots__empty';
+          vacio.textContent = 'Sin horas disponibles este día.';
+          slotsList.appendChild(vacio);
+        }
+      }
+
+      calPrev.addEventListener('click', function () {
+        vista = new Date(vista.getFullYear(), vista.getMonth() - 1, 1);
+        pintarCalendario();
+      });
+      calNext.addEventListener('click', function () {
+        vista = new Date(vista.getFullYear(), vista.getMonth() + 1, 1);
+        pintarCalendario();
+      });
+
+      pintarCalendario();
+
+      // ---- Paso 2: confirmar ----
+      var stepPick = document.getElementById('bookingStepPick');
+      var stepConfirm = document.getElementById('bookingStepConfirm');
+      var stepSuccess = document.getElementById('bookingSuccess');
+      var confirmDateLabel = document.getElementById('confirmDateLabel');
+      var bookingForm = document.getElementById('bookingForm');
+      var bookingBack = document.getElementById('bookingBack');
+      var bookingError = document.getElementById('bookingError');
+      var bookingSubmit = document.getElementById('bookingSubmit');
+      var successDetail = document.getElementById('successDetail');
+
+      function seleccionarSlot(inicio) {
+        slotSeleccionado = inicio;
+        var etiqueta = inicio.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) +
+          ', ' + inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        confirmDateLabel.textContent = etiqueta;
+        stepPick.hidden = true;
+        stepConfirm.hidden = false;
+      }
+
+      bookingBack.addEventListener('click', function () {
+        stepConfirm.hidden = true;
+        stepPick.hidden = false;
+      });
+
+      function mostrarError(msg) { bookingError.textContent = msg; bookingError.hidden = false; }
+      function limpiarError() { bookingError.hidden = true; bookingError.textContent = ''; }
+
+      bookingForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        limpiarError();
+
+        var nombre = document.getElementById('bNombre').value.trim();
+        var email = document.getElementById('bEmail').value.trim();
+        var notas = document.getElementById('bNotas').value.trim();
+        var REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!nombre) { mostrarError('Falta tu nombre.'); return; }
+        if (!email || !REGEX_EMAIL.test(email)) { mostrarError('Revisa el email, no parece válido.'); return; }
+        if (!slotSeleccionado) { mostrarError('Elige una hora antes de confirmar.'); return; }
+
+        var inicio = slotSeleccionado;
+        var fin = new Date(inicio.getTime() + DURACION_MIN * 60000);
+
+        var payload = {
+          nombre: nombre,
+          email: email,
+          notas: notas,
+          start: inicio.toISOString(),
+          end: fin.toISOString(),
+          zona_horaria: 'Europe/Madrid'
+        };
+
+        bookingSubmit.disabled = true;
+        bookingSubmit.textContent = 'Reservando…';
+
+        fetch('https://primerproyectoilyes-n8n.3lluzl.easypanel.host/webhook/procelaos-reserva', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (res) {
+            if (!res.ok) throw new Error('bad status');
+            var etiqueta = inicio.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) +
+              ' a las ' + inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            successDetail.textContent = etiqueta + '. Te llega la invitación de calendario a ' + email + '.';
+            stepConfirm.hidden = true;
+            stepSuccess.hidden = false;
+          })
+          .catch(function () {
+            bookingSubmit.disabled = false;
+            bookingSubmit.textContent = 'Confirmar';
+            mostrarError('No se ha podido reservar. Inténtalo de nuevo.');
+          });
+      });
+    })();
+  </script>
+</body>
+</html>
