@@ -18,6 +18,7 @@
 
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { ALTURA_CEJAS as CEJA_Y } from './modelos.js';
 
 var GRADOS = Math.PI / 180;
 
@@ -32,12 +33,17 @@ export function crearGuion(refs) {
   // onRepeat devuelve todo a su sitio: el móvil cambia de padre a mitad de
   // la animación y varios objetos quedan escalados a cero o invisibles,
   // cosas que GSAP no deshace por su cuenta al repetir.
+  // Sin repeatDelay: la pausa final va DENTRO del timeline (el estado 07 se
+  // sostiene y luego funde a negro). Así el reinicio de onRepeat ocurre con
+  // la escena invisible y no se ve ningún salto.
   var t = gsap.timeline({
     paused: true,
     repeat: -1,
-    repeatDelay: 1.4,
     onRepeat: refs.reiniciar
   });
+
+  // Entrada de cada vuelta: la escena aparece desde negro.
+  t.fromTo(estado, { fundido: 0 }, { fundido: 1, duration: 0.6, ease: 'power2.out' }, 0);
 
   // Posiciones de referencia, en el espacio del grupo "mundo".
   var X_TRABAJADOR = -1.55;
@@ -66,6 +72,21 @@ export function crearGuion(refs) {
     repeat: 1, yoyo: true
   }, 0);
 
+  // Nervios: golpea el suelo con el pie derecho, rápido y sin parar, un
+  // tercer ritmo que tampoco coincide con los otros dos.
+  t.to(trabajador.piernaDer.rodilla.rotation, {
+    x: 14 * GRADOS, duration: 0.12, ease: 'sine.inOut', repeat: 13, yoyo: true
+  }, 0.3);
+  t.to(trabajador.piernaDer.cadera.rotation, {
+    x: -6 * GRADOS, duration: 0.12, ease: 'sine.inOut', repeat: 13, yoyo: true
+  }, 0.3);
+
+  // Cejas de preocupación: se inclinan hacia el centro (el extremo
+  // interior sube). La izquierda está en -x, así que gira al revés.
+  trabajador.cejas.forEach(function (ceja, i) {
+    t.to(ceja.rotation, { z: (i === 0 ? 1 : -1) * 16 * GRADOS, duration: 0.6, ease: 'power2.out' }, 0.2);
+  });
+
   /* ----------------------------------------------------------------------
      ESTADO 02 — La carga crece (2,2 -> 3,6)
      La figura no se mueve de sitio: la presión sube, él no. Se encoge, y
@@ -76,9 +97,31 @@ export function crearGuion(refs) {
   t.addLabel('carga', 2.2);
 
   // Encogerse: hombros arriba, torso más bajo, brazos más rápidos.
-  t.to(trabajador.torso.scale, { y: 0.9, duration: 1.2, ease: 'power2.in' }, 2.2);
+  t.to(trabajador.torso.scale, { y: 0.95, duration: 1.2, ease: 'power2.in' }, 2.2);
   t.to(trabajador.torso.rotation, { z: 11 * GRADOS, duration: 1.2, ease: 'power2.in' }, 2.2);
   t.to(trabajador.cabeza.rotation, { z: 24 * GRADOS, duration: 1.2, ease: 'power2.in' }, 2.2);
+
+  // Se encoge por la espalda y las rodillas, no solo aplastando el torso:
+  // la columna se curva hacia la mesa y las rodillas ceden un poco.
+  t.to(trabajador.pecho.rotation, { x: 17 * GRADOS, duration: 1.2, ease: 'power2.in' }, 2.2);
+  [trabajador.piernaIzq, trabajador.piernaDer].forEach(function (p) {
+    t.to(p.cadera.rotation, { x: -8 * GRADOS, duration: 1.2, ease: 'power2.in' }, 2.2);
+    t.to(p.rodilla.rotation, { x: 15 * GRADOS, duration: 1.2, ease: 'power2.in' }, 2.2);
+  });
+
+  // Cae el segundo papel y levanta la vista de golpe hacia la mesa, con
+  // las cejas arriba; luego vuelve, más hundido, a lo suyo.
+  t.to(trabajador.cabeza.rotation, { x: -14 * GRADOS, duration: 0.22, ease: 'power2.out' }, 2.72);
+  t.to(trabajador.cabeza.rotation, { x: 6 * GRADOS, duration: 0.4, ease: 'power2.inOut' }, 3.05);
+  trabajador.cejas.forEach(function (ceja) {
+    t.to(ceja.position, { y: CEJA_Y + 0.035, duration: 0.18, ease: 'power2.out' }, 2.72);
+    t.to(ceja.position, { y: CEJA_Y, duration: 0.4, ease: 'power2.inOut' }, 3.05);
+  });
+
+  // Mientras escribe, la espalda acompaña el trazo con un vaivén corto.
+  t.to(trabajador.pecho.rotation, {
+    y: -5 * GRADOS, duration: 0.55, ease: 'sine.inOut', repeat: 3, yoyo: true
+  }, 0);
 
   // La mano que escribe acelera y pierde recorrido: más prisa, menos avance.
   t.fromTo(estado, { escritura: 0 }, {
@@ -124,6 +167,17 @@ export function crearGuion(refs) {
     3.6
   );
 
+  // Inercia: mientras frena, el cuerpo se inclina hacia donde iba y, al
+  // pararse, vuelve a su sitio pasándose un poco. Sin esto el robot se
+  // detenía como una pieza de ajedrez. Se inclina el cuerpo, no la raíz:
+  // la raíz sigue en su trayectoria recta.
+  t.fromTo(robot.cuerpo.rotation, { z: 0 }, { z: 9 * GRADOS, duration: 0.7, ease: 'power2.out' }, 3.7);
+  t.to(robot.cuerpo.rotation, { z: 0, duration: 0.9, ease: 'back.out(2.4)' }, 4.4);
+
+  // La cámara se acerca un poco para el momento clave, y se queda cerca
+  // durante el relevo y el procesamiento.
+  t.to(estado, { zoom: 1.08, duration: 1.8, ease: 'power2.inOut' }, 4.4);
+
   // El testigo se enciende al detenerse: el único naranja saturado.
   t.to(estado, { brilloTestigo: 1, duration: 0.35, ease: 'power2.out' }, 4.5);
 
@@ -164,11 +218,27 @@ export function crearGuion(refs) {
 
   // El móvil se despega de la oreja y va al robot. Cambia de padre para
   // moverlo en el espacio del grupo, no en el de la cabeza.
-  t.add(function () { refs.reparentarMovil(); }, 5.15);
+  //
+  // El viaje NO se anima con un t.to sobre movil.position: GSAP guardaría
+  // como origen su posición en el mundo y, al repetir el bucle, la volvería
+  // a aplicar cuando el móvil ya cuelga otra vez de la cabeza -- el móvil
+  // salía disparado a una esquina. Se anima un progreso y se interpola a
+  // mano, solo mientras el móvil está suelto en el mundo.
+  var viajeMovil = { p: 0 };
+  var origenMovil = new THREE.Vector3();
+  var destinoMovil = new THREE.Vector3(ABSORCION.x, ABSORCION.y, ABSORCION.z);
 
-  t.to(refs.movil.position, {
-    x: ABSORCION.x, y: ABSORCION.y, z: ABSORCION.z,
-    duration: 0.85, ease: 'power3.in'      // acelera al acercarse
+  t.add(function () {
+    refs.reparentarMovil();
+    origenMovil.copy(refs.movil.position);
+  }, 5.15);
+
+  t.fromTo(viajeMovil, { p: 0 }, {
+    p: 1, duration: 0.85, ease: 'power3.in',   // acelera al acercarse
+    onUpdate: function () {
+      if (!refs.movil.userData.enMundo) return;
+      refs.movil.position.lerpVectors(origenMovil, destinoMovil, viajeMovil.p);
+    }
   }, 5.15);
   t.to(refs.movil.rotation, {
     x: 3.4, y: 2.6, z: 1.8, duration: 0.85, ease: 'power2.in'
@@ -201,7 +271,42 @@ export function crearGuion(refs) {
     x: X_TRABAJADOR_DESPLAZADO, duration: 0.9, ease: 'power2.inOut'
   }, 5.15);
   t.to(trabajador.torso.rotation, { y: 6 * GRADOS, duration: 0.9, ease: 'power2.inOut' }, 5.15);
-  t.to(trabajador.cabeza.rotation, { y: -6 * GRADOS, duration: 0.9, ease: 'power2.inOut' }, 5.15);
+  // Sigue con la mirada al móvil que se va: la cabeza gira hacia el robot
+  // (a su derecha) y las cejas se levantan -- sorpresa, no alarma.
+  t.to(trabajador.cabeza.rotation, { y: 30 * GRADOS, x: 0, z: 6 * GRADOS, duration: 0.7, ease: 'power2.out' }, 5.15);
+  trabajador.cejas.forEach(function (ceja) {
+    t.to(ceja.position, { y: CEJA_Y + 0.05, duration: 0.2, ease: 'power2.out' }, 5.15);
+    t.to(ceja.rotation, { z: 0, duration: 0.2, ease: 'power2.out' }, 5.15);
+  });
+
+  // Se apartan con PASOS, no deslizándose. Tres pasos laterales hacia la
+  // izquierda en los 0,9 s del desplazamiento: la pierna izquierda abre y
+  // levanta la rodilla, la derecha la sigue medio paso después, y el
+  // cuerpo sube un poco en cada apoyo.
+  // (Cadera: rotation.z negativa abre la pierna hacia -x; rodilla:
+  // rotation.x positiva dobla el gemelo hacia atrás.)
+  var PASO = 0.3;
+  for (var k = 0; k < 3; k++) {
+    var inicioPaso = 5.15 + k * PASO;
+
+    t.to(trabajador.piernaIzq.cadera.rotation, { z: -13 * GRADOS, x: -14 * GRADOS, duration: PASO / 2, ease: 'sine.out' }, inicioPaso);
+    t.to(trabajador.piernaIzq.cadera.rotation, { z: 0, x: 0, duration: PASO / 2, ease: 'sine.in' }, inicioPaso + PASO / 2);
+    t.to(trabajador.piernaIzq.rodilla.rotation, { x: 34 * GRADOS, duration: PASO / 2, ease: 'sine.out' }, inicioPaso);
+    t.to(trabajador.piernaIzq.rodilla.rotation, { x: 0, duration: PASO / 2, ease: 'sine.in' }, inicioPaso + PASO / 2);
+
+    t.to(trabajador.piernaDer.cadera.rotation, { z: 10 * GRADOS, x: -10 * GRADOS, duration: PASO / 2, ease: 'sine.out' }, inicioPaso + PASO / 2);
+    t.to(trabajador.piernaDer.cadera.rotation, { z: 0, x: 0, duration: PASO / 2, ease: 'sine.in' }, inicioPaso + PASO);
+    t.to(trabajador.piernaDer.rodilla.rotation, { x: 28 * GRADOS, duration: PASO / 2, ease: 'sine.out' }, inicioPaso + PASO / 2);
+    t.to(trabajador.piernaDer.rodilla.rotation, { x: 0, duration: PASO / 2, ease: 'sine.in' }, inicioPaso + PASO);
+  }
+
+  t.to(trabajador.raiz.position, {
+    y: 0.05, duration: PASO / 2, ease: 'sine.inOut', repeat: 5, yoyo: true
+  }, 5.15);
+
+  // Al apartarse se incorpora: la espalda deja de estar doblada sobre la
+  // mesa (ya no tiene nada que hacer en ella).
+  t.to(trabajador.pecho.rotation, { x: 4 * GRADOS, y: 0, duration: 0.9, ease: 'power2.inOut' }, 5.15);
 
   /* Absorción de los papeles ------------------------------------------- */
 
@@ -290,9 +395,9 @@ export function crearGuion(refs) {
 
   /* ----------------------------------------------------------------------
      ESTADO 06 — Procesamiento (7,2 -> 8,9)
-     8-12 objetos reales, reciclados. El volumen lo fabrican la cadencia
-     (90ms), las estelas y los tres carriles a distinta profundidad. El
-     robot casi no se mueve: contraste exacto con el 01.
+     10 hojas nuevas caen sobre la mesa y el robot las absorbe una a una,
+     con el mismo gesto que en el relevo. Cadencia de 130 ms. El robot casi
+     no se mueve: contraste exacto con el 01.
      ---------------------------------------------------------------------- */
 
   t.addLabel('proceso', 7.2);
@@ -305,69 +410,46 @@ export function crearGuion(refs) {
     repeat: 8, yoyo: true
   }, 7.2);
 
-  // Alturas calibradas al cuerpo del robot (pecho entre 1,2 y 2,6): el
-  // flujo tiene que pasar POR él, no por encima de la escena.
-  var CARRILES = [
-    { y: 2.55, z: 0.35 },
-    { y: 2.0, z: -0.25 },
-    { y: 1.45, z: -0.85 }
-  ];
+  // Asiente al ritmo del trabajo: un gesto pequeño y regular que dice
+  // "procesando" sin moverse del sitio.
+  t.to(robot.cabeza.rotation, {
+    x: 5 * GRADOS, duration: 0.32, ease: 'sine.inOut',
+    repeat: 3, yoyo: true
+  }, 7.25);
 
+  // Los brazos acompañan el flujo con un vaivén mínimo, desfasados.
+  t.to(robot.brazoIzq.codo.rotation, {
+    x: 48 * GRADOS, duration: 0.3, ease: 'sine.inOut', repeat: 3, yoyo: true
+  }, 7.25);
+  t.to(robot.brazoDer.codo.rotation, {
+    x: 48 * GRADOS, duration: 0.3, ease: 'sine.inOut', repeat: 3, yoyo: true
+  }, 7.4);
+
+  // El trabajo sigue llegando y el robot lo absorbe EXACTAMENTE igual que
+  // en el relevo: cada hoja nueva cae sobre la mesa (como en el estado 02)
+  // y, nada más posarse, pasa por la misma función absorber() -- despega,
+  // acelera girando hacia el pecho y se encoge dentro. Nada atraviesa al
+  // robot ni se queda fuera de él.
   refs.papelesFlujo.forEach(function (papel, i) {
-    var carril = CARRILES[i % CARRILES.length];
-    var cuando = 7.2 + i * 0.09;   // cadencia de 90ms
-    var estela = refs.estelasFlujo[i];
+    var entrada = 7.2 + i * 0.13;      // cadencia de 130 ms
+    var CAIDA = 0.35;
+    var destino = {
+      x: 1.9 + (i % 3) * 0.55,
+      y: 2.05,
+      z: -0.5 + (i % 2) * 0.5
+    };
 
-    // Dos pasadas por objeto: reciclar es lo que da cantidad infinita
-    // percibida sin sumar ni un objeto más.
-    for (var pasada = 0; pasada < 2; pasada++) {
-      var inicio = cuando + pasada * 0.85;
-      if (inicio > 8.7) break;
+    t.set(papel, { visible: true }, entrada);
+    t.set(papel.scale, { x: 1, y: 1, z: 1 }, entrada);
+    t.set(papel.rotation, { x: 0, y: (Math.random() - 0.5) * 0.6, z: 0 }, entrada);
+    t.fromTo(papel.position,
+      { x: destino.x, y: 7, z: destino.z },
+      { y: destino.y, duration: CAIDA, ease: 'power2.in' },
+      entrada
+    );
 
-      t.set(papel, { visible: true }, inicio);
-      // Entran desde la zona de la mesa y salen pasado el robot: el
-      // flujo ATRAVIESA al robot, que está fijo en 5,4.
-      t.fromTo(papel.position,
-        { x: 0.4, y: carril.y, z: carril.z },
-        { x: 9.2, duration: 0.8, ease: 'none' },
-        inicio
-      );
-      // Entra desordenado, sale alineado: caos -> orden atravesando el robot.
-      t.fromTo(papel.rotation,
-        { y: (Math.random() - 0.5) * 1.6, z: (Math.random() - 0.5) * 0.9 },
-        { y: 0, z: 0, duration: 0.8, ease: 'power2.out' },
-        inicio
-      );
-
-      // Estela: dos copias que recorren la MISMA trayectoria con un
-      // pequeño retraso, así que siempre quedan un paso detrás del papel
-      // real. El desvanecido al final de cada tramo es lo que evita que
-      // la copia "aparezca" de golpe al reciclarse.
-      [
-        { malla: estela.cerca, retraso: 0.05, opacidadMax: 0.32 },
-        { malla: estela.lejos, retraso: 0.11, opacidadMax: 0.14 }
-      ].forEach(function (capa) {
-        var ini = inicio + capa.retraso;
-        var dur = 0.8 - capa.retraso;
-
-        t.set(capa.malla, { visible: true }, ini);
-        t.fromTo(capa.malla.position,
-          { x: 0.4, y: carril.y, z: carril.z },
-          { x: 9.2, duration: dur, ease: 'none' },
-          ini
-        );
-        t.fromTo(capa.malla.material, { opacity: 0 }, {
-          opacity: capa.opacidadMax, duration: 0.12, ease: 'none'
-        }, ini);
-        t.to(capa.malla.material, {
-          opacity: 0, duration: 0.18, ease: 'none'
-        }, ini + dur - 0.18);
-        t.set(capa.malla, { visible: false }, ini + dur);
-      });
-    }
+    absorber(papel, entrada + CAIDA, 0.6);
   });
-
-  t.set(refs.papelesFlujo, { visible: false }, 8.85);
 
   /* ----------------------------------------------------------------------
      ESTADO 07 — Liberado (8,9 -> 10)
@@ -380,24 +462,87 @@ export function crearGuion(refs) {
   t.to(trabajador.torso.scale, { y: 1, duration: 1.2, ease: 'power2.out' }, 8.9);
   t.to(trabajador.torso.rotation, { z: 0, y: 0, duration: 1.2, ease: 'power2.out' }, 8.9);
 
-  // Mira al frente por primera vez, no a un objeto.
-  t.to(trabajador.cabeza.rotation, {
-    x: 0, y: 0, z: 0, duration: 1.2, ease: 'power2.out'
-  }, 8.9);
+  // Se estira: la espalda se arquea un poco hacia atrás, como quien suelta
+  // tensión, y vuelve a recta.
+  // Va a la vez que el estiramiento de brazos de más abajo.
+  t.to(trabajador.pecho.rotation, { x: -10 * GRADOS, duration: 0.75, ease: 'power2.out' }, 8.9);
+  t.to(trabajador.pecho.rotation, { x: 0, duration: 0.9, ease: 'power2.inOut' }, 9.85);
 
-  // Brazos relajados a los lados.
+  // Estiramiento: los dos brazos arriba, por encima de la cabeza, con los
+  // codos abiertos hacia fuera; la mirada sube con ellos. Los hombros
+  // quedan a y≈3,17, así que y=4,35 es un brazo casi extendido.
+  var ARRIBA_Y = 4.35;
+  var SUBIDA = 0.75;
+  var BAJADA_EN = 9.85;
+
   t.to(estado.manoIzq, {
-    x: X_TRABAJADOR_DESPLAZADO - 0.74, y: 2.02, z: 0.6,
-    duration: 1.2, ease: 'power2.out'
+    x: X_TRABAJADOR_DESPLAZADO - 0.5, y: ARRIBA_Y, z: 0.62,
+    duration: SUBIDA, ease: 'power2.out'
   }, 8.9);
   t.to(estado.manoDer, {
-    x: X_TRABAJADOR_DESPLAZADO + 0.74, y: 2.02, z: 0.6,
-    duration: 1.2, ease: 'power2.out'
+    x: X_TRABAJADOR_DESPLAZADO + 0.5, y: ARRIBA_Y, z: 0.62,
+    duration: SUBIDA, ease: 'power2.out'
+  }, 8.9);
+  // Con los brazos arriba el codo tiene que salir hacia los lados; con el
+  // polo de "brazos colgando" (hacia delante) se doblarían hacia la cara.
+  t.to(estado.poloIzq, { x: -1, y: 0, z: 0.2, duration: SUBIDA, ease: 'power2.out' }, 8.9);
+  t.to(estado.poloDer, { x: 1, y: 0, z: 0.2, duration: SUBIDA, ease: 'power2.out' }, 8.9);
+
+  t.to(trabajador.cabeza.rotation, {
+    x: -12 * GRADOS, y: 0, z: 0, duration: SUBIDA, ease: 'power2.out'
   }, 8.9);
 
-  // El flujo continúa al fondo, más tenue: el trabajo no ha desaparecido,
-  // ha cambiado de manos.
+  // Baja los brazos relajado, a los lados, y mira al robot.
+  t.to(estado.manoIzq, {
+    x: X_TRABAJADOR_DESPLAZADO - 0.74, y: 2.02, z: 0.6,
+    duration: 0.9, ease: 'power2.inOut'
+  }, BAJADA_EN);
+  t.to(estado.manoDer, {
+    x: X_TRABAJADOR_DESPLAZADO + 0.74, y: 2.02, z: 0.6,
+    duration: 0.9, ease: 'power2.inOut'
+  }, BAJADA_EN);
+  t.to(estado.poloIzq, { x: -0.35, y: -0.25, z: 1, duration: 0.9, ease: 'power2.inOut' }, BAJADA_EN);
+  t.to(estado.poloDer, { x: 0.35, y: -0.25, z: 1, duration: 0.9, ease: 'power2.inOut' }, BAJADA_EN);
+
+  t.to(trabajador.cabeza.rotation, {
+    x: 0, y: 20 * GRADOS, duration: 0.9, ease: 'power2.inOut'
+  }, BAJADA_EN);
+  // Un pequeño asentimiento hacia el robot: "gracias", sin celebrarlo.
+  t.to(trabajador.cabeza.rotation, {
+    x: 7 * GRADOS, duration: 0.22, ease: 'sine.inOut', repeat: 1, yoyo: true
+  }, BAJADA_EN + 0.95);
+
+  // Ya relajado, pasa el peso de una pierna a otra.
+  t.to(trabajador.torso.rotation, {
+    z: 2.5 * GRADOS, duration: 0.5, ease: 'sine.inOut', repeat: 1, yoyo: true
+  }, 10.2);
+  t.to(trabajador.piernaDer.rodilla.rotation, {
+    x: 8 * GRADOS, duration: 0.5, ease: 'sine.inOut', repeat: 1, yoyo: true
+  }, 10.2);
+
+  // Cejas: de la preocupación a la calma.
+  trabajador.cejas.forEach(function (ceja) {
+    t.to(ceja.rotation, { z: 0, duration: 0.8, ease: 'power2.out' }, 8.9);
+    t.to(ceja.position, { y: CEJA_Y, duration: 0.8, ease: 'power2.out' }, 8.9);
+  });
+
+  // El testigo se queda encendido, más tenue: sigue trabajando.
   t.to(estado, { brilloTestigo: 0.9, duration: 1.0 }, 8.9);
+
+  // El robot también descansa: brazos a su pose de reposo y cabeza al
+  // frente. Antes se quedaba con los brazos abiertos hasta el corte.
+  t.to(robot.brazoIzq.hombro.rotation, { z: 7 * GRADOS, x: 0, duration: 1.1, ease: 'power2.inOut' }, 8.9);
+  t.to(robot.brazoDer.hombro.rotation, { z: -7 * GRADOS, x: 0, duration: 1.1, ease: 'power2.inOut' }, 8.9);
+  t.to(robot.brazoIzq.codo.rotation, { x: 26 * GRADOS, duration: 1.1, ease: 'power2.inOut' }, 8.9);
+  t.to(robot.brazoDer.codo.rotation, { x: 26 * GRADOS, duration: 1.1, ease: 'power2.inOut' }, 8.9);
+  t.to(robot.cabeza.rotation, { x: 0, y: -4 * GRADOS, duration: 1.1, ease: 'power2.inOut' }, 8.9);
+
+  // La cámara vuelve al plano general.
+  t.to(estado, { zoom: 1, duration: 1.6, ease: 'power2.inOut' }, 8.9);
+
+  // Se sostiene el estado final y funde a negro. onRepeat reinicia todo
+  // ya con la escena invisible, y la vuelta siguiente entra desde negro.
+  t.to(estado, { fundido: 0, duration: 0.55, ease: 'power2.in' }, 10.95);
 
   return t;
 }

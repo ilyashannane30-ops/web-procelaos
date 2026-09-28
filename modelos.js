@@ -15,27 +15,59 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
+// Altura de reposo de las cejas en la cabeza del trabajador. La usan
+// escena3d.js (reinicio) y guion.js (gestos).
+export var ALTURA_CEJAS = 0.57;
+
 export var PALETA = {
   acento:     0xF8894B,
   figura:     0xDBD1C7,
   figuraOsc:  0xAC9D8E,
-  robot:      0x45392C,
-  robotOsc:   0x30271E,
-  robotBrazo: 0x665441,
-  robotCara:  0x1C1712,
+  // Trabajador vestido: camisa azul pizarra apagada (complementaria del
+  // naranja del robot, sin competir con él), pantalón y zapatos oscuros,
+  // piel cálida y pelo castaño.
+  piel:       0xDDB093,
+  pielOsc:    0xC4957A,
+  pelo:       0x3A2A20,
+  camisa:     0x5C7A89,
+  camisaOsc:  0x4A6371,
+  pantalon:   0x3B3540,
+  zapato:     0x221B16,
+  ojo:        0x1A1411,
+  // Robot más claro que antes: con el fondo oscuro de la web, el marrón
+  // casi negro se perdía y la silueta no se leía.
+  robot:      0x6A5642,
+  robotOsc:   0x44372A,
+  robotBrazo: 0x8A7259,
+  robotCara:  0x14100C,
   papel:      0xF2EEE3,
   movil:      0x30271E,
   mesa:       0x4D3F31,
   mesaOsc:    0x3B3025
 };
 
-// Cache de materiales: un solo MeshLambertMaterial por color para toda la
-// escena. Con decenas de bloques esto importa más que la geometría.
+// Cache de materiales: uno por color para toda la escena. Con decenas de
+// bloques esto importa más que la geometría.
+//
+// MeshStandardMaterial en vez de Lambert: los biseles redondeados recogen
+// brillos y la escena deja de verse plana. El robot es algo metálico (más
+// reflejo, menos rugosidad) y el resto mate; el naranja emite un poco de
+// luz propia para que los detalles de acento brillen como pilotos.
 var materiales = {};
+
+var COLORES_ROBOT = [PALETA.robot, PALETA.robotOsc, PALETA.robotBrazo, PALETA.robotCara];
 
 function material(color) {
   if (!materiales[color]) {
-    materiales[color] = new THREE.MeshLambertMaterial({ color: color });
+    var esRobot = COLORES_ROBOT.indexOf(color) !== -1;
+    var esAcento = color === PALETA.acento;
+    materiales[color] = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: esRobot ? 0.42 : 0.78,
+      metalness: esRobot ? 0.35 : 0.02,
+      emissive: esAcento ? PALETA.acento : 0x000000,
+      emissiveIntensity: esAcento ? 0.35 : 0
+    });
   }
   return materiales[color];
 }
@@ -221,94 +253,212 @@ export function apuntarBrazo(brazo, objetivoMundo, polo) {
 /* ==========================================================================
    TRABAJADOR
 
-   Silueta esquemática pero no simplona: sin cara ni detalle superfluo, y a
-   la vez con los tramos anatómicos que hacen que un cuerpo se lea como un
-   cuerpo. Tres decisiones que cargan casi todo el peso:
+   Formas orgánicas, sin un solo bloque: el humano tiene que leerse como
+   una persona y el robot como una máquina, y el contraste de formas
+   (curvas frente a cajas) lo cuenta antes que cualquier color.
 
-   1. MIEMBROS POR TRAMOS. Cada hueso son dos bloques de anchura decreciente
-      en vez de uno solo. Un brazo de grosor constante es lo que delata al
-      muñeco de bloques.
-   2. ARTICULACIONES VISIBLES. Un bloque en hombro, codo, cadera y rodilla.
-      Sin ellos los miembros parecen palos sueltos pegados al torso.
-   3. TORSO EN CUATRO PLANOS con anchura Y fondo distintos, no una caja.
+   - Miembros: troncos de cono que estrechan hacia la punta, unidos por
+     esferas en hombro, codo, cadera y rodilla.
+   - Torso: óvalo que se ensancha del abdomen al pecho, con hombros
+     redondos.
+   - Cabeza: elipsoide con pelo que la envuelve, orejas y nariz. En la cara
+     solo ojos y cejas -- lo justo para que se lea hacia dónde mira y qué
+     siente.
+
+   La estructura de grupos (piernas, torso, pecho, cabeza, brazos) y todas
+   las medidas de articulación son las mismas que usan la IK y el guion.
    ========================================================================== */
+
+// Geometrías suaves, cacheadas por medidas como las cajas.
+var geometriasSuaves = {};
+
+function geometriaSuave(clave, crear) {
+  if (!geometriasSuaves[clave]) geometriasSuaves[clave] = crear();
+  return geometriasSuaves[clave];
+}
+
+/** Tronco de cono vertical (centro en x,y,z). escalaZ lo aplana de fondo. */
+function tramo(radioArriba, radioAbajo, alto, color, x, y, z, escalaZ) {
+  var g = geometriaSuave('t' + [radioArriba, radioAbajo, alto].join('|'), function () {
+    return new THREE.CylinderGeometry(radioArriba, radioAbajo, alto, 22, 1);
+  });
+  var m = new THREE.Mesh(g, material(color));
+  m.position.set(x || 0, y || 0, z || 0);
+  if (escalaZ) m.scale.z = escalaZ;
+  return m;
+}
+
+/** Elipsoide: esfera escalada por ejes (radios rx, ry, rz). */
+function elipsoide(rx, ry, rz, color, x, y, z) {
+  var g = geometriaSuave('esfera', function () {
+    return new THREE.SphereGeometry(1, 28, 20);
+  });
+  var m = new THREE.Mesh(g, material(color));
+  m.scale.set(rx, ry, rz);
+  m.position.set(x || 0, y || 0, z || 0);
+  return m;
+}
+
+/** Cápsula vertical: largo es el tramo recto, sin contar las semiesferas. */
+function capsula(radio, largo, color, x, y, z) {
+  var g = geometriaSuave('c' + radio + '|' + largo, function () {
+    return new THREE.CapsuleGeometry(radio, largo, 6, 16);
+  });
+  var m = new THREE.Mesh(g, material(color));
+  m.position.set(x || 0, y || 0, z || 0);
+  return m;
+}
 
 export function crearTrabajador() {
   var raiz = new THREE.Group();
 
   raiz.add(sombraContacto(0.85));
 
-  // Piernas: cadera -> muslo (dos tramos) -> rodilla -> pantorrilla (dos
-  // tramos) -> tobillo -> pie. No se articulan en toda la pieza, pero el
-  // escalonado de grosores ya evita que se lean como dos postes.
+  // Piernas articuladas: cadera (pivote arriba del muslo) -> rodilla. Así
+  // puede flexionar las rodillas al encogerse y dar pasos al apartarse.
+  var ALTURA_CADERA = 1.52;
+  var ALTURA_RODILLA = 0.63;
+  var LARGO_MUSLO = ALTURA_CADERA - ALTURA_RODILLA;   // 0,89
+
   function pierna(x) {
-    var g = new THREE.Group();
-    g.position.x = x;
+    var cadera = new THREE.Group();
+    cadera.position.set(x, ALTURA_CADERA, 0);
+    raiz.add(cadera);
 
-    g.add(caja(0.38, 0.5, 0.4, PALETA.figuraOsc, 0, 1.3, 0));      // muslo alto
-    g.add(caja(0.33, 0.45, 0.35, PALETA.figuraOsc, 0, 0.86, 0));   // muslo bajo
-    g.add(caja(0.32, 0.2, 0.34, PALETA.figura, 0, 0.63, 0.01));    // rodilla
-    g.add(caja(0.3, 0.4, 0.32, PALETA.figuraOsc, 0, 0.38, 0.01));  // gemelo
-    g.add(caja(0.25, 0.28, 0.27, PALETA.figuraOsc, 0, 0.14, 0.01)); // tobillo
-    g.add(caja(0.28, 0.14, 0.5, PALETA.figura, 0, 0.07, 0.12));    // pie
+    cadera.add(elipsoide(0.21, 0.2, 0.22, PALETA.pantalon, 0, -0.02, 0));                 // arranque del muslo
+    cadera.add(tramo(0.2, 0.155, LARGO_MUSLO, PALETA.pantalon, 0, -LARGO_MUSLO / 2, 0));  // muslo
 
-    raiz.add(g);
-    return g;
+    var rodilla = new THREE.Group();
+    rodilla.position.y = -LARGO_MUSLO;
+    cadera.add(rodilla);
+
+    rodilla.add(elipsoide(0.158, 0.16, 0.165, PALETA.pantalon, 0, 0, 0.005));   // rodilla
+    rodilla.add(tramo(0.155, 0.12, 0.5, PALETA.pantalon, 0, -0.25, 0));         // pierna
+    rodilla.add(tramo(0.12, 0.13, 0.06, PALETA.pantalon, 0, -0.5, 0));          // bajo del pantalón
+    rodilla.add(elipsoide(0.085, 0.07, 0.085, PALETA.pielOsc, 0, -0.52, 0));    // tobillo
+
+    // Zapato: un óvalo largo y bajo, más una suela algo más ancha.
+    rodilla.add(elipsoide(0.13, 0.085, 0.27, PALETA.zapato, 0, -ALTURA_RODILLA + 0.08, 0.1));
+    rodilla.add(elipsoide(0.14, 0.03, 0.285, PALETA.figuraOsc, 0, -ALTURA_RODILLA + 0.03, 0.1));
+
+    return { cadera: cadera, rodilla: rodilla };
   }
 
-  pierna(-0.24);
-  pierna(0.24);
+  var piernaIzq = pierna(-0.22);
+  var piernaDer = pierna(0.22);
 
   // Torso: el Group permite inclinarlo entero (encogerse, enderezarse).
   var torso = new THREE.Group();
   torso.position.y = 1.55;
   raiz.add(torso);
 
-  // Cuatro planos con anchura Y fondo propios: la cadera es estrecha y
-  // profunda, el pecho ancho y plano. Eso es lo que da volumen de cuerpo.
-  torso.add(caja(0.84, 0.3, 0.48, PALETA.figuraOsc, 0, 0.15, 0));  // cadera
-  torso.add(caja(0.76, 0.34, 0.42, PALETA.figura, 0, 0.47, 0));    // cintura
-  torso.add(caja(0.9, 0.5, 0.48, PALETA.figura, 0, 0.89, 0));      // abdomen
-  torso.add(caja(1.04, 0.62, 0.54, PALETA.figura, 0, 1.44, 0));    // pecho
-  torso.add(caja(0.96, 0.22, 0.5, PALETA.figura, 0, 1.82, 0));     // clavículas
+  // Pelvis y cintura: óvalos aplanados de fondo, con el cinturón entre
+  // pantalón y camisa.
+  torso.add(elipsoide(0.43, 0.24, 0.27, PALETA.pantalon, 0, 0.1, 0));             // pelvis
+  torso.add(tramo(0.4, 0.42, 0.08, PALETA.zapato, 0, 0.3, 0, 0.64));              // cinturón
+  torso.add(tramo(0.38, 0.4, 0.36, PALETA.camisa, 0, 0.5, 0, 0.62));              // cintura
 
-  // Deltoides: rematan el pecho y dan el nacimiento redondeado del brazo,
-  // en vez de que salga de una esquina viva.
-  torso.add(caja(0.36, 0.4, 0.46, PALETA.figura, -0.62, 1.66, 0));
-  torso.add(caja(0.36, 0.4, 0.46, PALETA.figura,  0.62, 1.66, 0));
+  // Columna: todo lo que va de la cintura hacia arriba cuelga de este
+  // pivote, así el cuerpo se encorva y se estira por la espalda en vez de
+  // inclinarse entero como un tablón. Las cotas siguen expresadas respecto
+  // al torso (de ahí el "- PIVOTE_COLUMNA").
+  var PIVOTE_COLUMNA = 0.64;
+  var pecho = new THREE.Group();
+  pecho.position.y = PIVOTE_COLUMNA;
+  torso.add(pecho);
 
-  torso.add(caja(0.24, 0.16, 0.24, PALETA.figuraOsc, 0, 1.98, -0.02)); // cuello
+  function enPecho(y) { return y - PIVOTE_COLUMNA; }
 
-  // Cabeza: cráneo + mandíbula algo más estrecha y menos profunda. Un cubo
-  // único era buena parte del efecto muñeco.
+  // Abdomen -> pecho: se ensancha hacia arriba y remata en un óvalo que
+  // redondea los hombros.
+  // Baja hasta solapar la cintura: si no, al encorvarse se abre un hueco
+  // entre camisa y cinturón.
+  pecho.add(tramo(0.5, 0.38, 1.1, PALETA.camisa, 0, enPecho(1.2), 0, 0.56));
+  pecho.add(elipsoide(0.52, 0.2, 0.3, PALETA.camisa, 0, enPecho(1.74), 0));        // hombros
+  pecho.add(elipsoide(0.2, 0.2, 0.22, PALETA.camisa, -0.6, enPecho(1.66), 0));     // deltoides
+  pecho.add(elipsoide(0.2, 0.2, 0.22, PALETA.camisa,  0.6, enPecho(1.66), 0));
+
+  // Tapeta de botones y bolsillo: dos detalles planos pegados a la curva.
+  pecho.add(capsula(0.025, 0.7, PALETA.camisaOsc, 0, enPecho(1.3), 0.285));
+  pecho.add(elipsoide(0.1, 0.09, 0.02, PALETA.camisaOsc, -0.25, enPecho(1.48), 0.275));
+
+  // Cuello y cuello de la camisa (un aro).
+  pecho.add(tramo(0.12, 0.13, 0.26, PALETA.pielOsc, 0, enPecho(1.96), -0.01));
+  var aroCuello = new THREE.Mesh(
+    geometriaSuave('aroCuello', function () { return new THREE.TorusGeometry(0.15, 0.045, 10, 24); }),
+    material(PALETA.camisaOsc)
+  );
+  aroCuello.rotation.x = Math.PI / 2;
+  aroCuello.position.set(0, enPecho(1.87), 0);
+  pecho.add(aroCuello);
+
+  // Cabeza: elipsoide algo más alto que ancho.
   var cabeza = new THREE.Group();
-  cabeza.position.y = 1.94;
-  torso.add(cabeza);
-  cabeza.add(caja(0.68, 0.5, 0.64, PALETA.figura, 0, 0.5, 0));      // cráneo
-  cabeza.add(caja(0.58, 0.26, 0.56, PALETA.figura, 0, 0.19, 0.02)); // mandíbula
+  cabeza.position.y = enPecho(1.94);
+  pecho.add(cabeza);
 
-  // Brazos: hombro -> antebrazo, cada hueso en dos tramos que estrechan,
-  // con bloque de articulación en hombro y codo. Las longitudes L1 y L2 no
-  // se tocan: la IK y todos los destinos del guion están calibrados a ellas.
+  cabeza.add(elipsoide(0.3, 0.36, 0.32, PALETA.piel, 0, 0.44, 0));             // cabeza
+  cabeza.add(elipsoide(0.055, 0.085, 0.05, PALETA.pielOsc, -0.3, 0.42, 0));   // oreja
+  cabeza.add(elipsoide(0.055, 0.085, 0.05, PALETA.pielOsc,  0.3, 0.42, 0));
+  cabeza.add(elipsoide(0.045, 0.065, 0.055, PALETA.pielOsc, 0, 0.4, 0.31));   // nariz
+
+  // Pelo: media esfera algo mayor que la cabeza, inclinada hacia atrás
+  // para dejar la frente al aire y cubrir la nuca.
+  var pelo = new THREE.Mesh(
+    geometriaSuave('pelo', function () {
+      return new THREE.SphereGeometry(1, 28, 14, 0, Math.PI * 2, 0, Math.PI * 0.55);
+    }),
+    material(PALETA.pelo)
+  );
+  pelo.scale.set(0.325, 0.385, 0.345);
+  pelo.position.set(0, 0.47, -0.02);
+  pelo.rotation.x = -0.42;
+  cabeza.add(pelo);
+
+  // Ojos: pegados a la superficie del elipsoide. Parpadean (ver
+  // escena3d.js) escalándolos en vertical.
+  var ojos = [-0.11, 0.11].map(function (x) {
+    var ojo = elipsoide(0.032, 0.04, 0.02, PALETA.ojo, x, 0.49, 0.29);
+    // La escala ES el tamaño del elipsoide: el parpadeo tiene que
+    // multiplicar esta altura, no sustituirla.
+    ojo.userData.altoAbierto = ojo.scale.y;
+    cabeza.add(ojo);
+    return ojo;
+  });
+
+  // Cejas: una cápsula tumbada dentro de un grupo, para que el guion
+  // pueda subirlas (position.y) e inclinarlas (rotation.z) sin tocar el
+  // giro que las tumba.
+  var cejas = [-0.11, 0.11].map(function (x) {
+    var ceja = new THREE.Group();
+    ceja.position.set(x, ALTURA_CEJAS, 0.275);
+    var trazo = capsula(0.017, 0.07, PALETA.pelo, 0, 0, 0);
+    trazo.rotation.z = Math.PI / 2;
+    ceja.add(trazo);
+    cabeza.add(ceja);
+    return ceja;
+  });
+
+  // Brazos: hombro -> codo -> mano. Las longitudes L1 y L2 no se tocan: la
+  // IK y todos los destinos del guion están calibrados a ellas.
   function brazo(signo) {
     var L1 = 0.72;
     var L2 = 0.66;
 
     var hombro = new THREE.Group();
-    hombro.position.set(signo * 0.62, 1.62, 0);
-    torso.add(hombro);
+    hombro.position.set(signo * 0.62, enPecho(1.62), 0);
+    pecho.add(hombro);
 
-    hombro.add(caja(0.3, 0.28, 0.32, PALETA.figura, 0, -0.1, 0));       // articulación
-    hombro.add(caja(0.28, 0.3, 0.3, PALETA.figura, 0, -0.32, 0));       // bíceps
-    hombro.add(caja(0.25, 0.28, 0.27, PALETA.figura, 0, -0.58, 0));     // sobre el codo
+    hombro.add(elipsoide(0.16, 0.16, 0.16, PALETA.camisa, 0, -0.04, 0));        // hombro
+    hombro.add(tramo(0.15, 0.125, 0.56, PALETA.camisa, 0, -0.32, 0));           // brazo
+    hombro.add(tramo(0.14, 0.14, 0.1, PALETA.camisaOsc, 0, -0.62, 0));          // manga remangada
 
     var codo = new THREE.Group();
     codo.position.y = -L1;
     hombro.add(codo);
 
-    codo.add(caja(0.26, 0.2, 0.28, PALETA.figura, 0, 0.02, 0));         // articulación
-    codo.add(caja(0.24, 0.3, 0.26, PALETA.figura, 0, -0.2, 0));         // antebrazo
-    codo.add(caja(0.2, 0.26, 0.22, PALETA.figura, 0, -0.48, 0));        // muñeca
+    codo.add(elipsoide(0.105, 0.105, 0.105, PALETA.piel, 0, 0, 0));             // codo
+    codo.add(tramo(0.105, 0.08, 0.56, PALETA.piel, 0, -0.29, 0));               // antebrazo
 
     // Punto de agarre al final del antebrazo: aquí se cuelgan el móvil o
     // el bolígrafo, y de aquí se los llevará el robot en el estado 04.
@@ -316,8 +466,10 @@ export function crearTrabajador() {
     mano.position.y = -L2;
     codo.add(mano);
 
-    mano.add(caja(0.2, 0.24, 0.14, PALETA.figura, 0, -0.09, 0));        // palma
-    mano.add(caja(0.09, 0.16, 0.12, PALETA.figura, signo * -0.12, -0.05, 0.02)); // pulgar
+    mano.add(elipsoide(0.085, 0.12, 0.06, PALETA.piel, 0, -0.08, 0));           // palma
+    var pulgar = capsula(0.032, 0.07, PALETA.piel, signo * -0.08, -0.05, 0.03);
+    pulgar.rotation.z = signo * 0.5;
+    mano.add(pulgar);
 
     return { hombro: hombro, codo: codo, mano: mano, l1: L1, l2: L2 };
   }
@@ -328,7 +480,12 @@ export function crearTrabajador() {
   return {
     raiz: raiz,
     torso: torso,
+    pecho: pecho,
     cabeza: cabeza,
+    ojos: ojos,
+    cejas: cejas,
+    piernaIzq: piernaIzq,
+    piernaDer: piernaDer,
     brazoIzq: brazoIzq,
     brazoDer: brazoDer
   };
@@ -390,8 +547,17 @@ export function crearRobot() {
   cabeza.add(caja(1.24, 0.72, 0.98, PALETA.robot, 0, 0.4, 0));       // cráneo
   cabeza.add(caja(1.06, 0.16, 0.9, PALETA.robotOsc, 0, 0.02, 0));    // mentón
   cabeza.add(caja(0.94, 0.34, 0.06, PALETA.robotCara, 0, 0.42, 0.49)); // visor
-  cabeza.add(caja(0.2, 0.16, 0.05, PALETA.acento, -0.21, 0.42, 0.53));
-  cabeza.add(caja(0.2, 0.16, 0.05, PALETA.acento,  0.21, 0.42, 0.53));
+  // Ojos con material propio: brillan con el testigo y parpadean, así que
+  // no pueden compartir el material naranja del resto de la escena.
+  var materialOjos = material(PALETA.acento).clone();
+  var ojos = [
+    caja(0.2, 0.16, 0.05, PALETA.acento, -0.21, 0.42, 0.53),
+    caja(0.2, 0.16, 0.05, PALETA.acento,  0.21, 0.42, 0.53)
+  ];
+  ojos.forEach(function (ojo) {
+    ojo.material = materialOjos;
+    cabeza.add(ojo);
+  });
   cabeza.add(caja(0.12, 0.3, 0.5, PALETA.robotBrazo, -0.63, 0.4, 0)); // oreja
   cabeza.add(caja(0.12, 0.3, 0.5, PALETA.robotBrazo,  0.63, 0.4, 0));
 
@@ -438,6 +604,8 @@ export function crearRobot() {
     cuerpo: cuerpo,
     cabeza: cabeza,
     testigo: testigo,
+    ojos: ojos,
+    materialOjos: materialOjos,
     brazoIzq: brazo(-1),
     brazoDer: brazo(1)
   };
@@ -458,8 +626,8 @@ export function crearEscritorio() {
 }
 
 /**
- * Hoja suelta. Se crean muchas y se reciclan durante el estado 06, así que
- * comparten geometría y material por el cache de arriba.
+ * Hoja suelta. Se crean muchas, así que comparten geometría y material por
+ * el cache de arriba.
  */
 export function crearPapel() {
   var g = new THREE.Group();
@@ -468,41 +636,6 @@ export function crearPapel() {
   g.add(caja(0.52, 0.02, 0.07, PALETA.mesaOsc, 0, 0.035, -0.06));
   g.add(caja(0.34, 0.02, 0.07, PALETA.mesaOsc, -0.09, 0.035, 0.12));
   return g;
-}
-
-// Material BASE de la estela, uno por nivel de opacidad. Sirve solo de
-// plantilla: cada estela CLONA este material, nunca lo comparte. Si se
-// compartiera, animar la opacidad de una hoja cambiaría la opacidad de las
-// diez a la vez -- exactamente el mismo fallo que el testigo del robot.
-var materialesEstelaBase = {};
-
-function materialEstelaBase(opacidad) {
-  var clave = opacidad.toFixed(2);
-  if (!materialesEstelaBase[clave]) {
-    materialesEstelaBase[clave] = new THREE.MeshBasicMaterial({
-      color: PALETA.papel,
-      transparent: true,
-      opacity: opacidad,
-      depthWrite: false   // evita el z-fighting entre estela y hoja real
-    });
-  }
-  return materialesEstelaBase[clave];
-}
-
-/**
- * Silueta plana de un papel, sin las líneas interiores: la estela no
- * necesita detalle, solo la forma reconocible con opacidad decreciente
- * detrás del objeto real. Es el recurso que vende velocidad en el estado
- * 06 -- más que la propia velocidad del movimiento.
- *
- * La geometría SÍ se comparte (cache por tamaño, como el resto de bloques);
- * el material se CLONA porque su opacidad se anima por instancia.
- */
-export function crearEstelaPapel(opacidad) {
-  return new THREE.Mesh(
-    geometriaCaja(0.86, 0.05, 1.12),
-    materialEstelaBase(opacidad).clone()
-  );
 }
 
 /**

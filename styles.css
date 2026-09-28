@@ -799,14 +799,19 @@ body.has-brand-band .section {
 
 .escena {
   width: 100%;
-  max-width: clamp(320px, 78vw, 880px);
-  max-height: 48vh;
+  max-width: clamp(320px, 86vw, 1040px);
+  max-height: 62vh;
   aspect-ratio: 16 / 10;
   margin: 0 auto;
   /* Aire alrededor del contenido: la escena se dibuja dentro del lienzo,
      este padding es el margen de respiro que pide el encuadre. */
-  padding: 4%;
-  background: var(--surface);
+  padding: 3%;
+  /* Foco cálido bajo los personajes y viñeta en los bordes: da un "set"
+     iluminado en vez de una caja plana. */
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 72%, rgba(248, 137, 75, 0.12), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.35) 100%),
+    var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--shadow-sm);
