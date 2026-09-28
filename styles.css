@@ -174,6 +174,98 @@ img {
   transition: background-color 0.15s var(--ease-decel), border-color 0.15s var(--ease-decel), box-shadow 0.15s var(--ease-decel);
 }
 
+/* --------------------------------------------------------------------------
+   Botón VIP: todos los "Agendar reunión" del sitio. Degradado vivo, destello
+   que cruza el botón cada pocos segundos y un halo que respira. Se engancha
+   por el href para no tocar el HTML de cada página y dejar fuera otros
+   botones primarios (Confirmar, Escribir un email).
+   -------------------------------------------------------------------------- */
+a.btn--primary[href="/agendar-reunion"] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #1A0E05;
+  background: linear-gradient(110deg, #F8894B 0%, #FFB07A 25%, #FFD2A8 45%, #FF9C5E 60%, #F2742F 100%);
+  background-size: 220% 100%;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -2px 0 rgba(120, 45, 5, 0.25),
+    0 6px 22px -6px rgba(248, 137, 75, 0.7);
+  animation: vipDegradado 6s ease-in-out infinite, vipHalo 2.8s ease-in-out infinite;
+}
+
+/* Destello diagonal que cruza el botón. */
+a.btn--primary[href="/agendar-reunion"]::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 45%;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.85) 50%, transparent 100%);
+  transform: translateX(-160%) skewX(-20deg);
+  animation: vipDestello 3.6s cubic-bezier(0.6, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+/* Chispa en la esquina: un punto de luz que parpadea. */
+a.btn--primary[href="/agendar-reunion"]::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 9px;
+  width: 6px;
+  height: 6px;
+  z-index: -1;
+  background: #fff;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  filter: drop-shadow(0 0 3px #fff);
+  animation: vipChispa 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+a.btn--primary[href="/agendar-reunion"]:hover {
+  background: linear-gradient(110deg, #F8894B 0%, #FFB07A 25%, #FFD2A8 45%, #FF9C5E 60%, #F2742F 100%);
+  background-size: 220% 100%;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 0 0 4px rgba(248, 137, 75, 0.22),
+    0 10px 34px -4px rgba(248, 137, 75, 0.85);
+}
+
+a.btn--primary[href="/agendar-reunion"]:hover::before {
+  animation-duration: 1.2s;
+}
+
+@keyframes vipDegradado {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes vipHalo {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(248, 137, 75, 0)); }
+  50% { filter: drop-shadow(0 0 14px rgba(248, 137, 75, 0.55)); }
+}
+
+@keyframes vipDestello {
+  0% { transform: translateX(-160%) skewX(-20deg); }
+  45%, 100% { transform: translateX(330%) skewX(-20deg); }
+}
+
+@keyframes vipChispa {
+  0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(90deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.btn--primary[href="/agendar-reunion"],
+  a.btn--primary[href="/agendar-reunion"]::before,
+  a.btn--primary[href="/agendar-reunion"]::after {
+    animation: none;
+  }
+}
+
 .btn--lg {
   padding: 16px 32px;
   font-size: 1.05rem;
@@ -1960,6 +2052,66 @@ body.has-brand-band .section {
 }
 
 /* ==========================================================================
+   Glitch del titular ("que una IA puede hacer por ti")
+   Dos copias del texto (::before cian, ::after magenta) en data-text,
+   encima del original. Solo se ven durante una ráfaga corta (.is-glitching),
+   recortadas en franjas y desplazadas. El texto real nunca cambia: no hay
+   saltos de maquetación y el lector de pantalla lee la frase normal.
+   ========================================================================== */
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.glitch::before {
+  color: #4FE3FF;
+  text-shadow: -2px 0 rgba(79, 227, 255, 0.6);
+}
+
+.glitch::after {
+  color: #FF3D8B;
+  text-shadow: 2px 0 rgba(255, 61, 139, 0.6);
+}
+
+.glitch.is-glitching::before {
+  opacity: 0.9;
+  animation: glitchCorteA 0.5s steps(1, end) both;
+}
+
+.glitch.is-glitching::after {
+  opacity: 0.9;
+  animation: glitchCorteB 0.5s steps(1, end) both;
+}
+
+@keyframes glitchCorteA {
+  0%   { clip-path: inset(8% 0 78% 0);  transform: translate(-6px, -1px); }
+  15%  { clip-path: inset(62% 0 10% 0); transform: translate(5px, 1px); }
+  30%  { clip-path: inset(30% 0 48% 0); transform: translate(-9px, 0); }
+  45%  { clip-path: inset(80% 0 2% 0);  transform: translate(4px, -2px); }
+  60%  { clip-path: inset(44% 0 36% 0); transform: translate(-3px, 1px); }
+  75%  { clip-path: inset(14% 0 70% 0); transform: translate(7px, 0); }
+  100% { clip-path: inset(50% 0 50% 0); transform: none; }
+}
+
+@keyframes glitchCorteB {
+  0%   { clip-path: inset(70% 0 12% 0); transform: translate(6px, 1px); }
+  15%  { clip-path: inset(20% 0 60% 0); transform: translate(-5px, 0); }
+  30%  { clip-path: inset(52% 0 26% 0); transform: translate(8px, -1px); }
+  45%  { clip-path: inset(4% 0 84% 0);  transform: translate(-6px, 2px); }
+  60%  { clip-path: inset(36% 0 44% 0); transform: translate(3px, 0); }
+  75%  { clip-path: inset(84% 0 4% 0);  transform: translate(-8px, 1px); }
+  100% { clip-path: inset(50% 0 50% 0); transform: none; }
+}
+
+/* ==========================================================================
    Titulares por palabras (.split) — cada palabra sube desde una máscara
    ========================================================================== */
 html.js .split.reveal {
@@ -2016,7 +2168,7 @@ html.reveal-fallback .split__w > span,
 .card__icon svg * {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset 1.1s var(--ease-decel) 0.25s;
+  transition: stroke-dashoffset 2.2s cubic-bezier(0.45, 0, 0.2, 1) 0.35s;
 }
 
 .card.is-visible .card__icon svg *,
@@ -2109,7 +2261,7 @@ html.reveal-fallback .card__icon svg * {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-secondary);
-  transition: background-color 0.35s var(--ease-decel), border-color 0.35s var(--ease-decel), color 0.35s var(--ease-decel), box-shadow 0.35s var(--ease-decel), transform 0.35s var(--ease-decel);
+  transition: background-color 0.7s var(--ease-decel), border-color 0.7s var(--ease-decel), color 0.7s var(--ease-decel), box-shadow 0.9s var(--ease-decel), transform 0.7s var(--ease-decel);
 }
 
 .recorrido__paso.is-on .recorrido__nodo {
@@ -2128,7 +2280,7 @@ html.reveal-fallback .card__icon svg * {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  transition: color 0.35s var(--ease-decel);
+  transition: color 0.7s var(--ease-decel);
 }
 
 .recorrido__paso.is-on .recorrido__tiempo {

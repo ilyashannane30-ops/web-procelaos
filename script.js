@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
   inicializarBarraDeProgreso();
   inicializarHeroInteractivo();
   inicializarRecorrido();
+  inicializarGlitchTitular();
 
   // Lightbox de la galería de capturas (capacidades.html).
   inicializarLightboxGaleria();
@@ -167,6 +168,57 @@ document.addEventListener('DOMContentLoaded', function () {
     track.textContent = '';
     track.appendChild(grupo());
     track.appendChild(grupo());
+  }
+
+  // Glitch "hacker" sobre la parte destacada del titular del hero: cada ~3s
+  // una ráfaga de medio segundo en la que las dos copias (::before/::after)
+  // se desplazan en franjas y muestran el texto con caracteres revueltos.
+  // El texto real del span no se toca nunca.
+  function inicializarGlitchTitular() {
+    var destacado = document.querySelector('.hero h1 .highlight');
+    if (!destacado) return;
+    if (prefiereMovimientoReducido()) return;
+
+    var ORIGINAL = destacado.textContent;
+    var SIMBOLOS = '#%&@$/\\<>*+=_01{}[]';
+    var INTERVALO_MS = 3000;
+    var RAFAGA_MS = 500;
+    var PASO_MS = 60;
+
+    destacado.classList.add('glitch');
+    destacado.setAttribute('data-text', ORIGINAL);
+
+    function revolver() {
+      return ORIGINAL.split('').map(function (c) {
+        if (c === ' ' || Math.random() > 0.3) return c;
+        return SIMBOLOS.charAt(Math.floor(Math.random() * SIMBOLOS.length));
+      }).join('');
+    }
+
+    function rafaga() {
+      if (document.hidden) return;
+
+      var inicio = Date.now();
+      destacado.classList.remove('is-glitching');
+      void destacado.offsetWidth; // reinicia las animaciones CSS
+      destacado.classList.add('is-glitching');
+
+      var temporizador = setInterval(function () {
+        if (Date.now() - inicio >= RAFAGA_MS) {
+          clearInterval(temporizador);
+          destacado.setAttribute('data-text', ORIGINAL);
+          destacado.classList.remove('is-glitching');
+          return;
+        }
+        destacado.setAttribute('data-text', revolver());
+      }, PASO_MS);
+    }
+
+    // Primera ráfaga cuando ya ha terminado la entrada del titular.
+    setTimeout(function () {
+      rafaga();
+      setInterval(rafaga, INTERVALO_MS);
+    }, 1800);
   }
 
   // Barra fina de progreso de lectura, fija arriba del todo.
@@ -294,7 +346,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     var umbrales = [];
-    var pendiente = false;
+    var objetivo = 0;   // lo que pide el scroll
+    var mostrado = 0;   // lo que se pinta: persigue al objetivo sin prisa
+    var SUAVIZADO = 0.035;
+    var animando = false;
 
     function medir() {
       var horizontal = pasos[0].offsetTop === pasos[pasos.length - 1].offsetTop;
@@ -308,30 +363,47 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    function actualizar() {
-      pendiente = false;
+    function calcularObjetivo() {
       var r = lista.getBoundingClientRect();
       var vh = window.innerHeight;
       // El relleno empieza cuando la lista sube al 85% del viewport y
-      // termina cuando su parte inferior llega al 60%.
-      var p = (vh * 0.85 - r.top) / (r.height + vh * 0.25);
-      p = Math.max(0, Math.min(1, p));
+      // termina cuando su parte inferior llega al 35%: un tramo de scroll
+      // largo, para que la línea avance despacio.
+      var p = (vh * 0.85 - r.top) / (r.height + vh * 0.5);
+      objetivo = Math.max(0, Math.min(1, p));
+    }
 
-      lista.style.setProperty('--p', p.toFixed(4));
+    function pintar() {
+      lista.style.setProperty('--p', mostrado.toFixed(4));
+      // Cada paso se enciende cuando la línea pintada lo alcanza, no cuando
+      // lo pide el scroll: así el nodo y la línea llegan a la vez.
       pasos.forEach(function (paso, i) {
-        paso.classList.toggle('is-on', p >= umbrales[i]);
+        paso.classList.toggle('is-on', mostrado >= umbrales[i] - 0.001);
       });
     }
 
+    function tick() {
+      mostrado += (objetivo - mostrado) * SUAVIZADO;
+      if (Math.abs(objetivo - mostrado) < 0.001) {
+        mostrado = objetivo;
+        animando = false;
+        pintar();
+        return;
+      }
+      pintar();
+      window.requestAnimationFrame(tick);
+    }
+
     function solicitar() {
-      if (!pendiente) {
-        pendiente = true;
-        window.requestAnimationFrame(actualizar);
+      calcularObjetivo();
+      if (!animando) {
+        animando = true;
+        window.requestAnimationFrame(tick);
       }
     }
 
     medir();
-    actualizar();
+    solicitar();
     window.addEventListener('scroll', solicitar, { passive: true });
     window.addEventListener('resize', function () { medir(); solicitar(); });
     // Las fuentes web cambian las alturas: se vuelve a medir al cargarlas.
