@@ -122,7 +122,6 @@
 
             <div class="cuestionario__pie">
               <button type="button" class="cuestionario__atras" id="cuestionarioAtras" hidden>← Atrás</button>
-              <span class="cuestionario__atajo" aria-hidden="true">O pulsa el número</span>
               <button type="button" class="btn btn--primary cuestionario__siguiente" id="cuestionarioSiguiente" disabled>Siguiente</button>
             </div>
           </div>
@@ -681,6 +680,64 @@
       CAMPOS.forEach(function (id) {
         document.getElementById(id).addEventListener('input', guardarBorrador);
       });
+
+      /* ---- Ejemplos que se escriben solos en "¿Qué tarea te quita más
+         tiempo?": se teclean letra a letra, se quedan un momento, se borran
+         y sale el siguiente. Solo mientras el cuadro está vacío y a la
+         vista; con movimiento reducido se queda el primero, fijo. ---- */
+
+      (function ejemplosTecleados() {
+        var campo = document.getElementById('bNotas');
+        var EJEMPLOS = [
+          'Ej.: paso a mano las facturas al Excel cada semana',
+          'Ej.: contesto lo mismo por WhatsApp veinte veces al día',
+          'Ej.: preparo el informe del lunes con datos de tres sitios',
+          'Ej.: persigo por email a quien no confirma su cita',
+          'Ej.: rehago el mismo presupuesto cambiando dos líneas'
+        ];
+        var TECLEO_MS = 45, BORRADO_MS = 18, ESPERA_MS = 1800, PAUSA_MS = 350;
+        var CURSOR = '|';
+
+        campo.placeholder = EJEMPLOS[0];
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        var ejemplo = 0, letras = 0, borrando = false;
+
+        function paso() {
+          // En pausa si no se ve el paso de datos o si ya han escrito algo:
+          // se vuelve a mirar en un rato sin gastar nada.
+          if (stepConfirm.hidden || campo.value) {
+            setTimeout(paso, 500);
+            return;
+          }
+
+          var texto = EJEMPLOS[ejemplo];
+          if (!borrando) {
+            letras += 1;
+            campo.placeholder = texto.slice(0, letras) + CURSOR;
+            if (letras < texto.length) {
+              setTimeout(paso, TECLEO_MS);
+            } else {
+              borrando = true;
+              setTimeout(paso, ESPERA_MS);
+            }
+          } else {
+            letras -= 1;
+            campo.placeholder = texto.slice(0, letras) + CURSOR;
+            if (letras > 0) {
+              setTimeout(paso, BORRADO_MS);
+            } else {
+              borrando = false;
+              ejemplo = (ejemplo + 1) % EJEMPLOS.length;
+              setTimeout(paso, PAUSA_MS);
+            }
+          }
+        }
+
+        // Empieza desde cero (con el cursor) la primera vez que se muestra.
+        letras = 0;
+        setTimeout(paso, PAUSA_MS);
+      })();
 
       cargarBorrador();
       pintarPregunta(false);

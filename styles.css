@@ -2840,15 +2840,6 @@ button:focus-visible {
   display: none;
 }
 
-.cuestionario__atajo {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  opacity: 0.7;
-}
-
 .cuestionario__siguiente {
   margin-left: auto;
 }
@@ -2858,13 +2849,6 @@ button:focus-visible {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-}
-
-/* El atajo de teclado no pinta nada en táctil. */
-@media (hover: none) {
-  .cuestionario__atajo {
-    display: none;
-  }
 }
 
 /* Resumen de respuestas en la columna de información de la reserva. */
