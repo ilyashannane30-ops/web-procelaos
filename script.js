@@ -170,55 +170,119 @@ document.addEventListener('DOMContentLoaded', function () {
     track.appendChild(grupo());
   }
 
-  // Glitch "hacker" sobre la parte destacada del titular del hero: cada ~3s
-  // una ráfaga de medio segundo en la que las dos copias (::before/::after)
-  // se desplazan en franjas y muestran el texto con caracteres revueltos.
-  // El texto real del span no se toca nunca.
+  // Glitch "hacker" sobre la parte destacada del titular del hero.
+  //
+  // - Al cargar: "decode". Las letras salen como símbolos y se resuelven una
+  //   a una, de izquierda a derecha, en la frase real (~1,5 s).
+  // - Después: ráfagas de glitch cada 2-4 s al azar (copias cian/magenta en
+  //   franjas, texto revuelto, sacudida y destello verde).
+  // - Al pasar el ratón: ráfaga intensa y decode otra vez.
+  //
+  // Todo ocurre en data-text (lo pintan ::before/::after). El texto real del
+  // span no se toca nunca, y el h1 lleva aria-label con la frase completa.
   function inicializarGlitchTitular() {
     var destacado = document.querySelector('.hero h1 .highlight');
     if (!destacado) return;
+
+    var titular = destacado.closest('h1');
+    if (titular) titular.setAttribute('aria-label', titular.textContent.replace(/\s+/g, ' ').trim());
+
     if (prefiereMovimientoReducido()) return;
 
     var ORIGINAL = destacado.textContent;
-    var SIMBOLOS = '#%&@$/\\<>*+=_01{}[]';
-    var INTERVALO_MS = 3000;
-    var RAFAGA_MS = 500;
-    var PASO_MS = 60;
+    var SIMBOLOS = '@#$%&01<>/\\*+=_{}[]';
+    var RAFAGA_MS = 550;
+    var RAFAGA_INTENSA_MS = 900;
+    var DECODE_MS = 1500;
+    var DECODE_HOVER_MS = 900;
+    var PASO_MS = 55;
+
+    var ocupado = false;
 
     destacado.classList.add('glitch');
     destacado.setAttribute('data-text', ORIGINAL);
 
+    function simbolo() {
+      return SIMBOLOS.charAt(Math.floor(Math.random() * SIMBOLOS.length));
+    }
+
     function revolver() {
       return ORIGINAL.split('').map(function (c) {
-        if (c === ' ' || Math.random() > 0.3) return c;
-        return SIMBOLOS.charAt(Math.floor(Math.random() * SIMBOLOS.length));
+        return (c === ' ' || Math.random() > 0.3) ? c : simbolo();
       }).join('');
     }
 
-    function rafaga() {
-      if (document.hidden) return;
-
+    // Las letras ya resueltas quedan fijas; el resto sigue cambiando.
+    function decode(duracion, alTerminar) {
       var inicio = Date.now();
+      destacado.classList.add('is-decoding');
+
+      var temporizador = setInterval(function () {
+        var progreso = (Date.now() - inicio) / duracion;
+        if (progreso >= 1) {
+          clearInterval(temporizador);
+          destacado.setAttribute('data-text', ORIGINAL);
+          destacado.classList.remove('is-decoding');
+          if (alTerminar) alTerminar();
+          return;
+        }
+        var resueltas = Math.floor(progreso * ORIGINAL.length);
+        destacado.setAttribute('data-text', ORIGINAL.split('').map(function (c, i) {
+          return (i < resueltas || c === ' ') ? c : simbolo();
+        }).join(''));
+      }, PASO_MS);
+    }
+
+    function rafaga(intensa, alTerminar) {
+      var duracion = intensa ? RAFAGA_INTENSA_MS : RAFAGA_MS;
+      var inicio = Date.now();
+
+      destacado.classList.toggle('is-intenso', intensa);
       destacado.classList.remove('is-glitching');
       void destacado.offsetWidth; // reinicia las animaciones CSS
       destacado.classList.add('is-glitching');
 
       var temporizador = setInterval(function () {
-        if (Date.now() - inicio >= RAFAGA_MS) {
+        if (Date.now() - inicio >= duracion) {
           clearInterval(temporizador);
           destacado.setAttribute('data-text', ORIGINAL);
-          destacado.classList.remove('is-glitching');
+          destacado.classList.remove('is-glitching', 'is-intenso');
+          if (alTerminar) alTerminar();
           return;
         }
         destacado.setAttribute('data-text', revolver());
       }, PASO_MS);
     }
 
-    // Primera ráfaga cuando ya ha terminado la entrada del titular.
+    function programarSiguiente() {
+      setTimeout(function () {
+        if (!ocupado && !document.hidden) {
+          ocupado = true;
+          rafaga(false, function () { ocupado = false; });
+        }
+        programarSiguiente();
+      }, 2000 + Math.random() * 2000);
+    }
+
+    destacado.addEventListener('mouseenter', function () {
+      if (ocupado) return;
+      ocupado = true;
+      rafaga(true, function () {
+        decode(DECODE_HOVER_MS, function () { ocupado = false; });
+      });
+    });
+
+    // Decode de entrada, justo cuando la frase aparece en la cascada del h1.
+    // Al terminar se sueltan las animaciones de entrada (.glitch--listo) y
+    // empiezan las ráfagas.
+    ocupado = true;
     setTimeout(function () {
-      rafaga();
-      setInterval(rafaga, INTERVALO_MS);
-    }, 1800);
+      decode(DECODE_MS, function () {
+        destacado.classList.add('glitch--listo');
+        ocupado = false;
+        programarSiguiente();
+      });
+    }, 300);
   }
 
   // Barra fina de progreso de lectura, fija arriba del todo.
