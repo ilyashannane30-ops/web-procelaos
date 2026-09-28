@@ -105,8 +105,30 @@
 
         <div class="booking-card" id="bookingCard">
 
+          <!-- Paso 0: tres preguntas rápidas. Las opciones se pintan desde
+               PREGUNTAS en el script de abajo. -->
+          <div class="cuestionario" id="cuestionario">
+            <div class="cuestionario__cabecera">
+              <span class="cuestionario__contador" id="cuestionarioContador">01 / 03 · Objetivo</span>
+              <span class="cuestionario__barra" aria-hidden="true"><span id="cuestionarioBarra"></span></span>
+            </div>
+
+            <p class="cuestionario__recuperado" id="cuestionarioRecuperado" hidden>Hemos recuperado lo que habías escrito.</p>
+
+            <h2 class="cuestionario__pregunta" id="cuestionarioPregunta">¿Qué quieres conseguir?</h2>
+            <p class="cuestionario__ayuda" id="cuestionarioAyuda"></p>
+
+            <div class="cuestionario__opciones" id="cuestionarioOpciones" role="radiogroup" aria-labelledby="cuestionarioPregunta"></div>
+
+            <div class="cuestionario__pie">
+              <button type="button" class="cuestionario__atras" id="cuestionarioAtras" hidden>← Atrás</button>
+              <span class="cuestionario__atajo" aria-hidden="true">O pulsa el número</span>
+              <button type="button" class="btn btn--primary cuestionario__siguiente" id="cuestionarioSiguiente" disabled>Siguiente</button>
+            </div>
+          </div>
+
           <!-- Paso 1: calendario + horas -->
-          <div class="booking-grid" id="bookingStepPick">
+          <div class="booking-grid" id="bookingStepPick" hidden>
             <div class="booking-col">
               <div class="booking-info__avatar">P</div>
               <p class="booking-info__org">ProceLaos</p>
@@ -119,6 +141,8 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
                 Europe/Madrid
               </p>
+              <ul class="booking-info__resumen" data-resumen></ul>
+              <button type="button" class="cuestionario__atras" id="volverCuestionario">← Cambiar respuestas</button>
             </div>
 
             <div class="booking-col">
@@ -156,6 +180,7 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
                 Europe/Madrid
               </p>
+              <ul class="booking-info__resumen" data-resumen></ul>
             </div>
             <div class="booking-col">
               <form id="bookingForm" novalidate>
@@ -168,8 +193,12 @@
                   <input type="email" id="bEmail" required>
                 </div>
                 <div class="booking-form__row">
-                  <label for="bNotas">Notas adicionales</label>
-                  <textarea id="bNotas" rows="3" placeholder="Por favor, comparta cualquier cosa que ayude a preparar nuestra reunión."></textarea>
+                  <label for="bSector">Sector <span class="booking-form__req">*</span></label>
+                  <input type="text" id="bSector" required placeholder="Ej.: clínica, tienda online, gestoría, taller…">
+                </div>
+                <div class="booking-form__row">
+                  <label for="bNotas">¿Qué tarea te quita más tiempo? <span class="booking-form__opcional">opcional</span></label>
+                  <textarea id="bNotas" rows="3" placeholder="Ej.: paso a mano las facturas al Excel cada semana, contesto lo mismo por WhatsApp…"></textarea>
                 </div>
                 <p class="booking-error" id="bookingError" role="alert" hidden></p>
                 <div class="booking-form__nav">
@@ -365,10 +394,27 @@
         var inicio = slotSeleccionado;
         var fin = new Date(inicio.getTime() + DURACION_MIN * 60000);
 
+        var sector = document.getElementById('bSector').value.trim();
+        if (!sector) { mostrarError('Dinos a qué se dedica tu negocio.'); return; }
+        respuestas.sector = sector;
+
+        // Las respuestas van también dentro de "notas": el flujo de n8n ya
+        // pone las notas en la invitación del calendario, así que llegan sin
+        // tocar el flujo. Además van en campos propios por si se quieren
+        // guardar aparte.
+        var resumen = PREGUNTAS.map(function (p) {
+          return p.titulo + ': ' + textoDeRespuesta(p);
+        }).concat('Sector: ' + sector).join('\n');
+
         var payload = {
           nombre: nombre,
           email: email,
-          notas: notas,
+          notas: resumen + (notas ? '\n\nTarea que más tiempo quita:\n' + notas : ''),
+          objetivo: textoDeRespuesta(PREGUNTAS[0]),
+          equipo: textoDeRespuesta(PREGUNTAS[1]),
+          plazo: textoDeRespuesta(PREGUNTAS[2]),
+          sector: sector,
+          tarea: notas,
           start: inicio.toISOString(),
           end: fin.toISOString(),
           zona_horaria: 'Europe/Madrid'
@@ -389,6 +435,7 @@
             successDetail.textContent = etiqueta + '. Te llega la invitación de calendario a ' + email + '.';
             stepConfirm.hidden = true;
             stepSuccess.hidden = false;
+            borrarBorrador();
           })
           .catch(function () {
             bookingSubmit.disabled = false;
@@ -396,6 +443,247 @@
             mostrarError('No se ha podido reservar. Inténtalo de nuevo.');
           });
       });
+
+      /* ------------------------------------------------------------------
+         Cuestionario previo: tres preguntas con tarjetas. Se marca una
+         opción (clic o su número en el teclado) y "Siguiente" avanza. La
+         primera pregunta admite varias respuestas (multiple: true).
+         ------------------------------------------------------------------ */
+
+      function icono(trazos) {
+        return '<svg viewBox="0 0 24 24" aria-hidden="true">' + trazos + '</svg>';
+      }
+
+      var PREGUNTAS = [
+        {
+          clave: 'objetivo', titulo: 'Objetivo', multiple: true,
+          pregunta: '¿Qué quieres conseguir?',
+          ayuda: 'Puedes marcar varias. Lo afinamos en la reunión.',
+          opciones: [
+            { valor: 'automatizar', texto: 'Automatizar tareas repetitivas', icono: icono('<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>') },
+            { valor: 'clientes', texto: 'Atender a los clientes más rápido', icono: icono('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9 11h6M9 14h4"/>') },
+            { valor: 'agentes-voz', texto: 'Agentes de voz', icono: icono('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4M8 21h8"/>') },
+            { valor: 'software', texto: 'Software a medida', icono: icono('<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>') },
+            { valor: 'no-claro', exclusiva: true, texto: 'No lo tengo claro aún', icono: icono('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>') }
+          ]
+        },
+        {
+          clave: 'equipo', titulo: 'Equipo',
+          pregunta: '¿Cuántas personas hacen tareas repetitivas en tu negocio?',
+          ayuda: 'Cuenta a todo el que copie datos, conteste lo mismo o rellene hojas a mano.',
+          opciones: [
+            { valor: '1', texto: 'Solo yo', icono: icono('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>') },
+            { valor: '2-5', texto: '2 a 5', icono: icono('<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14c2.4.6 4 2.9 4 6"/>') },
+            { valor: '6-20', texto: '6 a 20', icono: icono('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M10 21v-4h4v4"/>') },
+            { valor: '20+', texto: 'Más de 20', icono: icono('<rect x="2" y="7" width="9" height="14" rx="1.5"/><rect x="13" y="3" width="9" height="18" rx="1.5"/><path d="M5 11h3M5 15h3M16 7h3M16 11h3M16 15h3"/>') }
+          ]
+        },
+        {
+          clave: 'plazo', titulo: 'Plazo',
+          pregunta: '¿Para cuándo lo necesitas?',
+          ayuda: 'Nos ayuda a proponerte un plan realista.',
+          opciones: [
+            { valor: 'ya', texto: 'Cuanto antes', icono: icono('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>') },
+            { valor: '1-3-meses', texto: 'En 1 a 3 meses', icono: icono('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>') },
+            { valor: 'explorando', texto: 'Solo estoy explorando', icono: icono('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>') }
+          ]
+        }
+      ];
+
+      var cuestionario = document.getElementById('cuestionario');
+      var contador = document.getElementById('cuestionarioContador');
+      var barra = document.getElementById('cuestionarioBarra');
+      var preguntaEl = document.getElementById('cuestionarioPregunta');
+      var ayudaEl = document.getElementById('cuestionarioAyuda');
+      var opcionesEl = document.getElementById('cuestionarioOpciones');
+      var atras = document.getElementById('cuestionarioAtras');
+      var siguiente = document.getElementById('cuestionarioSiguiente');
+      var recuperado = document.getElementById('cuestionarioRecuperado');
+
+      var respuestas = {};
+      var paso = 0;
+
+      function dosCifras(n) { return (n < 10 ? '0' : '') + n; }
+
+      // Valores elegidos de una pregunta, siempre como lista (en las de
+      // opción única, la lista tiene como mucho un elemento).
+      function elegidas(p) {
+        var r = respuestas[p.clave];
+        if (!r) return [];
+        return Array.isArray(r) ? r : [r];
+      }
+
+      function textoDeRespuesta(p) {
+        var textos = p.opciones
+          .filter(function (o) { return elegidas(p).indexOf(o.valor) !== -1; })
+          .map(function (o) { return o.texto; });
+        return textos.length ? textos.join(', ') : '—';
+      }
+
+      function pintarPregunta(conAnimacion) {
+        var p = PREGUNTAS[paso];
+        contador.textContent = dosCifras(paso + 1) + ' / ' + dosCifras(PREGUNTAS.length) + ' · ' + p.titulo;
+        barra.style.width = ((paso + 1) / PREGUNTAS.length * 100) + '%';
+        preguntaEl.textContent = p.pregunta;
+        ayudaEl.textContent = p.ayuda;
+
+        opcionesEl.innerHTML = '';
+        opcionesEl.setAttribute('role', p.multiple ? 'group' : 'radiogroup');
+        // 3 o 5 opciones: tres por fila; más de 5: cuatro por fila.
+        opcionesEl.classList.toggle('cuestionario__opciones--3', p.opciones.length === 3 || p.opciones.length === 5);
+        opcionesEl.classList.toggle('cuestionario__opciones--4', p.opciones.length > 5);
+        p.opciones.forEach(function (o, i) {
+          var marcada = elegidas(p).indexOf(o.valor) !== -1;
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'opcion' + (marcada ? ' is-marcada' : '');
+          b.setAttribute('role', p.multiple ? 'checkbox' : 'radio');
+          b.setAttribute('aria-checked', marcada ? 'true' : 'false');
+          b.innerHTML =
+            '<span class="opcion__numero" aria-hidden="true">' + (i + 1) + '</span>' +
+            '<span class="opcion__check" aria-hidden="true">✓</span>' +
+            '<span class="opcion__icono">' + o.icono + '</span>' +
+            '<span class="opcion__texto"></span>';
+          b.querySelector('.opcion__texto').textContent = o.texto;
+          b.addEventListener('click', function () { marcar(o.valor); });
+          opcionesEl.appendChild(b);
+        });
+
+        atras.hidden = paso === 0;
+        siguiente.disabled = elegidas(p).length === 0;
+        siguiente.textContent = paso === PREGUNTAS.length - 1 ? 'Elegir día y hora' : 'Siguiente';
+
+        if (conAnimacion) {
+          cuestionario.classList.remove('is-entrando');
+          void cuestionario.offsetWidth;
+          cuestionario.classList.add('is-entrando');
+        }
+      }
+
+      // En las de opción única, marcar sustituye. En las múltiples, marcar
+      // alterna; una opción "exclusiva" (No lo tengo claro) va siempre sola:
+      // al marcarla se quitan las demás, y al marcar otra se quita ella.
+      function marcar(valor) {
+        var p = PREGUNTAS[paso];
+        if (!p.multiple) {
+          respuestas[p.clave] = valor;
+        } else {
+          var lista = elegidas(p).slice();
+          var i = lista.indexOf(valor);
+          var esExclusiva = p.opciones.some(function (o) { return o.valor === valor && o.exclusiva; });
+          if (i !== -1) {
+            lista.splice(i, 1);
+          } else if (esExclusiva) {
+            lista = [valor];
+          } else {
+            lista = lista.filter(function (v) {
+              return !p.opciones.some(function (o) { return o.valor === v && o.exclusiva; });
+            });
+            lista.push(valor);
+          }
+          // Se guardan en el orden de las tarjetas, no en el de los clics.
+          respuestas[p.clave] = p.opciones
+            .map(function (o) { return o.valor; })
+            .filter(function (v) { return lista.indexOf(v) !== -1; });
+        }
+        guardarBorrador();
+        pintarPregunta(false);
+        // Foco en "Siguiente" para que Enter avance, sin mover la página.
+        siguiente.focus({ preventScroll: true });
+      }
+
+      function pintarResumen() {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-resumen]'), function (ul) {
+          ul.innerHTML = '';
+          PREGUNTAS.forEach(function (p) {
+            var li = document.createElement('li');
+            li.textContent = textoDeRespuesta(p);
+            ul.appendChild(li);
+          });
+        });
+      }
+
+      siguiente.addEventListener('click', function () {
+        if (elegidas(PREGUNTAS[paso]).length === 0) return;
+        if (paso < PREGUNTAS.length - 1) {
+          paso += 1;
+          guardarBorrador();
+          pintarPregunta(true);
+          return;
+        }
+        // Última pregunta: al calendario.
+        pintarResumen();
+        cuestionario.hidden = true;
+        stepPick.hidden = false;
+      });
+
+      atras.addEventListener('click', function () {
+        if (paso === 0) return;
+        paso -= 1;
+        guardarBorrador();
+        pintarPregunta(true);
+      });
+
+      document.getElementById('volverCuestionario').addEventListener('click', function () {
+        stepPick.hidden = true;
+        cuestionario.hidden = false;
+        pintarPregunta(true);
+      });
+
+      // Atajos: el número marca la opción; Enter avanza.
+      document.addEventListener('keydown', function (e) {
+        if (cuestionario.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+        var etiqueta = (e.target.tagName || '').toLowerCase();
+        if (etiqueta === 'input' || etiqueta === 'textarea') return;
+
+        var n = parseInt(e.key, 10);
+        var opciones = PREGUNTAS[paso].opciones;
+        if (n >= 1 && n <= opciones.length) {
+          e.preventDefault();
+          marcar(opciones[n - 1].valor);
+        } else if (e.key === 'Enter' && !siguiente.disabled && e.target === document.body) {
+          e.preventDefault();
+          siguiente.click();
+        }
+      });
+
+      /* ---- Borrador: si sale a mitad y vuelve, recupera lo que llevaba.
+         Se guarda en el navegador y se borra al confirmar la reserva. ---- */
+
+      var CLAVE_BORRADOR = 'procelaos_reserva_borrador';
+      var CAMPOS = ['bNombre', 'bEmail', 'bSector', 'bNotas'];
+
+      function guardarBorrador() {
+        var datos = { respuestas: respuestas, paso: paso, campos: {} };
+        CAMPOS.forEach(function (id) { datos.campos[id] = document.getElementById(id).value; });
+        try { localStorage.setItem(CLAVE_BORRADOR, JSON.stringify(datos)); } catch (e) {}
+      }
+
+      function borrarBorrador() {
+        try { localStorage.removeItem(CLAVE_BORRADOR); } catch (e) {}
+      }
+
+      function cargarBorrador() {
+        var datos = null;
+        try { datos = JSON.parse(localStorage.getItem(CLAVE_BORRADOR)); } catch (e) {}
+        if (!datos || !datos.respuestas) return;
+
+        respuestas = datos.respuestas;
+        paso = Math.min(Math.max(datos.paso || 0, 0), PREGUNTAS.length - 1);
+        var hayAlgo = Object.keys(respuestas).length > 0;
+        CAMPOS.forEach(function (id) {
+          var v = datos.campos && datos.campos[id];
+          if (v) { document.getElementById(id).value = v; hayAlgo = true; }
+        });
+        recuperado.hidden = !hayAlgo;
+      }
+
+      CAMPOS.forEach(function (id) {
+        document.getElementById(id).addEventListener('input', guardarBorrador);
+      });
+
+      cargarBorrador();
+      pintarPregunta(false);
     })();
   </script>
 </body>

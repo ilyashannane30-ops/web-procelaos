@@ -816,7 +816,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var DESPLAZAMIENTO_MAX = 8;
 
     var botones = Array.prototype.slice.call(
-      document.querySelectorAll('.hero__actions .btn--primary, .demo-cta .btn--primary, .cta-band__actions .btn--primary, .site-nav__actions .btn--primary')
+      document.querySelectorAll('.hero__actions .btn--primary, .cta-band__actions .btn--primary, .site-nav__actions .btn--primary')
     );
     if (botones.length === 0) return;
 
