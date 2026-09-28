@@ -113,14 +113,231 @@ document.addEventListener('DOMContentLoaded', function () {
   inicializarBotonesMagneticos();
   inicializarSpotlightTarjetas();
   inicializarParticulasFondo();
+  dividirTitularesEnPalabras();
   inicializarRevealGenerico();
   inicializarWidgetJornada();
+  inicializarFranjaDeTareas();
+  inicializarBarraDeProgreso();
+  inicializarHeroInteractivo();
+  inicializarRecorrido();
 
   // Lightbox de la galería de capturas (capacidades.html).
   inicializarLightboxGaleria();
 
   function prefiereMovimientoReducido() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  // Franja superior: en vez de repetir el nombre, lista tareas reales que el
+  // sistema deja hechas. Se reconstruye desde JS para que las páginas no
+  // carguen 12 spans idénticos; el HTML solo lleva un item de reserva.
+  function inicializarFranjaDeTareas() {
+    var track = document.querySelector('.brand-band__track');
+    if (!track) return;
+
+    var tareas = [
+      'Facturas al Excel',
+      'Emails de seguimiento',
+      'Respuestas a clientes',
+      'Agenda y recordatorios',
+      'Presupuestos',
+      'Informe del lunes',
+      'Leads sin contestar'
+    ];
+
+    function grupo() {
+      var g = document.createElement('div');
+      g.className = 'brand-band__group';
+      // Dos vueltas de la lista por grupo: el track siempre es más ancho
+      // que la pantalla y el bucle de -50% no deja huecos.
+      for (var v = 0; v < 2; v++) {
+        tareas.forEach(function (t) {
+          var item = document.createElement('span');
+          item.className = 'brand-band__item';
+          var marca = document.createElement('i');
+          marca.textContent = '✓';
+          item.appendChild(marca);
+          item.appendChild(document.createTextNode(t));
+          g.appendChild(item);
+        });
+      }
+      return g;
+    }
+
+    track.textContent = '';
+    track.appendChild(grupo());
+    track.appendChild(grupo());
+  }
+
+  // Barra fina de progreso de lectura, fija arriba del todo.
+  function inicializarBarraDeProgreso() {
+    if (prefiereMovimientoReducido()) return;
+
+    var barra = document.createElement('div');
+    barra.className = 'scroll-progress';
+    barra.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(barra);
+
+    var pendiente = false;
+
+    function actualizar() {
+      var total = document.documentElement.scrollHeight - window.innerHeight;
+      var p = total > 0 ? Math.min(1, Math.max(0, window.scrollY / total)) : 0;
+      barra.style.setProperty('--sp', p.toFixed(4));
+      pendiente = false;
+    }
+
+    window.addEventListener('scroll', function () {
+      if (!pendiente) {
+        pendiente = true;
+        window.requestAnimationFrame(actualizar);
+      }
+    }, { passive: true });
+
+    window.addEventListener('resize', actualizar);
+    actualizar();
+  }
+
+  // Hero: un resplandor sigue al cursor y el widget se inclina hacia él.
+  // Solo con puntero real y sin movimiento reducido.
+  function inicializarHeroInteractivo() {
+    var hero = document.querySelector('.hero');
+    if (!hero) return;
+    if (!window.matchMedia('(hover: hover)').matches) return;
+    if (prefiereMovimientoReducido()) return;
+
+    var widget = document.getElementById('jornadaWidget');
+    var MAX_GRADOS = 6;
+    var pendiente = false;
+    var ultimo = null;
+
+    function pintar() {
+      pendiente = false;
+      if (!ultimo) return;
+
+      var r = hero.getBoundingClientRect();
+      hero.style.setProperty('--hx', (ultimo.x - r.left) + 'px');
+      hero.style.setProperty('--hy', (ultimo.y - r.top) + 'px');
+
+      if (widget) {
+        var w = widget.getBoundingClientRect();
+        var dx = (ultimo.x - (w.left + w.width / 2)) / (window.innerWidth / 2);
+        var dy = (ultimo.y - (w.top + w.height / 2)) / (window.innerHeight / 2);
+        dx = Math.max(-1, Math.min(1, dx));
+        dy = Math.max(-1, Math.min(1, dy));
+        widget.style.transform = 'perspective(900px) rotateY(' + (dx * MAX_GRADOS).toFixed(2) + 'deg) rotateX(' + (-dy * MAX_GRADOS).toFixed(2) + 'deg)';
+      }
+    }
+
+    hero.addEventListener('pointermove', function (e) {
+      ultimo = { x: e.clientX, y: e.clientY };
+      hero.classList.add('has-pointer');
+      if (!pendiente) {
+        pendiente = true;
+        window.requestAnimationFrame(pintar);
+      }
+    }, { passive: true });
+
+    hero.addEventListener('pointerleave', function () {
+      ultimo = null;
+      hero.classList.remove('has-pointer');
+      if (widget) widget.style.transform = '';
+    });
+  }
+
+  // Titulares con .split: cada palabra sube desde una máscara, en cascada,
+  // cuando el bloque entra en pantalla (lo dispara .is-visible del reveal).
+  function dividirTitularesEnPalabras() {
+    var titulares = Array.prototype.slice.call(document.querySelectorAll('.split'));
+
+    titulares.forEach(function (el) {
+      var texto = el.textContent;
+      var palabras = texto.split(/\s+/).filter(Boolean);
+      el.setAttribute('aria-label', texto);
+      el.textContent = '';
+
+      palabras.forEach(function (palabra, i) {
+        var mascara = document.createElement('span');
+        mascara.className = 'split__w';
+        mascara.setAttribute('aria-hidden', 'true');
+
+        var interior = document.createElement('span');
+        interior.textContent = palabra;
+        interior.style.transitionDelay = (i * 55) + 'ms';
+
+        mascara.appendChild(interior);
+        el.appendChild(mascara);
+        if (i < palabras.length - 1) el.appendChild(document.createTextNode(' '));
+      });
+    });
+  }
+
+  // "Cómo trabajamos": la línea se rellena según el scroll y cada nodo se
+  // enciende cuando el relleno lo alcanza. Vertical en móvil, horizontal en
+  // escritorio (el eje se decide mirando el layout real, no un breakpoint
+  // duplicado aquí).
+  function inicializarRecorrido() {
+    var lista = document.getElementById('recorridoLista');
+    if (!lista) return;
+
+    var pasos = Array.prototype.slice.call(lista.querySelectorAll('.recorrido__paso'));
+    if (pasos.length === 0) return;
+
+    function encenderTodo() {
+      lista.style.setProperty('--p', 1);
+      pasos.forEach(function (p) { p.classList.add('is-on'); });
+    }
+
+    if (prefiereMovimientoReducido()) {
+      encenderTodo();
+      return;
+    }
+
+    var umbrales = [];
+    var pendiente = false;
+
+    function medir() {
+      var horizontal = pasos[0].offsetTop === pasos[pasos.length - 1].offsetTop;
+      var lr = lista.getBoundingClientRect();
+      umbrales = pasos.map(function (paso) {
+        var nodo = paso.querySelector('.recorrido__nodo');
+        var nr = nodo.getBoundingClientRect();
+        var centro = horizontal ? (nr.left + nr.width / 2 - lr.left) / lr.width
+                                : (nr.top + nr.height / 2 - lr.top) / lr.height;
+        return Math.max(0, Math.min(1, centro));
+      });
+    }
+
+    function actualizar() {
+      pendiente = false;
+      var r = lista.getBoundingClientRect();
+      var vh = window.innerHeight;
+      // El relleno empieza cuando la lista sube al 85% del viewport y
+      // termina cuando su parte inferior llega al 60%.
+      var p = (vh * 0.85 - r.top) / (r.height + vh * 0.25);
+      p = Math.max(0, Math.min(1, p));
+
+      lista.style.setProperty('--p', p.toFixed(4));
+      pasos.forEach(function (paso, i) {
+        paso.classList.toggle('is-on', p >= umbrales[i]);
+      });
+    }
+
+    function solicitar() {
+      if (!pendiente) {
+        pendiente = true;
+        window.requestAnimationFrame(actualizar);
+      }
+    }
+
+    medir();
+    actualizar();
+    window.addEventListener('scroll', solicitar, { passive: true });
+    window.addEventListener('resize', function () { medir(); solicitar(); });
+    // Las fuentes web cambian las alturas: se vuelve a medir al cargarlas.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { medir(); solicitar(); });
+    }
   }
 
   // Widget "tu-jornada-laboral.exe" del hero: reloj analógico (hora + minutero)

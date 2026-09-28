@@ -31,7 +31,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
 
@@ -184,7 +184,7 @@
          tirar. El canvas 3D se montará dentro de .escena__lienzo. -->
     <section class="section escena-seccion">
       <div class="container">
-        <h2 class="escena__titulo reveal">El trabajo repetitivo cambia de manos</h2>
+        <h2 class="escena__titulo split reveal">El trabajo repetitivo cambia de manos</h2>
 
         <div class="escena reveal" id="escena">
           <div class="escena__lienzo" id="escenaLienzo">
@@ -228,23 +228,29 @@
     <section class="section">
       <div class="container">
         <p class="eyebrow reveal">Reconoce tu semana</p>
-        <h2 class="section__title reveal">Tareas que se repiten, da igual el sector</h2>
+        <h2 class="section__title split reveal">Tareas que se repiten, da igual el sector</h2>
         <p class="section__lead reveal">Tres ejemplos para empezar. El resto de tareas que solemos quitar de en medio están en la página completa.</p>
 
         <div class="cards-grid cards-grid--3">
           <article class="card reveal">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path pathLength="1" d="M14 3v5h5"/><path pathLength="1" d="M9 13h6M9 17h4"/></svg></span>
             <h3>Se acabó copiar lo mismo dos veces</h3>
             <p>Cada factura de proveedor, cada pedido, cada formulario que llega por email acaba tecleado a mano en un Excel o un ERP. El sistema lee el documento y lo coloca solo donde tiene que ir.</p>
+            <span class="card__tag">Facturas · pedidos · formularios</span>
           </article>
 
           <article class="card reveal">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path pathLength="1" d="M9 11h6M9 14h4"/></svg></span>
             <h3>Deja de contestar lo mismo diez veces al día</h3>
             <p>Horario, precio, disponibilidad, cómo se hace un pedido... Un agente contesta al momento, a cualquier hora, y te avisa a ti solo cuando hace falta decidir algo.</p>
+            <span class="card__tag">WhatsApp · email · web</span>
           </article>
 
           <article class="card reveal">
+            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
             <h3>Los leads dejan de enfriarse en la bandeja</h3>
             <p>Un cliente pregunta y, si nadie contesta en la hora siguiente, se va a mirar a otro lado. El sistema responde primero y avisa a quien tiene que cerrar.</p>
+            <span class="card__tag">Respuesta en minutos, no en horas</span>
           </article>
         </div>
 
@@ -252,12 +258,49 @@
       </div>
     </section>
 
+    <section class="section section--alt">
+      <div class="container">
+        <p class="eyebrow reveal">Cómo trabajamos</p>
+        <h2 class="section__title split reveal">De la primera llamada a la tarea resuelta</h2>
+
+        <ol class="recorrido" id="recorridoLista">
+          <li class="recorrido__paso">
+            <span class="recorrido__nodo" aria-hidden="true">1</span>
+            <div>
+              <span class="recorrido__tiempo">20 minutos · gratis</span>
+              <h3>Nos cuentas la tarea</h3>
+              <p>Qué se repite cada semana y a nadie le gusta hacer. Escuchamos, no vendemos.</p>
+            </div>
+          </li>
+          <li class="recorrido__paso">
+            <span class="recorrido__nodo" aria-hidden="true">2</span>
+            <div>
+              <span class="recorrido__tiempo">Segunda llamada</span>
+              <h3>Te damos plan y precio cerrado</h3>
+              <p>Un plan a medida para tu caso, con números concretos. Sin propuesta de 40 páginas.</p>
+            </div>
+          </li>
+          <li class="recorrido__paso">
+            <span class="recorrido__nodo" aria-hidden="true">3</span>
+            <div>
+              <span class="recorrido__tiempo">Primeras semanas</span>
+              <h3>Lo montamos y lo ajustamos contigo</h3>
+              <p>Revisamos juntos cómo responde en tu día a día real, no en una demo de laboratorio.</p>
+            </div>
+          </li>
+        </ol>
+
+        <p class="section__outro reveal"><a href="/proceso">Ver el proceso completo →</a></p>
+      </div>
+    </section>
+
     <section class="section cta-band">
       <div class="container">
-        <h2 class="reveal">Cuéntanos qué tarea quieres quitarte de encima</h2>
-        <p class="reveal">Gratis y sin compromiso.</p>
+        <h2 class="split reveal">Cuéntanos qué tarea quieres quitarte de encima</h2>
+        <p class="reveal">Una reunión de 20 minutos. Gratis y sin compromiso.</p>
         <div class="cta-band__actions reveal">
           <a href="/agendar-reunion" class="btn btn--primary btn--lg">Agendar reunión</a>
+          <a href="https://wa.me/34631279662" class="cta-band__alt" target="_blank" rel="noopener">o escríbenos por WhatsApp</a>
         </div>
       </div>
     </section>
