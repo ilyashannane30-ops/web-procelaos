@@ -172,14 +172,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Glitch "hacker" sobre la parte destacada del titular del hero.
   //
-  // - Al cargar: "decode". Las letras salen como símbolos y se resuelven una
-  //   a una, de izquierda a derecha, en la frase real (~1,5 s).
-  // - Después: ráfagas de glitch cada 2-4 s al azar (copias cian/magenta en
-  //   franjas, texto revuelto, sacudida y destello verde).
+  // La frase se parte en una caja por letra y el efecto lo sufren las
+  // propias letras: se desplazan, se tuercen, se estiran, se cortan,
+  // parpadean y se cambian por símbolos. Nada se superpone por encima.
+  //
+  // - Al cargar: "decode". Cada letra sale como símbolo inestable (temblando
+  //   y parpadeando) y se resuelve en la letra real, más o menos de
+  //   izquierda a derecha (~1,5 s).
+  // - Después: ráfagas cada 2-4 s al azar.
   // - Al pasar el ratón: ráfaga intensa y decode otra vez.
   //
-  // Todo ocurre en data-text (lo pintan ::before/::after). El texto real del
-  // span no se toca nunca, y el h1 lleva aria-label con la frase completa.
+  // Cada caja lleva fijado el ancho de su letra real, así que cambiarla por
+  // un símbolo no mueve el titular. El h1 lleva aria-label con la frase.
   function inicializarGlitchTitular() {
     var destacado = document.querySelector('.hero h1 .highlight');
     if (!destacado) return;
@@ -191,74 +195,180 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var ORIGINAL = destacado.textContent;
     var SIMBOLOS = '@#$%&01<>/\\*+=_{}[]';
+    // Solo tonos de la marca: blanco cálido, naranja quemado, naranja claro.
+    var TONOS = ['#FFE3C7', '#B8561E', '#FFB07A'];
+    var PASO_MS = 50;
     var RAFAGA_MS = 550;
     var RAFAGA_INTENSA_MS = 900;
     var DECODE_MS = 1500;
     var DECODE_HOVER_MS = 900;
-    var PASO_MS = 55;
 
-    var ocupado = false;
+    var ocupado = true;
+    var hayQueMedir = false;
 
-    destacado.classList.add('glitch');
-    destacado.setAttribute('data-text', ORIGINAL);
+    // ---- Una caja por letra, agrupadas por palabra para que el salto de
+    // línea siga cayendo entre palabras y nunca dentro de una.
+    var letras = [];
+    destacado.textContent = '';
+    ORIGINAL.split(' ').forEach(function (palabra, i, palabras) {
+      var caja = document.createElement('span');
+      caja.className = 'glitch__w';
+      caja.setAttribute('aria-hidden', 'true');
+
+      palabra.split('').forEach(function (ch) {
+        var c = document.createElement('span');
+        c.className = 'glitch__c';
+        c.textContent = ch;
+        caja.appendChild(c);
+        letras.push({ el: c, ch: ch, ancho: 0 });
+      });
+
+      destacado.appendChild(caja);
+      if (i < palabras.length - 1) destacado.appendChild(document.createTextNode(' '));
+    });
+
+    function azar(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function indiceAlAzar(n) {
+      return Math.floor(Math.random() * n);
+    }
 
     function simbolo() {
-      return SIMBOLOS.charAt(Math.floor(Math.random() * SIMBOLOS.length));
+      return SIMBOLOS.charAt(indiceAlAzar(SIMBOLOS.length));
     }
 
-    function revolver() {
-      return ORIGINAL.split('').map(function (c) {
-        return (c === ' ' || Math.random() > 0.3) ? c : simbolo();
-      }).join('');
+    function restaurar(l) {
+      l.el.textContent = l.ch;
+      l.el.style.cssText = l.ancho ? 'width:' + l.ancho + 'px' : '';
+      l.el.classList.remove('is-cifrada');
     }
 
-    // Las letras ya resueltas quedan fijas; el resto sigue cambiando.
-    function decode(duracion, alTerminar) {
-      var inicio = Date.now();
-      destacado.classList.add('is-decoding');
+    // Ancho real de cada letra. La entrada del titular escala el span
+    // (el "pop"), así que se corrige con la escala actual.
+    function medir() {
+      letras.forEach(function (l) {
+        l.ancho = 0;
+        restaurar(l);
+      });
+      var escala = destacado.getBoundingClientRect().width / (destacado.offsetWidth || 1);
+      var anchos = letras.map(function (l) {
+        return l.el.getBoundingClientRect().width / (escala || 1);
+      });
+      letras.forEach(function (l, i) {
+        l.ancho = anchos[i].toFixed(2);
+        restaurar(l);
+      });
+      hayQueMedir = false;
+    }
 
-      var temporizador = setInterval(function () {
-        var progreso = (Date.now() - inicio) / duracion;
-        if (progreso >= 1) {
-          clearInterval(temporizador);
-          destacado.setAttribute('data-text', ORIGINAL);
-          destacado.classList.remove('is-decoding');
-          if (alTerminar) alTerminar();
-          return;
+    function sombraPartida(px) {
+      return px.toFixed(1) + 'px 0 rgba(255, 227, 199, 0.7), ' + (-px).toFixed(1) + 'px 0 rgba(160, 60, 10, 0.85)';
+    }
+
+    // Una letra en plena avería: combinación al azar de desplazamiento,
+    // torsión, estiramiento, corte, parpadeo, cambio de tono y de carácter.
+    function averiar(l, gi) {
+      var t = 'translate(' + (azar(-5, 5) * gi).toFixed(1) + 'px,' + (azar(-2, 2) * gi).toFixed(1) + 'px)';
+      if (Math.random() < 0.5) t += ' skewX(' + (azar(-18, 18) * gi).toFixed(1) + 'deg)';
+      if (Math.random() < 0.4) t += ' scale(' + azar(0.8, 1.25).toFixed(2) + ',' + azar(0.6, 1.5).toFixed(2) + ')';
+
+      var css = 'width:' + l.ancho + 'px;transform:' + t + ';text-shadow:' + sombraPartida(azar(1.5, 3.5) * gi) + ';';
+
+      // Corte: solo se ve la mitad de arriba o la de abajo de la letra.
+      if (Math.random() < 0.45) {
+        var corte = azar(20, 60).toFixed(0);
+        css += Math.random() < 0.5 ? 'clip-path:inset(' + corte + '% 0 0 0);' : 'clip-path:inset(0 0 ' + corte + '% 0);';
+      }
+      if (Math.random() < 0.35) css += 'color:' + TONOS[indiceAlAzar(TONOS.length)] + ';';
+      if (Math.random() < 0.3) css += 'opacity:' + azar(0.2, 0.8).toFixed(2) + ';';
+
+      l.el.style.cssText = css;
+      if (Math.random() < 0.4) l.el.textContent = simbolo();
+    }
+
+    function fotogramaGlitch(gi) {
+      letras.forEach(restaurar);
+
+      var cuantas = Math.round(azar(3, 8) * gi);
+      for (var k = 0; k < cuantas; k++) {
+        averiar(letras[indiceAlAzar(letras.length)], gi);
+      }
+
+      // Desgarro: un tramo seguido de letras se desplaza en bloque, como
+      // una línea de imagen que se corre.
+      if (Math.random() < 0.35 * gi) {
+        var inicio = indiceAlAzar(letras.length);
+        var largo = 4 + indiceAlAzar(8);
+        var dx = (azar(-10, 10) * gi).toFixed(1);
+        for (var i = inicio; i < Math.min(letras.length, inicio + largo); i++) {
+          letras[i].el.style.transform = 'translateX(' + dx + 'px)';
+          letras[i].el.style.textShadow = sombraPartida(2 * gi);
         }
-        var resueltas = Math.floor(progreso * ORIGINAL.length);
-        destacado.setAttribute('data-text', ORIGINAL.split('').map(function (c, i) {
-          return (i < resueltas || c === ' ') ? c : simbolo();
-        }).join(''));
-      }, PASO_MS);
+      }
     }
 
     function rafaga(intensa, alTerminar) {
+      var gi = intensa ? 2 : 1;
       var duracion = intensa ? RAFAGA_INTENSA_MS : RAFAGA_MS;
       var inicio = Date.now();
-
-      destacado.classList.toggle('is-intenso', intensa);
-      destacado.classList.remove('is-glitching');
-      void destacado.offsetWidth; // reinicia las animaciones CSS
-      destacado.classList.add('is-glitching');
 
       var temporizador = setInterval(function () {
         if (Date.now() - inicio >= duracion) {
           clearInterval(temporizador);
-          destacado.setAttribute('data-text', ORIGINAL);
-          destacado.classList.remove('is-glitching', 'is-intenso');
+          letras.forEach(restaurar);
           if (alTerminar) alTerminar();
           return;
         }
-        destacado.setAttribute('data-text', revolver());
+        fotogramaGlitch(gi);
       }, PASO_MS);
+    }
+
+    // Cada letra tiene su momento de resolverse: de izquierda a derecha,
+    // con algo de azar para que no parezca una barra de carga.
+    function decode(duracion, alTerminar) {
+      var n = letras.length;
+      var momentos = letras.map(function (l, i) {
+        return ((i / n) * 0.75 + Math.random() * 0.25) * duracion;
+      });
+      var inicio = Date.now();
+
+      var temporizador = setInterval(function () {
+        var transcurrido = Date.now() - inicio;
+        if (transcurrido >= duracion) {
+          clearInterval(temporizador);
+          letras.forEach(restaurar);
+          if (alTerminar) alTerminar();
+          return;
+        }
+
+        letras.forEach(function (l, i) {
+          if (transcurrido >= momentos[i]) {
+            restaurar(l);
+            return;
+          }
+          // Sin descifrar: símbolo que cambia, tiembla y parpadea.
+          var css = 'width:' + l.ancho + 'px;';
+          if (Math.random() < 0.5) css += 'transform:translate(' + azar(-3, 3).toFixed(1) + 'px,' + azar(-2, 2).toFixed(1) + 'px) skewX(' + azar(-12, 12).toFixed(1) + 'deg);';
+          if (Math.random() < 0.25) css += 'opacity:' + azar(0.3, 0.9).toFixed(2) + ';';
+          l.el.style.cssText = css;
+          l.el.textContent = simbolo();
+          l.el.classList.add('is-cifrada');
+        });
+      }, PASO_MS);
+    }
+
+    function liberar() {
+      ocupado = false;
+      if (hayQueMedir) medir();
     }
 
     function programarSiguiente() {
       setTimeout(function () {
         if (!ocupado && !document.hidden) {
           ocupado = true;
-          rafaga(false, function () { ocupado = false; });
+          rafaga(false, liberar);
         }
         programarSiguiente();
       }, 2000 + Math.random() * 2000);
@@ -268,21 +378,32 @@ document.addEventListener('DOMContentLoaded', function () {
       if (ocupado) return;
       ocupado = true;
       rafaga(true, function () {
-        decode(DECODE_HOVER_MS, function () { ocupado = false; });
+        decode(DECODE_HOVER_MS, liberar);
       });
     });
 
-    // Decode de entrada, justo cuando la frase aparece en la cascada del h1.
-    // Al terminar se sueltan las animaciones de entrada (.glitch--listo) y
-    // empiezan las ráfagas.
-    ocupado = true;
-    setTimeout(function () {
+    // El tamaño del titular depende del ancho de ventana (clamp con vw).
+    var esperaResize = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(esperaResize);
+      esperaResize = setTimeout(function () {
+        if (ocupado) hayQueMedir = true;
+        else medir();
+      }, 200);
+    });
+
+    // Arranque: con la fuente ya cargada (si no, los anchos saldrían de la
+    // fuente de reserva) y cuando la frase aparece en la cascada del h1.
+    var fuentesListas = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    var espera = new Promise(function (resolver) { setTimeout(resolver, 300); });
+
+    Promise.all([fuentesListas, espera]).then(function () {
+      medir();
       decode(DECODE_MS, function () {
-        destacado.classList.add('glitch--listo');
-        ocupado = false;
+        liberar();
         programarSiguiente();
       });
-    }, 300);
+    });
   }
 
   // Barra fina de progreso de lectura, fija arriba del todo.

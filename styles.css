@@ -2053,130 +2053,30 @@ body.has-brand-band .section {
 
 /* ==========================================================================
    Glitch del titular ("que una IA puede hacer por ti")
-   Dos copias del texto (::before cian, ::after magenta) en data-text,
-   encima del original. Tres estados, todos gobernados desde script.js:
+   script.js parte la frase en una caja por letra (.glitch__c) y las
+   distorsiona directamente: desplaza, tuerce, estira, corta, hace parpadear
+   y cambia letras por símbolos. Aquí solo va la base; cada fotograma del
+   glitch lo pinta el JS con estilos en línea.
 
-   - .is-decoding: el texto real se vuelve transparente y ::before muestra
-     letras aleatorias que se van resolviendo una a una en la frase real.
-   - .is-glitching: ráfaga corta. Copias recortadas en franjas y desplazadas,
-     líneas de escaneo, y el texto real se tuerce, parpadea y destella en
-     verde neón. Con .is-intenso (hover) todo se desplaza el doble.
-   - En reposo: solo el texto naranja de siempre.
-
-   Las copias son absolutas: el texto real nunca cambia de tamaño, así que
-   el titular no salta. El h1 lleva aria-label con la frase completa.
+   Cada letra tiene su ancho fijado al de la letra real: aunque se cambie
+   por un símbolo más ancho, el titular no se mueve ni salta de línea.
+   Paleta: solo tonos de la marca (naranja, naranja quemado, blanco cálido).
    ========================================================================== */
-.glitch {
-  position: relative;
-  --gi: 1; /* intensidad: 1 normal, 2 en hover */
+.glitch__w {
+  display: inline-block;
+  white-space: nowrap;
 }
 
-.glitch.is-intenso {
-  --gi: 2;
+.glitch__c {
+  display: inline-block;
+  text-align: center;
+  will-change: transform;
 }
 
-/* Cuando termina la entrada del titular, se sueltan las animaciones de
-   .hero-word para que la sacudida pueda usar transform y opacity. */
-.glitch.glitch--listo {
-  animation: none;
-  opacity: 1;
-  transform: none;
-}
-
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.glitch::before {
-  color: #0FF;
-  text-shadow: -2px 0 rgba(0, 255, 255, 0.7), 0 0 12px rgba(0, 255, 255, 0.45);
-}
-
-.glitch::after {
-  color: #F0F;
-  text-shadow: 2px 0 rgba(255, 0, 255, 0.7), 0 0 12px rgba(255, 0, 255, 0.45);
-}
-
-/* ---- Ráfaga ---- */
-.glitch.is-glitching::before {
-  opacity: 0.95;
-  /* Líneas de escaneo: solo se ven dentro de las franjas recortadas. */
-  background: repeating-linear-gradient(0deg, rgba(0, 255, 65, 0.16) 0 1px, transparent 1px 3px);
-  animation: glitchCorteA 0.55s steps(1, end) both;
-}
-
-.glitch.is-glitching::after {
-  opacity: 0.95;
-  animation: glitchCorteB 0.55s steps(1, end) both;
-}
-
-.glitch.glitch--listo.is-glitching {
-  animation: glitchSacudida 0.55s steps(1, end) both;
-}
-
-.glitch.is-intenso.is-glitching::before,
-.glitch.is-intenso.is-glitching::after,
-.glitch.glitch--listo.is-intenso.is-glitching {
-  animation-duration: 0.9s;
-}
-
-@keyframes glitchCorteA {
-  0%   { clip-path: inset(8% 0 78% 0);  transform: translate(calc(-6px * var(--gi)), -1px); }
-  12%  { clip-path: inset(62% 0 10% 0); transform: translate(calc(5px * var(--gi)), 1px); }
-  25%  { clip-path: inset(30% 0 48% 0); transform: translate(calc(-10px * var(--gi)), 0); }
-  38%  { clip-path: inset(80% 0 2% 0);  transform: translate(calc(4px * var(--gi)), -2px); }
-  50%  { clip-path: inset(44% 0 36% 0); transform: translate(calc(-3px * var(--gi)), 1px); }
-  62%  { clip-path: inset(0 0 88% 0);   transform: translate(calc(9px * var(--gi)), 0); }
-  75%  { clip-path: inset(14% 0 70% 0); transform: translate(calc(7px * var(--gi)), 0); }
-  88%  { clip-path: inset(56% 0 30% 0); transform: translate(calc(-5px * var(--gi)), 1px); }
-  100% { clip-path: inset(50% 0 50% 0); transform: none; }
-}
-
-@keyframes glitchCorteB {
-  0%   { clip-path: inset(70% 0 12% 0); transform: translate(calc(6px * var(--gi)), 1px); }
-  12%  { clip-path: inset(20% 0 60% 0); transform: translate(calc(-5px * var(--gi)), 0); }
-  25%  { clip-path: inset(52% 0 26% 0); transform: translate(calc(8px * var(--gi)), -1px); }
-  38%  { clip-path: inset(4% 0 84% 0);  transform: translate(calc(-6px * var(--gi)), 2px); }
-  50%  { clip-path: inset(36% 0 44% 0); transform: translate(calc(3px * var(--gi)), 0); }
-  62%  { clip-path: inset(88% 0 0 0);   transform: translate(calc(-9px * var(--gi)), 0); }
-  75%  { clip-path: inset(84% 0 4% 0);  transform: translate(calc(-8px * var(--gi)), 1px); }
-  88%  { clip-path: inset(24% 0 62% 0); transform: translate(calc(6px * var(--gi)), 0); }
-  100% { clip-path: inset(50% 0 50% 0); transform: none; }
-}
-
-/* El texto real: se tuerce, se estira, parpadea y destella en verde neón
-   un par de fotogramas. Termina siempre en su estado normal. */
-@keyframes glitchSacudida {
-  0%   { transform: skewX(calc(-8deg * var(--gi))); opacity: 1; }
-  10%  { transform: scaleX(1.04) skewX(0); opacity: 0.55; }
-  20%  { transform: none; color: #00FF41; text-shadow: 0 0 6px #00FF41, 0 0 18px rgba(0, 255, 65, 0.6); opacity: 1; }
-  30%  { transform: skewX(calc(6deg * var(--gi))) scaleX(0.97); opacity: 0.8; }
-  42%  { transform: none; opacity: 1; }
-  55%  { transform: scaleX(1.06); color: #00FF41; text-shadow: 0 0 6px #00FF41, 0 0 18px rgba(0, 255, 65, 0.6); opacity: 0.35; }
-  65%  { transform: skewX(calc(-4deg * var(--gi))); opacity: 1; }
-  80%  { transform: none; opacity: 0.7; }
-  100% { transform: none; opacity: 1; }
-}
-
-/* ---- Decode ---- */
-.glitch.is-decoding {
-  color: transparent !important;
-  text-shadow: none !important;
-}
-
-.glitch.is-decoding::before {
-  opacity: 1;
-  color: var(--accent);
-  text-shadow: 0 0 10px rgba(248, 137, 75, 0.55);
-  clip-path: none;
-  transform: none;
-  animation: none;
-  background: none;
+/* Letra aún sin descifrar (decode): más apagada, como señal débil. */
+.glitch__c.is-cifrada {
+  color: #B8561E;
+  text-shadow: 0 0 8px rgba(248, 137, 75, 0.35);
 }
 
 /* ==========================================================================
