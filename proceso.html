@@ -102,27 +102,42 @@
 
     <section class="section">
       <div class="container">
-        <div class="demo-steps">
-          <div class="demo-step reveal">
-            <span class="demo-step__index" aria-hidden="true">01</span>
-            <h3>Agendas una reunión de 20 minutos</h3>
-            <p>Reservas hora en el calendario y nos cuentas tu caso: qué tarea se repite y a nadie le gusta hacer. Escuchamos, no vendemos. Gratis y sin compromiso.</p>
-          </div>
-          <div class="demo-step reveal">
-            <span class="demo-step__index" aria-hidden="true">02</span>
-            <h3>Te presentamos el plan y el precio</h3>
-            <p>En otra llamada te contamos el plan a medida para tu caso, con números concretos y el precio cerrado.</p>
-          </div>
-          <div class="demo-step reveal">
-            <span class="demo-step__index" aria-hidden="true">03</span>
-            <h3>Lo montamos y lo ajustamos contigo</h3>
-            <p>Las primeras semanas se revisa juntos cómo responde en el día a día real, no en una demo de laboratorio.</p>
-          </div>
-        </div>
+        <ol class="recorrido" id="recorridoLista">
+          <li class="recorrido__paso">
+            <span class="recorrido__nodo" aria-hidden="true">1</span>
+            <div>
+              <span class="recorrido__tiempo">20 minutos · gratis</span>
+              <h3>Agendas una reunión de 20 minutos</h3>
+              <p>Reservas hora en el calendario y nos cuentas tu caso: qué tarea se repite y a nadie le gusta hacer. Escuchamos, no vendemos. Gratis y sin compromiso.</p>
+            </div>
+          </li>
+          <li class="recorrido__paso">
+            <span class="recorrido__nodo" aria-hidden="true">2</span>
+            <div>
+              <span class="recorrido__tiempo">Segunda llamada</span>
+              <h3>Te presentamos el plan y el precio</h3>
+              <p>En otra llamada te contamos el plan a medida para tu caso, con números concretos y el precio cerrado.</p>
+            </div>
+          </li>
+          <li class="recorrido__paso">
+            <span class="recorrido__nodo" aria-hidden="true">3</span>
+            <div>
+              <span class="recorrido__tiempo">Primeras semanas</span>
+              <h3>Lo montamos y lo ajustamos contigo</h3>
+              <p>Las primeras semanas se revisa juntos cómo responde en el día a día real, no en una demo de laboratorio.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
 
-        <div class="demo-cta reveal">
-          <p>Sin registros ni powerpoint de venta. Empiezas agendando una reunión de 20 minutos; el plan y el precio vienen después.</p>
-          <a href="/agendar-reunion" class="btn btn--primary btn--lg">Agendar una reunión</a>
+    <section class="section cta-band">
+      <div class="container">
+        <h2 class="split reveal">Empieza por una reunión de 20 minutos</h2>
+        <p class="reveal">Sin registros ni powerpoint de venta. El plan y el precio vienen después.</p>
+        <div class="cta-band__actions reveal">
+          <a href="/agendar-reunion" class="btn btn--primary btn--lg">Agendar reunión</a>
+          <a href="https://wa.me/34631279662" class="cta-band__alt" target="_blank" rel="noopener">o escríbenos por WhatsApp</a>
         </div>
       </div>
     </section>
@@ -138,10 +153,11 @@
           <a href="https://wa.me/34631279662" target="_blank" rel="noopener">WhatsApp: +34 631 279 662</a>
         </p>
       </div>
-      <p class="site-footer__legal"><a href="/privacidad">Privacidad</a> · © <span id="year"></span> ProceLaos.</p>
+      <p class="site-footer__legal"><a href="/privacidad">Privacidad</a> · <a href="/cookies">Cookies</a> · © <span id="year"></span> ProceLaos.</p>
     </div>
   </footer>
 
+  <script src="cookies.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

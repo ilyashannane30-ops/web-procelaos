@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
     track.appendChild(grupo());
   }
 
-  // Glitch "hacker" sobre la parte destacada del titular del hero.
+  // Glitch "hacker" sobre la parte destacada del titular principal.
   //
   // La frase se parte en una caja por letra y el efecto lo sufren las
   // propias letras: se desplazan, se tuercen, se estiran, se cortan,
@@ -185,8 +185,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // Cada caja lleva fijado el ancho de su letra real, así que cambiarla por
   // un símbolo no mueve el titular. El h1 lleva aria-label con la frase.
   function inicializarGlitchTitular() {
-    var destacado = document.querySelector('.hero h1 .highlight');
-    if (!destacado) return;
+    // La portada (hero) y la cabecera de cada subpágina: la parte destacada
+    // del titular principal lleva el mismo glitch en todo el sitio.
+    var destacados = document.querySelectorAll('.hero h1 .highlight, .page-header h1 .highlight');
+    Array.prototype.forEach.call(destacados, glitchEnTitular);
+  }
+
+  function glitchEnTitular(destacado) {
 
     var titular = destacado.closest('h1');
     if (titular) titular.setAttribute('aria-label', titular.textContent.replace(/\s+/g, ' ').trim());
