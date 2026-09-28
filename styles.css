@@ -2071,6 +2071,16 @@ body.has-brand-band .section {
   display: inline-block;
   text-align: center;
   will-change: transform;
+  /* Ola suave en reposo: cada letra sube ~1,5 px, desfasada de la
+     anterior. Va en `translate` (no en `transform`) para sumarse a las
+     distorsiones del JS en vez de pisarlas. */
+  animation: glitchFlota 2.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.11s);
+}
+
+@keyframes glitchFlota {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -1.5px; }
 }
 
 /* Letra aún sin descifrar (decode): más apagada, como señal débil. */

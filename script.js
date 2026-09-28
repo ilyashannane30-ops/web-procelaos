@@ -195,8 +195,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var ORIGINAL = destacado.textContent;
     var SIMBOLOS = '@#$%&01<>/\\*+=_{}[]';
-    // Solo tonos de la marca: blanco cálido, naranja quemado, naranja claro.
-    var TONOS = ['#FFE3C7', '#B8561E', '#FFB07A'];
+    // Tonos de la marca más un verde y un azul hielo suaves (poco saturados,
+    // para dar el toque "terminal" sin chillar).
+    var TONOS = ['#FFE3C7', '#B8561E', '#FFB07A', '#8FE3AE', '#9FD4E0'];
+    var VERDE_SUAVE = 'rgba(120, 225, 160, 0.75)';
     var PASO_MS = 50;
     var RAFAGA_MS = 550;
     var RAFAGA_INTENSA_MS = 900;
@@ -220,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
         c.className = 'glitch__c';
         c.textContent = ch;
         caja.appendChild(c);
-        letras.push({ el: c, ch: ch, ancho: 0 });
+        letras.push({ el: c, ch: ch, ancho: 0, i: letras.length });
       });
 
       destacado.appendChild(caja);
@@ -239,9 +241,16 @@ document.addEventListener('DOMContentLoaded', function () {
       return SIMBOLOS.charAt(indiceAlAzar(SIMBOLOS.length));
     }
 
+    // Estilo fijo de cada letra: su ancho real y su posición en la ola de
+    // reposo (--i, lo usa la animación glitchFlota del CSS). Todo estilo en
+    // línea empieza por aquí para no perderlos.
+    function base(l) {
+      return (l.ancho ? 'width:' + l.ancho + 'px;' : '') + '--i:' + l.i + ';';
+    }
+
     function restaurar(l) {
       l.el.textContent = l.ch;
-      l.el.style.cssText = l.ancho ? 'width:' + l.ancho + 'px' : '';
+      l.el.style.cssText = base(l);
       l.el.classList.remove('is-cifrada');
     }
 
@@ -263,8 +272,10 @@ document.addEventListener('DOMContentLoaded', function () {
       hayQueMedir = false;
     }
 
+    // Separación de canales: una copia verde suave a un lado y una naranja
+    // quemada al otro, pegadas a la propia letra.
     function sombraPartida(px) {
-      return px.toFixed(1) + 'px 0 rgba(255, 227, 199, 0.7), ' + (-px).toFixed(1) + 'px 0 rgba(160, 60, 10, 0.85)';
+      return px.toFixed(1) + 'px 0 ' + VERDE_SUAVE + ', ' + (-px).toFixed(1) + 'px 0 rgba(160, 60, 10, 0.85)';
     }
 
     // Una letra en plena avería: combinación al azar de desplazamiento,
@@ -274,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (Math.random() < 0.5) t += ' skewX(' + (azar(-18, 18) * gi).toFixed(1) + 'deg)';
       if (Math.random() < 0.4) t += ' scale(' + azar(0.8, 1.25).toFixed(2) + ',' + azar(0.6, 1.5).toFixed(2) + ')';
 
-      var css = 'width:' + l.ancho + 'px;transform:' + t + ';text-shadow:' + sombraPartida(azar(1.5, 3.5) * gi) + ';';
+      var css = base(l) + 'transform:' + t + ';text-shadow:' + sombraPartida(azar(1.5, 3.5) * gi) + ';';
 
       // Corte: solo se ve la mitad de arriba o la de abajo de la letra.
       if (Math.random() < 0.45) {
@@ -349,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
           }
           // Sin descifrar: símbolo que cambia, tiembla y parpadea.
-          var css = 'width:' + l.ancho + 'px;';
+          var css = base(l);
           if (Math.random() < 0.5) css += 'transform:translate(' + azar(-3, 3).toFixed(1) + 'px,' + azar(-2, 2).toFixed(1) + 'px) skewX(' + azar(-12, 12).toFixed(1) + 'deg);';
           if (Math.random() < 0.25) css += 'opacity:' + azar(0.3, 0.9).toFixed(2) + ';';
           l.el.style.cssText = css;
@@ -362,6 +373,24 @@ document.addEventListener('DOMContentLoaded', function () {
     function liberar() {
       ocupado = false;
       if (hayQueMedir) medir();
+    }
+
+    // En reposo: de vez en cuando una o dos letras dan un pequeño tirón
+    // (1-2 px, con un tinte verde suave) y vuelven a su sitio.
+    function temblorSuave() {
+      setTimeout(function () {
+        if (!ocupado && !document.hidden) {
+          var cuantas = 1 + indiceAlAzar(2);
+          for (var k = 0; k < cuantas; k++) {
+            var l = letras[indiceAlAzar(letras.length)];
+            l.el.style.cssText = base(l) + 'transform:translate(' + azar(-2, 2).toFixed(1) + 'px,' + azar(-1, 1).toFixed(1) + 'px) skewX(' + azar(-6, 6).toFixed(1) + 'deg);text-shadow:1px 0 ' + VERDE_SUAVE + ';';
+            (function (letra) {
+              setTimeout(function () { if (!ocupado) restaurar(letra); }, 90 + Math.random() * 60);
+            })(l);
+          }
+        }
+        temblorSuave();
+      }, 350 + Math.random() * 650);
     }
 
     function programarSiguiente() {
@@ -402,6 +431,7 @@ document.addEventListener('DOMContentLoaded', function () {
       decode(DECODE_MS, function () {
         liberar();
         programarSiguiente();
+        temblorSuave();
       });
     });
   }
