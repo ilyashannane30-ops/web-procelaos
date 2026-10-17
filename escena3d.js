@@ -23,6 +23,7 @@ import {
   crearMovil,
   crearBoli,
   crearSuelo,
+  actualizarHolograma,
   PALETA,
   ALTURA_CEJAS
 } from './modelos.js';
@@ -53,6 +54,21 @@ var GRADOS = Math.PI / 180;
 
 // Inclinación de la espalda del trabajador al empezar cada vuelta.
 var INCLINACION_INICIAL = 7 * GRADOS;
+
+// Pose de partida del estado 01. El cuerpo ENTERO mira a la mesa (raíz) y
+// el torso remata el giro; la cabeza se va hacia el móvil, al lado
+// contrario. Con la figura abstracta bastaba girar el torso, pero con un
+// cuerpo real las piernas y la cadera de frente a cámara se leían como
+// "mira a cámara y escribe de lado".
+var GIRO_CUERPO_INICIAL = 72 * GRADOS;
+var GIRO_TORSO_INICIAL = 8 * GRADOS;
+var GIRO_CABEZA_INICIAL = -30 * GRADOS;
+
+// El móvil se modeló para la figura anterior, de cabeza mucho mayor: a
+// tamaño 1 tapaba media cara del cuerpo de MakeHuman.
+var ESCALA_MOVIL = 0.55;
+// Lo mismo con el boli: a tamaño 1 era casi tan largo como el antebrazo.
+var ESCALA_BOLI = 0.55;
 
 // Polos de flexión por defecto (pose de escribir/hablar del estado 01-02).
 // Hacia dónde sale cada codo: sin esto el plano de flexión es arbitrario y
@@ -134,9 +150,10 @@ export function iniciarEscena(contenedor) {
 
   // Pose de partida del estado 01: torso hacia el escritorio, cabeza al
   // lado contrario, al móvil. Trabaja donde no mira.
-  trabajador.torso.rotation.y = 26 * GRADOS;
+  trabajador.raiz.rotation.y = GIRO_CUERPO_INICIAL;
+  trabajador.torso.rotation.y = GIRO_TORSO_INICIAL;
   trabajador.torso.rotation.z = 4 * GRADOS;
-  trabajador.cabeza.rotation.y = -34 * GRADOS;
+  trabajador.cabeza.rotation.y = GIRO_CABEZA_INICIAL;
   trabajador.cabeza.rotation.z = 15 * GRADOS;
   // Algo encorvado sobre la mesa desde el principio: la espalda se dobla,
   // no el cuerpo entero.
@@ -207,7 +224,7 @@ export function iniciarEscena(contenedor) {
   // de coordenadas conviviendo. La conversión a mundo real se hace en un
   // único sitio, el tick, justo antes de resolver la IK.
   var estado = {
-    manoIzq: mundo.worldToLocal(trabajador.cabeza.localToWorld(new THREE.Vector3(-0.4, 0.42, 0.05))).clone(),
+    manoIzq: mundo.worldToLocal(trabajador.cabeza.localToWorld(trabajador.agarreMovil.clone())).clone(),
     manoDer: mundo.worldToLocal(hojaActiva.localToWorld(new THREE.Vector3(0, 0.26, 0.14))).clone(),
     brilloTestigo: 0,
     campo: 0,
@@ -238,14 +255,18 @@ export function iniciarEscena(contenedor) {
     papelesMesa: []
   };
 
+  // El móvil va EN LA MANO, no en la cabeza: colgado de la cabeza flotaba
+  // junto a la cara y la mano quedaba por encima o por debajo. Su sitio
+  // dentro de la mano se calcula una vez, en la pose inicial (ver
+  // colocarMovilEnMano): justo donde la cabeza tiene la oreja.
   var movil = crearMovil();
-  movil.position.set(-0.37, 0.4, 0.04);
-  movil.rotation.set(0, 0, -8 * GRADOS);
-  trabajador.cabeza.add(movil);
+  movil.scale.setScalar(ESCALA_MOVIL);
+  var MOVIL_EN_MANO = { posicion: new THREE.Vector3(), giro: new THREE.Quaternion() };
 
   var boli = crearBoli();
   boli.rotation.set(26 * GRADOS, 0, 18 * GRADOS);
-  boli.position.set(0, -0.2, 0.04);
+  boli.scale.setScalar(ESCALA_BOLI);
+  boli.position.set(0, -0.11, 0.03);
   trabajador.brazoDer.mano.add(boli);
 
   var robot = crearRobot();
@@ -291,15 +312,16 @@ export function iniciarEscena(contenedor) {
    */
   function reiniciar() {
     movil.userData.enMundo = false;
-    trabajador.cabeza.add(movil);
-    movil.position.set(-0.37, 0.4, 0.04);
-    movil.rotation.set(0, 0, -8 * GRADOS);
-    movil.scale.set(1, 1, 1);
+    trabajador.brazoIzq.mano.add(movil);
+    movil.position.copy(MOVIL_EN_MANO.posicion);
+    movil.quaternion.copy(MOVIL_EN_MANO.giro);
+    movil.scale.setScalar(ESCALA_MOVIL);
     movil.visible = true;
 
-    boli.scale.set(1, 1, 1);
+    boli.scale.setScalar(ESCALA_BOLI);
 
     trabajador.raiz.position.set(-1.55, 0, 0.55);
+    trabajador.raiz.rotation.set(0, GIRO_CUERPO_INICIAL, 0);
     trabajador.pecho.rotation.set(INCLINACION_INICIAL, 0, 0);
     trabajador.cejas.forEach(function (c) {
       c.position.y = ALTURA_CEJAS;
@@ -310,8 +332,8 @@ export function iniciarEscena(contenedor) {
       p.rodilla.rotation.set(0, 0, 0);
     });
     trabajador.torso.scale.set(1, 1, 1);
-    trabajador.torso.rotation.set(0, 26 * GRADOS, 4 * GRADOS);
-    trabajador.cabeza.rotation.set(0, -34 * GRADOS, 15 * GRADOS);
+    trabajador.torso.rotation.set(0, GIRO_TORSO_INICIAL, 4 * GRADOS);
+    trabajador.cabeza.rotation.set(0, GIRO_CABEZA_INICIAL, 15 * GRADOS);
 
     for (var i = 0; i < papelesMesa.length; i++) {
       papelesMesa[i].visible = true;
@@ -361,18 +383,39 @@ export function iniciarEscena(contenedor) {
     motas: motas,
     estado: estado,
     reiniciar: reiniciar,
-    // El móvil vive colgado de la cabeza para quedar siempre pegado a la
-    // oreja. Cuando el robot se lo lleva hay que pasarlo al mundo,
-    // conservando su posición en pantalla.
+    // El móvil vive en la mano. Cuando el robot se lo lleva hay que
+    // pasarlo al mundo conservando posición y giro en pantalla (attach).
+    // La escala se fija a mano: attach hornearía la del torso encogido y
+    // el tween de encogerse partiría de otro valor en cada vuelta.
     reparentarMovil: function () {
-      var p = new THREE.Vector3();
-      movil.getWorldPosition(p);
-      mundo.worldToLocal(p);
-      mundo.add(movil);
-      movil.position.copy(p);
+      mundo.attach(movil);
+      movil.scale.setScalar(ESCALA_MOVIL);
       movil.userData.enMundo = true;
     }
   });
+
+  /**
+   * Fija el móvil dentro de la mano: con la pose inicial ya resuelta, se
+   * calcula dónde tiene que estar (junto a la oreja, en vertical con la
+   * cabeza) y se expresa en coordenadas de la mano. A partir de ahí la
+   * mano lo lleva siempre consigo.
+   */
+  function colocarMovilEnMano() {
+    escena.updateMatrixWorld(true);
+    var deseado = new THREE.Matrix4().compose(
+      trabajador.posMovil,
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, -8 * GRADOS)),
+      new THREE.Vector3(1, 1, 1)
+    ).premultiply(trabajador.cabeza.matrixWorld);
+    var local = deseado.premultiply(trabajador.brazoIzq.mano.matrixWorld.clone().invert());
+    var escala = new THREE.Vector3();
+    local.decompose(MOVIL_EN_MANO.posicion, MOVIL_EN_MANO.giro, escala);
+
+    trabajador.brazoIzq.mano.add(movil);
+    movil.position.copy(MOVIL_EN_MANO.posicion);
+    movil.quaternion.copy(MOVIL_EN_MANO.giro);
+    movil.scale.setScalar(ESCALA_MOVIL);
+  }
 
   // --- Dimensionado -------------------------------------------------------
 
@@ -464,7 +507,10 @@ export function iniciarEscena(contenedor) {
 
     // Respiración del trabajador: el torso sube y baja muy poco. Usa la
     // posición, que el guion no toca (él anima escala y rotación).
-    trabajador.torso.position.y = 1.55 + Math.sin(tiempo * 2.1) * 0.012;
+    trabajador.torso.position.y = trabajador.alturaTorso + Math.sin(tiempo * 2.1) * 0.012;
+
+    // Barrido de luz y onda del pedestal del holograma.
+    actualizarHolograma(tiempo);
 
     // Parpadeo.
     if (tiempo >= proximoParpadeo) {
@@ -558,6 +604,7 @@ export function iniciarEscena(contenedor) {
   escena.updateMatrixWorld(true);
   apuntarBrazo(trabajador.brazoIzq, mundo.localToWorld(estado.manoIzq.clone()), estado.poloIzq);
   apuntarBrazo(trabajador.brazoDer, mundo.localToWorld(estado.manoDer.clone()), estado.poloDer);
+  colocarMovilEnMano();
   renderer.render(escena, camara);
 
   return {

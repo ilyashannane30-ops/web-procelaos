@@ -45,6 +45,15 @@ export function crearGuion(refs) {
   // Entrada de cada vuelta: la escena aparece desde negro.
   t.fromTo(estado, { fundido: 0 }, { fundido: 1, duration: 0.6, ease: 'power2.out' }, 0);
 
+  // Destinos de las manos fijados en el segundo 0 de cada vuelta. Al
+  // repetir, GSAP rebobina cada propiedad al valor inicial de su PRIMER
+  // tween; las manos ya no tienen tween antes del estiramiento (la bajada
+  // del relevo va por onUpdate), así que sin esto la segunda vuelta
+  // empezaba con las manos apuntando a la pose relajada del final, a la
+  // izquierda del todo, y los brazos salían estirados hacia fuera.
+  t.set(estado.manoIzq, { x: estado.manoIzq.x, y: estado.manoIzq.y, z: estado.manoIzq.z }, 0);
+  t.set(estado.manoDer, { x: estado.manoDer.x, y: estado.manoDer.y, z: estado.manoDer.z }, 0);
+
   // Posiciones de referencia, en el espacio del grupo "mundo".
   var X_TRABAJADOR = -1.55;
   var X_TRABAJADOR_DESPLAZADO = -3.7;
@@ -224,13 +233,21 @@ export function crearGuion(refs) {
   // a aplicar cuando el móvil ya cuelga otra vez de la cabeza -- el móvil
   // salía disparado a una esquina. Se anima un progreso y se interpola a
   // mano, solo mientras el móvil está suelto en el mundo.
+  //
+  // El giro va por el mismo camino (slerp a mano): el móvil sale de la
+  // mano con un giro que no es el de su padre nuevo, y un t.to sobre
+  // rotation lo rebobinaría en cada vuelta a un valor del mundo cuando ya
+  // vuelve a estar en la mano.
   var viajeMovil = { p: 0 };
   var origenMovil = new THREE.Vector3();
   var destinoMovil = new THREE.Vector3(ABSORCION.x, ABSORCION.y, ABSORCION.z);
+  var giroOrigenMovil = new THREE.Quaternion();
+  var giroDestinoMovil = new THREE.Quaternion().setFromEuler(new THREE.Euler(3.4, 2.6, 1.8));
 
   t.add(function () {
     refs.reparentarMovil();
     origenMovil.copy(refs.movil.position);
+    giroOrigenMovil.copy(refs.movil.quaternion);
   }, 5.15);
 
   t.fromTo(viajeMovil, { p: 0 }, {
@@ -238,22 +255,60 @@ export function crearGuion(refs) {
     onUpdate: function () {
       if (!refs.movil.userData.enMundo) return;
       refs.movil.position.lerpVectors(origenMovil, destinoMovil, viajeMovil.p);
+      refs.movil.quaternion.slerpQuaternions(giroOrigenMovil, giroDestinoMovil, viajeMovil.p);
     }
-  }, 5.15);
-  t.to(refs.movil.rotation, {
-    x: 3.4, y: 2.6, z: 1.8, duration: 0.85, ease: 'power2.in'
   }, 5.15);
   // Se encoge JUSTO al llegar: desaparece dentro del robot, no en el aire.
   t.to(refs.movil.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.16, ease: 'power2.in' }, 5.84);
 
   // Las manos se vacían y caen: brazos colgando, sin resistirse.
-  t.to(estado.manoIzq, {
-    x: X_TRABAJADOR_DESPLAZADO - 0.78, y: 1.98, z: 0.68,
-    duration: 0.8, ease: 'power2.inOut'
-  }, 5.15);
-  t.to(estado.manoDer, {
-    x: X_TRABAJADOR_DESPLAZADO + 0.78, y: 1.98, z: 0.68,
-    duration: 0.8, ease: 'power2.inOut'
+  //
+  // El recorrido se interpola en el espacio del CUERPO, no del mundo: a la
+  // vez el cuerpo se desplaza a la izquierda y gira de cara al frente, y un
+  // destino que viaja en línea recta por el mundo se queda rezagado a mitad
+  // de camino -- la mano acababa cruzada delante de la tripa con el codo
+  // hacia fuera. Así la mano baja desde la oreja / el papel hasta el
+  // costado sin importar cómo se mueva el cuerpo mientras tanto.
+  var EJE_Y = new THREE.Vector3(0, 1, 0);
+  var bajadaManos = { p: 0 };
+  var desdeIzq = new THREE.Vector3();
+  var desdeDer = new THREE.Vector3();
+  // Destino final relativo a la raíz: al costado, algo por delante.
+  var hastaIzq = new THREE.Vector3(-0.62, 1.98, 0.25);
+  var hastaDer = new THREE.Vector3(0.62, 1.98, 0.25);
+  var _mano = new THREE.Vector3();
+
+  function aCuerpo(punto, destino) {
+    destino.copy(punto).sub(trabajador.raiz.position)
+      .applyAxisAngle(EJE_Y, -trabajador.raiz.rotation.y);
+  }
+
+  function aMundo(punto, destino) {
+    destino.copy(punto).applyAxisAngle(EJE_Y, trabajador.raiz.rotation.y)
+      .add(trabajador.raiz.position);
+  }
+
+  t.fromTo(bajadaManos, { p: 0 }, {
+    p: 1, duration: 0.8, ease: 'power2.inOut',
+    onStart: function () {
+      aCuerpo(estado.manoIzq, desdeIzq);
+      aCuerpo(estado.manoDer, desdeDer);
+    },
+    onUpdate: function () {
+      var p = bajadaManos.p;
+      // Al rebobinar en el bucle este tween vuelve a p = 0: no debe tocar
+      // las manos, que ya ha colocado el set del segundo 0.
+      if (p <= 0) return;
+      // Arco hacia fuera a mitad de camino: las manos bajan por los
+      // costados en vez de juntarse un instante delante de la cadera.
+      var arco = Math.sin(Math.PI * p) * 0.28;
+      _mano.lerpVectors(desdeIzq, hastaIzq, p);
+      _mano.x -= arco;
+      aMundo(_mano, estado.manoIzq);
+      _mano.lerpVectors(desdeDer, hastaDer, p);
+      _mano.x += arco;
+      aMundo(_mano, estado.manoDer);
+    }
   }, 5.15);
 
   // El polo cambia A LA VEZ que el destino: la pose de "escribir/hablar"
@@ -261,8 +316,13 @@ export function crearGuion(refs) {
   // distinto. Verificado: con el polo viejo el codo derecho quedaba a
   // z=0,39 (detrás del cuerpo, en z=0,55); con este, ambos codos quedan
   // delante y simétricos.
-  t.to(estado.poloIzq, { x: -0.35, y: -0.25, z: 1, duration: 0.8, ease: 'power2.inOut' }, 5.15);
-  t.to(estado.poloDer, { x: 0.35, y: -0.25, z: 1, duration: 0.8, ease: 'power2.inOut' }, 5.15);
+  //
+  // Con el cuerpo de MakeHuman el polo va hacia ATRÁS (z: -1): el polo
+  // marca hacia dónde sale el codo, y en un brazo real el codo es la cara
+  // posterior. Hacia delante, la IK giraba el brazo entero 180° sobre su
+  // eje y las palmas quedaban hacia fuera.
+  t.to(estado.poloIzq, { x: -0.35, y: -0.25, z: -1, duration: 0.8, ease: 'power2.inOut' }, 5.15);
+  t.to(estado.poloDer, { x: 0.35, y: -0.25, z: -1, duration: 0.8, ease: 'power2.inOut' }, 5.15);
 
   t.to(refs.boli.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.25 }, 5.2);
 
@@ -271,6 +331,9 @@ export function crearGuion(refs) {
     x: X_TRABAJADOR_DESPLAZADO, duration: 0.9, ease: 'power2.inOut'
   }, 5.15);
   t.to(trabajador.torso.rotation, { y: 6 * GRADOS, duration: 0.9, ease: 'power2.inOut' }, 5.15);
+  // Y el cuerpo entero (piernas incluidas) deja de mirar a la mesa: se
+  // vuelve hacia el frente mientras da los pasos.
+  t.to(trabajador.raiz.rotation, { y: 0, duration: 0.9, ease: 'power2.inOut' }, 5.15);
   // Sigue con la mirada al móvil que se va: la cabeza gira hacia el robot
   // (a su derecha) y las cejas se levantan -- sorpresa, no alarma.
   t.to(trabajador.cabeza.rotation, { y: 30 * GRADOS, x: 0, z: 6 * GRADOS, duration: 0.7, ease: 'power2.out' }, 5.15);
@@ -494,15 +557,15 @@ export function crearGuion(refs) {
 
   // Baja los brazos relajado, a los lados, y mira al robot.
   t.to(estado.manoIzq, {
-    x: X_TRABAJADOR_DESPLAZADO - 0.74, y: 2.02, z: 0.6,
+    x: X_TRABAJADOR_DESPLAZADO - 0.6, y: 2.02, z: 0.8,
     duration: 0.9, ease: 'power2.inOut'
   }, BAJADA_EN);
   t.to(estado.manoDer, {
-    x: X_TRABAJADOR_DESPLAZADO + 0.74, y: 2.02, z: 0.6,
+    x: X_TRABAJADOR_DESPLAZADO + 0.6, y: 2.02, z: 0.8,
     duration: 0.9, ease: 'power2.inOut'
   }, BAJADA_EN);
-  t.to(estado.poloIzq, { x: -0.35, y: -0.25, z: 1, duration: 0.9, ease: 'power2.inOut' }, BAJADA_EN);
-  t.to(estado.poloDer, { x: 0.35, y: -0.25, z: 1, duration: 0.9, ease: 'power2.inOut' }, BAJADA_EN);
+  t.to(estado.poloIzq, { x: -0.35, y: -0.25, z: -1, duration: 0.9, ease: 'power2.inOut' }, BAJADA_EN);
+  t.to(estado.poloDer, { x: 0.35, y: -0.25, z: -1, duration: 0.9, ease: 'power2.inOut' }, BAJADA_EN);
 
   t.to(trabajador.cabeza.rotation, {
     x: 0, y: 20 * GRADOS, duration: 0.9, ease: 'power2.inOut'

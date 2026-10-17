@@ -15,7 +15,8 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// Altura de reposo de las cejas en la cabeza del trabajador. La usan
+// Altura de reposo de las cejas en la cabeza del trabajador (se recalcula
+// al cargar el modelo, ver más abajo). La usan
 // escena3d.js (reinicio) y guion.js (gestos).
 export var ALTURA_CEJAS = 0.57;
 
@@ -251,25 +252,166 @@ export function apuntarBrazo(brazo, objetivoMundo, polo) {
 }
 
 /* ==========================================================================
-   TRABAJADOR
+   TRABAJADOR — HOLOGRAMA
 
-   Formas orgánicas, sin un solo bloque: el humano tiene que leerse como
-   una persona y el robot como una máquina, y el contraste de formas
-   (curvas frente a cajas) lo cuenta antes que cualquier color.
+   Cuerpo humano real (malla base de MakeHuman, CC0) convertido a
+   modelos3d/trabajador-holo.glb por holo-lab/construir.mjs. El GLB trae:
+     - triángulos para el relleno y aristas de los quads para la malla
+     - pesos de piel ya reducidos a los 13 grupos que anima la escena
+     - pivotes de articulación, puntos del escáner, ojos y oreja
 
-   - Miembros: troncos de cono que estrechan hacia la punta, unidos por
-     esferas en hombro, codo, cadera y rodilla.
-   - Torso: óvalo que se ensancha del abdomen al pecho, con hombros
-     redondos.
-   - Cabeza: elipsoide con pelo que la envuelve, orejas y nariz. En la cara
-     solo ojos y cejas -- lo justo para que se lea hacia dónde mira y qué
-     siente.
+   La piel se ata a los MISMOS grupos de siempre (torso, pecho, cabeza,
+   hombro/codo/mano, cadera/rodilla): la IK y el guion siguen rotando
+   grupos y el cuerpo se deforma con ellos. Nada del guion sabe que hay
+   una malla con piel debajo.
 
-   La estructura de grupos (piernas, torso, pecho, cabeza, brazos) y todas
-   las medidas de articulación son las mismas que usan la IK y el guion.
+   Estética: relleno azul noche con borde fresnel, aristas claras con
+   mezcla aditiva, puntos blancos en las articulaciones, pedestal de
+   anillos y un barrido de luz que sube por el cuerpo.
    ========================================================================== */
 
-// Geometrías suaves, cacheadas por medidas como las cajas.
+// Uniformes compartidos por relleno y malla: cambiar un color aquí cambia
+// la figura entera, y el tiempo se actualiza una sola vez por frame.
+var UNIFORMES_HOLO = {
+  uTiempo: { value: 0 },
+  uRelleno: { value: new THREE.Color(0x071629) },
+  uLinea: { value: new THREE.Color(0xDCEEFF) },
+  uBorde: { value: new THREE.Color(0x5AAEFF) },
+  // Color y opacidad propios de las aristas: con 13.000 quads en ~250 px
+  // de figura, una línea blanca opaca convierte el cuerpo en gris liso.
+  uColorMalla: { value: new THREE.Color(0x7FC2FF) },
+  uOpacidadLinea: { value: 0.3 }
+};
+
+var COLOR_HOLO_PUNTO = 0xF2F8FF;
+
+// Barrido: franja de luz que sube del suelo a la cabeza cada ~5 s.
+var GLSL_BARRIDO = [
+  'float barrido(float altura) {',
+  '  float h = mod(uTiempo * 0.85, 5.5) - 0.6;',
+  '  return smoothstep(0.32, 0.0, abs(altura - h));',
+  '}'
+].join('\n');
+
+var VERTEX_RELLENO = [
+  '#include <common>',
+  '#include <skinning_pars_vertex>',
+  'varying vec3 vNormal;',
+  'varying float vAltura;',
+  'void main() {',
+  '  #include <beginnormal_vertex>',
+  '  #include <skinbase_vertex>',
+  '  #include <skinnormal_vertex>',
+  '  #include <defaultnormal_vertex>',
+  '  #include <begin_vertex>',
+  '  #include <skinning_vertex>',
+  '  #include <project_vertex>',
+  '  vNormal = normalize(transformedNormal);',
+  '  vAltura = (modelMatrix * vec4(transformed, 1.0)).y;',
+  '}'
+].join('\n');
+
+var FRAGMENT_RELLENO = [
+  'uniform float uTiempo;',
+  'uniform vec3 uRelleno;',
+  'uniform vec3 uLinea;',
+  'uniform vec3 uBorde;',
+  'varying vec3 vNormal;',
+  'varying float vAltura;',
+  GLSL_BARRIDO,
+  'void main() {',
+  // Cámara ortográfica: la dirección de vista es +Z en espacio de vista.
+  '  float fresnel = pow(1.0 - abs(normalize(vNormal).z), 1.8);',
+  '  vec3 color = uRelleno + uBorde * fresnel * 1.6 + uLinea * barrido(vAltura) * 0.12;',
+  '  gl_FragColor = vec4(color, 1.0);',
+  '  #include <colorspace_fragment>',
+  '}'
+].join('\n');
+
+var VERTEX_LINEA = [
+  '#include <common>',
+  '#include <skinning_pars_vertex>',
+  'varying float vAltura;',
+  'void main() {',
+  '  #include <skinbase_vertex>',
+  '  #include <begin_vertex>',
+  '  #include <skinning_vertex>',
+  '  #include <project_vertex>',
+  '  vAltura = (modelMatrix * vec4(transformed, 1.0)).y;',
+  '}'
+].join('\n');
+
+var FRAGMENT_LINEA = [
+  'uniform float uTiempo;',
+  'uniform vec3 uColorMalla;',
+  'uniform float uOpacidadLinea;',
+  'varying float vAltura;',
+  GLSL_BARRIDO,
+  'void main() {',
+  '  gl_FragColor = vec4(uColorMalla, min(1.0, uOpacidadLinea + barrido(vAltura) * 0.5));',
+  '  #include <colorspace_fragment>',
+  '}'
+].join('\n');
+
+/* --- Carga del GLB --------------------------------------------------------
+
+   Lector mínimo en vez de GLTFLoader: el archivo lo genera nuestro propio
+   script con un formato fijo, y así no se descargan ~100 KB más de
+   librería. Top-level await: el import de escena3d.js espera a que el
+   modelo esté listo, y si la descarga falla el import falla y la web se
+   queda con el SVG estático, igual que con cualquier otro error. */
+
+async function cargarGLB(url) {
+  var respuesta = await fetch(url);
+  if (!respuesta.ok) throw new Error('No se pudo cargar ' + url + ' (' + respuesta.status + ')');
+  var buf = await respuesta.arrayBuffer();
+  var vista = new DataView(buf);
+  var largoJson = vista.getUint32(12, true);
+  var json = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, largoJson)));
+  var inicioBin = 20 + largoJson + 8;
+
+  var TIPOS = { 5126: Float32Array, 5121: Uint8Array, 5123: Uint16Array };
+  var COMPONENTES = { SCALAR: 1, VEC3: 3, VEC4: 4 };
+
+  function accesor(i) {
+    var a = json.accessors[i];
+    var v = json.bufferViews[a.bufferView];
+    return new TIPOS[a.componentType](buf, inicioBin + v.byteOffset, a.count * COMPONENTES[a.type]);
+  }
+
+  var prims = json.meshes[0].primitives;
+  return {
+    posiciones: accesor(prims[0].attributes.POSITION),
+    huesos: accesor(prims[0].attributes.JOINTS_0),
+    pesos: accesor(prims[0].attributes.WEIGHTS_0),
+    triangulos: accesor(prims[0].indices),
+    aristas: accesor(prims[1].indices),
+    extras: json.meshes[0].extras
+  };
+}
+
+var MODELO = await cargarGLB(new URL('./modelos3d/trabajador-holo.glb', import.meta.url));
+
+// Altura de las cejas en la cabeza, sacada del modelo.
+ALTURA_CEJAS = MODELO.extras.cejaY - MODELO.extras.pivotes.cabeza[1];
+
+var materialPunto = null;
+var materialHaloPunto = null;
+
+function materialesPunto() {
+  if (!materialPunto) {
+    materialPunto = new THREE.MeshBasicMaterial({ color: COLOR_HOLO_PUNTO });
+    materialHaloPunto = new THREE.MeshBasicMaterial({
+      color: UNIFORMES_HOLO.uBorde.value,
+      transparent: true,
+      opacity: 0.35,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+  }
+}
+
+// Geometrías pequeñas cacheadas (puntos, ojos, cejas).
 var geometriasSuaves = {};
 
 function geometriaSuave(clave, crear) {
@@ -277,188 +419,132 @@ function geometriaSuave(clave, crear) {
   return geometriasSuaves[clave];
 }
 
-/** Tronco de cono vertical (centro en x,y,z). escalaZ lo aplana de fondo. */
-function tramo(radioArriba, radioAbajo, alto, color, x, y, z, escalaZ) {
-  var g = geometriaSuave('t' + [radioArriba, radioAbajo, alto].join('|'), function () {
-    return new THREE.CylinderGeometry(radioArriba, radioAbajo, alto, 22, 1);
-  });
-  var m = new THREE.Mesh(g, material(color));
-  m.position.set(x || 0, y || 0, z || 0);
-  if (escalaZ) m.scale.z = escalaZ;
-  return m;
+/**
+ * Marcador de articulación: punto blanco con un halo aditivo, pegado a la
+ * superficie delantera, como en un escáner corporal.
+ */
+function punto(padre, posicion) {
+  materialesPunto();
+  var nucleo = new THREE.Mesh(
+    geometriaSuave('punto', function () { return new THREE.SphereGeometry(0.042, 12, 8); }),
+    materialPunto
+  );
+  var halo = new THREE.Mesh(
+    geometriaSuave('haloPunto', function () { return new THREE.SphereGeometry(0.095, 12, 8); }),
+    materialHaloPunto
+  );
+  nucleo.position.copy(posicion);
+  halo.position.copy(posicion);
+  padre.add(nucleo, halo);
 }
 
-/** Elipsoide: esfera escalada por ejes (radios rx, ry, rz). */
-function elipsoide(rx, ry, rz, color, x, y, z) {
-  var g = geometriaSuave('esfera', function () {
-    return new THREE.SphereGeometry(1, 28, 20);
+// Anillos del pedestal: se animan desde actualizarHolograma.
+var anillosHolo = [];
+
+function materialDeAnillo(opacidad) {
+  return new THREE.MeshBasicMaterial({
+    color: UNIFORMES_HOLO.uBorde.value,
+    transparent: true,
+    opacity: opacidad,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide
   });
-  var m = new THREE.Mesh(g, material(color));
-  m.scale.set(rx, ry, rz);
-  m.position.set(x || 0, y || 0, z || 0);
-  return m;
 }
 
-/** Cápsula vertical: largo es el tramo recto, sin contar las semiesferas. */
-function capsula(radio, largo, color, x, y, z) {
-  var g = geometriaSuave('c' + radio + '|' + largo, function () {
-    return new THREE.CapsuleGeometry(radio, largo, 6, 16);
+/**
+ * Pedestal de proyección: disco tenue, tres anillos fijos y una onda que se
+ * expande. Sustituye a la sombra de contacto; sigue siendo el primer hijo
+ * de la raíz, igual que la sombra (escena3d.js lo busca ahí).
+ */
+function pedestal() {
+  var g = new THREE.Group();
+  g.position.y = 0.02;
+  g.rotation.x = -Math.PI / 2;
+
+  g.add(new THREE.Mesh(new THREE.CircleGeometry(0.72, 48), materialDeAnillo(0.22)));
+
+  [[0.72, 0.025, 0.9], [0.9, 0.016, 0.6], [1.08, 0.013, 0.4]].forEach(function (a) {
+    g.add(new THREE.Mesh(new THREE.RingGeometry(a[0], a[0] + a[1], 72), materialDeAnillo(a[2])));
   });
-  var m = new THREE.Mesh(g, material(color));
-  m.position.set(x || 0, y || 0, z || 0);
-  return m;
+
+  var onda = new THREE.Mesh(new THREE.RingGeometry(0.97, 1, 72), materialDeAnillo(0));
+  g.add(onda);
+  anillosHolo.push(onda);
+
+  return g;
 }
+
+/**
+ * Avance de los efectos del holograma (barrido y onda del pedestal). Se
+ * llama una vez por frame con el tiempo en segundos.
+ */
+export function actualizarHolograma(tiempo) {
+  UNIFORMES_HOLO.uTiempo.value = tiempo;
+
+  var fase = (tiempo % 2.6) / 2.6;
+  for (var i = 0; i < anillosHolo.length; i++) {
+    var r = 0.65 + fase * 0.65;
+    anillosHolo[i].scale.set(r, r, 1);
+    anillosHolo[i].material.opacity = 0.7 * (1 - fase);
+  }
+}
+
+var _abajo = new THREE.Vector3(0, -1, 0);
 
 export function crearTrabajador() {
+  var ex = MODELO.extras;
+  var piv = ex.pivotes;
+  var v3 = function (a) { return new THREE.Vector3(a[0], a[1], a[2]); };
+
   var raiz = new THREE.Group();
+  raiz.add(pedestal());
 
-  raiz.add(sombraContacto(0.85));
+  // --- Grupos articulados, con los pivotes del modelo ----------------------
 
-  // Piernas articuladas: cadera (pivote arriba del muslo) -> rodilla. Así
-  // puede flexionar las rodillas al encogerse y dar pasos al apartarse.
-  var ALTURA_CADERA = 1.52;
-  var ALTURA_RODILLA = 0.63;
-  var LARGO_MUSLO = ALTURA_CADERA - ALTURA_RODILLA;   // 0,89
+  function grupoEn(padre, posRaiz, posPadre) {
+    var g = new THREE.Group();
+    g.position.copy(v3(posRaiz)).sub(v3(posPadre || [0, 0, 0]));
+    padre.add(g);
+    return g;
+  }
 
-  function pierna(x) {
-    var cadera = new THREE.Group();
-    cadera.position.set(x, ALTURA_CADERA, 0);
-    raiz.add(cadera);
-
-    cadera.add(elipsoide(0.21, 0.2, 0.22, PALETA.pantalon, 0, -0.02, 0));                 // arranque del muslo
-    cadera.add(tramo(0.2, 0.155, LARGO_MUSLO, PALETA.pantalon, 0, -LARGO_MUSLO / 2, 0));  // muslo
-
-    var rodilla = new THREE.Group();
-    rodilla.position.y = -LARGO_MUSLO;
-    cadera.add(rodilla);
-
-    rodilla.add(elipsoide(0.158, 0.16, 0.165, PALETA.pantalon, 0, 0, 0.005));   // rodilla
-    rodilla.add(tramo(0.155, 0.12, 0.5, PALETA.pantalon, 0, -0.25, 0));         // pierna
-    rodilla.add(tramo(0.12, 0.13, 0.06, PALETA.pantalon, 0, -0.5, 0));          // bajo del pantalón
-    rodilla.add(elipsoide(0.085, 0.07, 0.085, PALETA.pielOsc, 0, -0.52, 0));    // tobillo
-
-    // Zapato: un óvalo largo y bajo, más una suela algo más ancha.
-    rodilla.add(elipsoide(0.13, 0.085, 0.27, PALETA.zapato, 0, -ALTURA_RODILLA + 0.08, 0.1));
-    rodilla.add(elipsoide(0.14, 0.03, 0.285, PALETA.figuraOsc, 0, -ALTURA_RODILLA + 0.03, 0.1));
-
+  function pierna(lado) {
+    var cadera = grupoEn(raiz, piv['cadera' + lado]);
+    var rodilla = grupoEn(cadera, piv['rodilla' + lado], piv['cadera' + lado]);
     return { cadera: cadera, rodilla: rodilla };
   }
 
-  var piernaIzq = pierna(-0.22);
-  var piernaDer = pierna(0.22);
+  var piernaIzq = pierna('Izq');
+  var piernaDer = pierna('Der');
 
   // Torso: el Group permite inclinarlo entero (encogerse, enderezarse).
-  var torso = new THREE.Group();
-  torso.position.y = 1.55;
-  raiz.add(torso);
+  var torso = grupoEn(raiz, piv.torso);
 
-  // Pelvis y cintura: óvalos aplanados de fondo, con el cinturón entre
-  // pantalón y camisa.
-  torso.add(elipsoide(0.43, 0.24, 0.27, PALETA.pantalon, 0, 0.1, 0));             // pelvis
-  torso.add(tramo(0.4, 0.42, 0.08, PALETA.zapato, 0, 0.3, 0, 0.64));              // cinturón
-  torso.add(tramo(0.38, 0.4, 0.36, PALETA.camisa, 0, 0.5, 0, 0.62));              // cintura
+  // Columna: lo que va de la cintura hacia arriba cuelga de este pivote, así
+  // el cuerpo se encorva por la espalda en vez de inclinarse como un tablón.
+  var pecho = grupoEn(torso, piv.pecho, piv.torso);
+  var cabeza = grupoEn(pecho, piv.cabeza, piv.pecho);
 
-  // Columna: todo lo que va de la cintura hacia arriba cuelga de este
-  // pivote, así el cuerpo se encorva y se estira por la espalda en vez de
-  // inclinarse entero como un tablón. Las cotas siguen expresadas respecto
-  // al torso (de ahí el "- PIVOTE_COLUMNA").
-  var PIVOTE_COLUMNA = 0.64;
-  var pecho = new THREE.Group();
-  pecho.position.y = PIVOTE_COLUMNA;
-  torso.add(pecho);
+  // Brazos: la IK espera el codo en (0, -L1, 0) del hombro y la mano en
+  // (0, -L2, 0) del codo. En la pose de atado, cada grupo se gira para que
+  // su -Y apunte por el hueso del modelo (brazos en A).
+  function brazo(lado) {
+    var pH = v3(piv['hombro' + lado]);
+    var pC = v3(piv['codo' + lado]);
+    var pM = v3(piv['mano' + lado]);
+    var L1 = pH.distanceTo(pC);
+    var L2 = pC.distanceTo(pM);
 
-  function enPecho(y) { return y - PIVOTE_COLUMNA; }
-
-  // Abdomen -> pecho: se ensancha hacia arriba y remata en un óvalo que
-  // redondea los hombros.
-  // Baja hasta solapar la cintura: si no, al encorvarse se abre un hueco
-  // entre camisa y cinturón.
-  pecho.add(tramo(0.5, 0.38, 1.1, PALETA.camisa, 0, enPecho(1.2), 0, 0.56));
-  pecho.add(elipsoide(0.52, 0.2, 0.3, PALETA.camisa, 0, enPecho(1.74), 0));        // hombros
-  pecho.add(elipsoide(0.2, 0.2, 0.22, PALETA.camisa, -0.6, enPecho(1.66), 0));     // deltoides
-  pecho.add(elipsoide(0.2, 0.2, 0.22, PALETA.camisa,  0.6, enPecho(1.66), 0));
-
-  // Tapeta de botones y bolsillo: dos detalles planos pegados a la curva.
-  pecho.add(capsula(0.025, 0.7, PALETA.camisaOsc, 0, enPecho(1.3), 0.285));
-  pecho.add(elipsoide(0.1, 0.09, 0.02, PALETA.camisaOsc, -0.25, enPecho(1.48), 0.275));
-
-  // Cuello y cuello de la camisa (un aro).
-  pecho.add(tramo(0.12, 0.13, 0.26, PALETA.pielOsc, 0, enPecho(1.96), -0.01));
-  var aroCuello = new THREE.Mesh(
-    geometriaSuave('aroCuello', function () { return new THREE.TorusGeometry(0.15, 0.045, 10, 24); }),
-    material(PALETA.camisaOsc)
-  );
-  aroCuello.rotation.x = Math.PI / 2;
-  aroCuello.position.set(0, enPecho(1.87), 0);
-  pecho.add(aroCuello);
-
-  // Cabeza: elipsoide algo más alto que ancho.
-  var cabeza = new THREE.Group();
-  cabeza.position.y = enPecho(1.94);
-  pecho.add(cabeza);
-
-  cabeza.add(elipsoide(0.3, 0.36, 0.32, PALETA.piel, 0, 0.44, 0));             // cabeza
-  cabeza.add(elipsoide(0.055, 0.085, 0.05, PALETA.pielOsc, -0.3, 0.42, 0));   // oreja
-  cabeza.add(elipsoide(0.055, 0.085, 0.05, PALETA.pielOsc,  0.3, 0.42, 0));
-  cabeza.add(elipsoide(0.045, 0.065, 0.055, PALETA.pielOsc, 0, 0.4, 0.31));   // nariz
-
-  // Pelo: media esfera algo mayor que la cabeza, inclinada hacia atrás
-  // para dejar la frente al aire y cubrir la nuca.
-  var pelo = new THREE.Mesh(
-    geometriaSuave('pelo', function () {
-      return new THREE.SphereGeometry(1, 28, 14, 0, Math.PI * 2, 0, Math.PI * 0.55);
-    }),
-    material(PALETA.pelo)
-  );
-  pelo.scale.set(0.325, 0.385, 0.345);
-  pelo.position.set(0, 0.47, -0.02);
-  pelo.rotation.x = -0.42;
-  cabeza.add(pelo);
-
-  // Ojos: pegados a la superficie del elipsoide. Parpadean (ver
-  // escena3d.js) escalándolos en vertical.
-  var ojos = [-0.11, 0.11].map(function (x) {
-    var ojo = elipsoide(0.032, 0.04, 0.02, PALETA.ojo, x, 0.49, 0.29);
-    // La escala ES el tamaño del elipsoide: el parpadeo tiene que
-    // multiplicar esta altura, no sustituirla.
-    ojo.userData.altoAbierto = ojo.scale.y;
-    cabeza.add(ojo);
-    return ojo;
-  });
-
-  // Cejas: una cápsula tumbada dentro de un grupo, para que el guion
-  // pueda subirlas (position.y) e inclinarlas (rotation.z) sin tocar el
-  // giro que las tumba.
-  var cejas = [-0.11, 0.11].map(function (x) {
-    var ceja = new THREE.Group();
-    ceja.position.set(x, ALTURA_CEJAS, 0.275);
-    var trazo = capsula(0.017, 0.07, PALETA.pelo, 0, 0, 0);
-    trazo.rotation.z = Math.PI / 2;
-    ceja.add(trazo);
-    cabeza.add(ceja);
-    return ceja;
-  });
-
-  // Brazos: hombro -> codo -> mano. Las longitudes L1 y L2 no se tocan: la
-  // IK y todos los destinos del guion están calibrados a ellas.
-  function brazo(signo) {
-    var L1 = 0.72;
-    var L2 = 0.66;
-
-    var hombro = new THREE.Group();
-    hombro.position.set(signo * 0.62, enPecho(1.62), 0);
-    pecho.add(hombro);
-
-    hombro.add(elipsoide(0.16, 0.16, 0.16, PALETA.camisa, 0, -0.04, 0));        // hombro
-    hombro.add(tramo(0.15, 0.125, 0.56, PALETA.camisa, 0, -0.32, 0));           // brazo
-    hombro.add(tramo(0.14, 0.14, 0.1, PALETA.camisaOsc, 0, -0.62, 0));          // manga remangada
+    var hombro = grupoEn(pecho, piv['hombro' + lado], piv.pecho);
+    var qHombro = new THREE.Quaternion().setFromUnitVectors(_abajo, pC.clone().sub(pH).normalize());
+    hombro.quaternion.copy(qHombro);
 
     var codo = new THREE.Group();
     codo.position.y = -L1;
+    var qCodo = new THREE.Quaternion().setFromUnitVectors(_abajo, pM.clone().sub(pC).normalize());
+    codo.quaternion.copy(qHombro.clone().invert().multiply(qCodo));
     hombro.add(codo);
-
-    codo.add(elipsoide(0.105, 0.105, 0.105, PALETA.piel, 0, 0, 0));             // codo
-    codo.add(tramo(0.105, 0.08, 0.56, PALETA.piel, 0, -0.29, 0));               // antebrazo
 
     // Punto de agarre al final del antebrazo: aquí se cuelgan el móvil o
     // el bolígrafo, y de aquí se los llevará el robot en el estado 04.
@@ -466,16 +552,121 @@ export function crearTrabajador() {
     mano.position.y = -L2;
     codo.add(mano);
 
-    mano.add(elipsoide(0.085, 0.12, 0.06, PALETA.piel, 0, -0.08, 0));           // palma
-    var pulgar = capsula(0.032, 0.07, PALETA.piel, signo * -0.08, -0.05, 0.03);
-    pulgar.rotation.z = signo * 0.5;
-    mano.add(pulgar);
-
     return { hombro: hombro, codo: codo, mano: mano, l1: L1, l2: L2 };
   }
 
-  var brazoIzq = brazo(-1);
-  var brazoDer = brazo(1);
+  var brazoIzq = brazo('Izq');
+  var brazoDer = brazo('Der');
+
+  raiz.updateMatrixWorld(true);
+
+  // --- Piel ------------------------------------------------------------------
+
+  var porNombre = {
+    torso: torso, pecho: pecho, cabeza: cabeza,
+    hombroIzq: brazoIzq.hombro, codoIzq: brazoIzq.codo, manoIzq: brazoIzq.mano,
+    hombroDer: brazoDer.hombro, codoDer: brazoDer.codo, manoDer: brazoDer.mano,
+    caderaIzq: piernaIzq.cadera, rodillaIzq: piernaIzq.rodilla,
+    caderaDer: piernaDer.cadera, rodillaDer: piernaDer.rodilla
+  };
+  // Los huesos son los propios grupos: Skeleton solo lee matrixWorld.
+  var huesos = ex.grupos.map(function (n) { return porNombre[n]; });
+  var esqueleto = new THREE.Skeleton(huesos);
+
+  var posicion = new THREE.BufferAttribute(MODELO.posiciones, 3);
+  var indiceHueso = new THREE.BufferAttribute(MODELO.huesos, 4);
+  var pesoHueso = new THREE.BufferAttribute(MODELO.pesos, 4, true);
+
+  var geoCuerpo = new THREE.BufferGeometry();
+  geoCuerpo.setAttribute('position', posicion);
+  geoCuerpo.setAttribute('skinIndex', indiceHueso);
+  geoCuerpo.setAttribute('skinWeight', pesoHueso);
+  geoCuerpo.setIndex(new THREE.BufferAttribute(MODELO.triangulos, 1));
+  geoCuerpo.computeVertexNormals();
+
+  var geoMalla = new THREE.BufferGeometry();
+  geoMalla.setAttribute('position', posicion);
+  geoMalla.setAttribute('skinIndex', indiceHueso);
+  geoMalla.setAttribute('skinWeight', pesoHueso);
+  geoMalla.setIndex(new THREE.BufferAttribute(MODELO.aristas, 1));
+
+  var cuerpo = new THREE.SkinnedMesh(geoCuerpo, new THREE.ShaderMaterial({
+    uniforms: UNIFORMES_HOLO,
+    vertexShader: VERTEX_RELLENO,
+    fragmentShader: FRAGMENT_RELLENO,
+    // Empujado un poco hacia atrás: la malla de aristas tiene que ganar
+    // siempre la prueba de profundidad contra su propio relleno.
+    polygonOffset: true,
+    polygonOffsetFactor: 1,
+    polygonOffsetUnits: 1
+  }));
+
+  // Malla de aristas con piel. three.js no tiene "SkinnedLineSegments": se
+  // usa un SkinnedMesh marcado como LineSegments para que el renderer lo
+  // dibuje con gl.LINES y le siga aplicando el esqueleto (comprobado con
+  // three 0.160; revisar si se actualiza la versión).
+  var malla = new THREE.SkinnedMesh(geoMalla, new THREE.ShaderMaterial({
+    uniforms: UNIFORMES_HOLO,
+    vertexShader: VERTEX_LINEA,
+    fragmentShader: FRAGMENT_LINEA,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  }));
+  malla.isMesh = false;
+  malla.isLine = true;
+  malla.isLineSegments = true;
+
+  [cuerpo, malla].forEach(function (m) {
+    m.frustumCulled = false;
+    raiz.add(m);
+    m.updateMatrixWorld(true);
+    m.bind(esqueleto);
+  });
+
+  // --- Puntos, ojos y cejas (en coordenadas de su grupo) -------------------
+
+  function local(grupo, a) {
+    return grupo.worldToLocal(v3(a));
+  }
+
+  ex.puntos.forEach(function (p) {
+    var grupo = porNombre[p[0]];
+    punto(grupo, local(grupo, [p[1], p[2], p[3]]));
+  });
+
+  materialesPunto();
+  var ojos = ex.ojos.map(function (o) {
+    var ojo = new THREE.Mesh(
+      geometriaSuave('ojoHolo', function () { return new THREE.SphereGeometry(1, 12, 8); }),
+      materialPunto
+    );
+    ojo.scale.set(0.022, 0.012, 0.01);
+    ojo.position.copy(local(cabeza, o));
+    // La escala ES el tamaño: el parpadeo multiplica esta altura.
+    ojo.userData.altoAbierto = ojo.scale.y;
+    cabeza.add(ojo);
+    return ojo;
+  });
+
+  // Cejas: un trazo de luz dentro de un grupo, para que el guion pueda
+  // subirlas (position.y) e inclinarlas (rotation.z) sin tocar el giro que
+  // las tumba.
+  var cejas = ojos.map(function (ojo) {
+    var ceja = new THREE.Group();
+    ceja.position.set(ojo.position.x, ALTURA_CEJAS, ojo.position.z - 0.01);
+    var trazo = new THREE.Mesh(
+      geometriaSuave('cejaHolo', function () { return new THREE.CapsuleGeometry(0.008, 0.05, 4, 8); }),
+      materialHaloPunto
+    );
+    trazo.rotation.z = Math.PI / 2;
+    ceja.add(trazo);
+    cabeza.add(ceja);
+    return ceja;
+  });
+
+  // Oreja del lado del móvil, en coordenadas de la cabeza.
+  var oreja = local(cabeza, ex.oreja);
 
   return {
     raiz: raiz,
@@ -487,7 +678,16 @@ export function crearTrabajador() {
     piernaIzq: piernaIzq,
     piernaDer: piernaDer,
     brazoIzq: brazoIzq,
-    brazoDer: brazoDer
+    brazoDer: brazoDer,
+    // Altura de reposo del torso: la respiración oscila alrededor de ella.
+    alturaTorso: torso.position.y,
+    // Dónde va el móvil y dónde lo sujeta la mano. Como un móvil real
+    // pegado a la oreja: el altavoz (arriba) a la altura de la oreja y el
+    // resto bajando hacia la boca, así que su centro queda por debajo.
+    posMovil: oreja.clone().add(new THREE.Vector3(-0.05, -0.09, 0.04)),
+    // La muñeca, por debajo del centro del móvil: la palma lo sujeta por
+    // el medio en vez de cogerlo por el borde de abajo.
+    agarreMovil: oreja.clone().add(new THREE.Vector3(-0.09, -0.22, 0.07))
   };
 }
 
