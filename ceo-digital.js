@@ -53,10 +53,11 @@ function setVB(a){svg.setAttribute('viewBox',a.join(' '))}
 /* ---------- Vista esquema ---------- */
 function buildRing(){
   const c=narrow();
-  // En estrecho, el centro sube y queda hueco abajo para el aviso "Pulsa el CEO";
-  // los radios evitan que las herramientas laterales tapen a su agente.
-  const W=c?400:760,H=c?680:540,cx=W/2,cy=c?320:H/2;
-  const ar=c?[95,160]:[210,158], tr=c?[150,305]:[318,236];
+  // En estrecho, anillo compacto: el centro sube y queda hueco abajo para el
+  // aviso "Pulsa el CEO"; con ar[0]=82 los agentes laterales no llegan a la
+  // columna de su herramienta, así que no se tapan aunque estén cerca.
+  const W=c?400:760,H=c?575:540,cx=W/2,cy=c?280:H/2;
+  const ar=c?[82,130]:[210,158], tr=c?[150,250]:[318,236];
   const S={c,ceo:c?40:52,ag:c?20:25,pw:c?92:128,ph:c?24:28,fs:c?8.5:11,ic:c?.8:.95};
   const gL=el('g',{},svg),gT=el('g',{},svg),gA=el('g',{},svg),gC=el('g',{},svg);gP=el('g',{},svg);
   const nodes=[],tools=[];
