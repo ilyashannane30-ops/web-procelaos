@@ -151,7 +151,7 @@
 
     el.innerHTML =
       '<p class="eyebrow cookies__eyebrow">Cookies</p>' +
-      '<h2 class="cookies__titulo" id="cookiesTitulo">¿Nos dejas medir las visitas?</h2>' +
+      '<h2 class="cookies__titulo" id="cookiesTitulo">Usamos cookies</h2>' +
       '<p class="cookies__texto" id="cookiesTexto">Solo usamos cookies de analítica si nos das permiso: sirven para contar visitas y ver qué páginas se leen. Sin ellas, la web funciona igual. <a href="/cookies">Política de cookies</a></p>' +
 
       '<div class="cookies__panel" id="cookiesPanel" hidden>' +
