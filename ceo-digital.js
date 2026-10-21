@@ -295,12 +295,17 @@ function stop(){
 }
 const sync=()=>onScreen&&!document.hidden?start():stop();
 
+// La escena se monta al acercarse a pantalla, no en la carga: build() mide el
+// ancho (fuerza layout) y crea cientos de nodos SVG. La altura ya está
+// reservada con aspect-ratio, así que montarla tarde no mueve nada.
 root.classList.add('cd-paused');
-build();ui();
-let rt,lastNarrow=narrow();
-addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(narrow()!==lastNarrow&&!moving){lastNarrow=narrow();build()}},200)});
-document.addEventListener('visibilitychange',sync);
+let built=false,rt,lastNarrow;
+function mount(){if(built)return;built=true;build();ui();lastNarrow=narrow();sync()}
+addEventListener('resize',()=>{if(!built)return;clearTimeout(rt);rt=setTimeout(()=>{if(narrow()!==lastNarrow&&!moving){lastNarrow=narrow();build()}},200)});
+document.addEventListener('visibilitychange',()=>{if(built)sync()});
 if('IntersectionObserver' in window){
-  new IntersectionObserver(es=>{es.forEach(e=>{onScreen=e.isIntersecting});sync()},{threshold:0}).observe(root);
-}else{onScreen=true;sync()}
+  const pre=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){pre.disconnect();mount()}},{rootMargin:'400px'});
+  pre.observe(root);
+  new IntersectionObserver(es=>{es.forEach(e=>{onScreen=e.isIntersecting});if(built)sync()},{threshold:0}).observe(root);
+}else{onScreen=true;mount()}
 })();
