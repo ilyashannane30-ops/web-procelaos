@@ -2899,3 +2899,305 @@ button:focus-visible {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Tu equipo IA (CEO digital) — todo prefijado con cd- para no chocar con
+   el resto de la web. Los tokens viven en .cd-section, no en :root.
+   ========================================================================== */
+.cd-section {
+  --cd-bg: var(--bg);
+  --cd-panel: var(--surface);
+  --cd-line: var(--border);
+  --cd-line-2: rgba(255, 255, 255, 0.18);
+  --cd-fg: var(--text);
+  --cd-muted: var(--text-secondary);
+  --cd-accent: var(--accent);
+  --cd-on-accent: #110C08;
+  --cd-done: #5FD08A;
+  --cd-screen: #0B0805;
+  --cd-screen-ink: #5A514A;
+  border-top: 1px solid var(--border);
+}
+
+/* Escalera */
+.cd-steps {
+  list-style: none;
+  margin: 0 0 40px;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.cd-step {
+  padding: 18px 20px;
+  border: 1px solid var(--cd-line);
+  border-radius: var(--radius);
+  background: var(--cd-panel);
+}
+.cd-step h3 {
+  font-size: 1.15rem;
+  margin: 6px 0 4px;
+  color: var(--cd-fg);
+}
+.cd-step p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+.cd-step__n {
+  font: 500 0.75rem var(--font-mono);
+  letter-spacing: 0.14em;
+  color: var(--cd-muted);
+}
+.cd-step--top {
+  border-color: color-mix(in srgb, var(--cd-accent) 55%, transparent);
+}
+.cd-step--top .cd-step__n { color: var(--cd-accent); }
+@media (min-width: 760px) {
+  .cd-steps { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Demo */
+.cd-demo {
+  display: grid;
+  gap: 14px;
+  container-type: inline-size;
+}
+.cd-stats {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--cd-line);
+  border-radius: var(--radius-sm);
+  background: var(--cd-panel);
+  overflow: hidden;
+}
+.cd-stat {
+  flex: 1 1 180px;
+  padding: 12px 18px;
+  display: grid;
+  min-width: 0;
+  border-left: 1px solid var(--cd-line);
+  margin-left: -1px;
+}
+.cd-k {
+  font: 500 0.68rem var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cd-muted);
+}
+.cd-v {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--cd-fg);
+  font-variant-numeric: tabular-nums;
+}
+.cd-d {
+  font-size: 0.8rem;
+  color: var(--cd-muted);
+}
+.cd-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: 1px solid var(--cd-line-2);
+  font: 500 0.68rem var(--font-mono);
+}
+
+.cd-scene {
+  position: relative;
+  border: 1px solid var(--cd-line);
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--cd-panel);
+  aspect-ratio: 760 / 540;
+}
+.cd-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1.3px) 0 0 / 22px 22px;
+}
+.cd-scene svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s;
+}
+.cd-ui { position: absolute; z-index: 2; }
+.cd-ui[hidden] { display: none; }
+.cd-hint {
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--cd-line-2);
+  background: var(--cd-panel);
+  font: 500 0.75rem var(--font-mono);
+  color: var(--cd-muted);
+}
+.cd-hint b { font-weight: 500; color: var(--cd-accent); }
+.cd-back {
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--cd-line-2);
+  background: var(--cd-panel);
+  color: var(--cd-fg);
+  font: 500 0.82rem var(--font);
+  cursor: pointer;
+}
+.cd-back:hover { border-color: var(--cd-accent); }
+.cd-back:focus-visible { outline: 2px solid var(--cd-accent); outline-offset: 2px; }
+.cd-olbl {
+  top: 20px;
+  right: 18px;
+  font: 500 0.68rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cd-muted);
+}
+
+/* SVG · esquema */
+.cd-ln { stroke: var(--cd-line-2); stroke-width: 1; fill: none; }
+.cd-ln--dash { stroke-dasharray: 2 4; }
+.cd-tool rect { fill: var(--cd-panel); stroke: var(--cd-line-2); stroke-width: 1; transition: stroke 0.4s; }
+.cd-tool text { fill: var(--cd-muted); font-family: var(--font-mono); font-weight: 500; transition: fill 0.4s; }
+.cd-tool .cd-dot { fill: var(--cd-done); }
+.cd-tool.cd-in rect { stroke: var(--cd-fg); }
+.cd-tool.cd-in text { fill: var(--cd-fg); }
+.cd-tool.cd-out rect { stroke: var(--cd-done); }
+.cd-tool.cd-out text { fill: var(--cd-fg); }
+.cd-ag .cd-core, .cd-ag .cd-stack { fill: var(--cd-panel); stroke: var(--cd-line-2); stroke-width: 1; transition: stroke 0.3s; }
+.cd-ag.cd-busy .cd-core { stroke: var(--cd-fg); }
+.cd-ag .cd-ico { fill: none; stroke: var(--cd-fg); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.cd-ag .cd-ring { fill: none; stroke: var(--cd-accent); stroke-width: 1.5; stroke-linecap: round; opacity: 0; transition: opacity 0.3s; }
+.cd-ag.cd-busy .cd-ring { opacity: 1; }
+.cd-badge { fill: var(--cd-accent); }
+.cd-badge-t { fill: var(--cd-on-accent); font: 700 9.5px var(--font-mono); }
+.cd-lbl, .cd-role { paint-order: stroke; stroke: var(--cd-panel); stroke-width: 6px; stroke-linejoin: round; }
+.cd-lbl { fill: var(--cd-fg); font-family: var(--font); font-weight: 700; }
+.cd-role { fill: var(--cd-muted); font-family: var(--font-mono); font-weight: 500; }
+.cd-ceo { cursor: pointer; outline: none; }
+.cd-ceo .cd-halo { fill: var(--cd-accent); opacity: 0.08; transform-box: fill-box; transform-origin: center; animation: cd-breathe 5s ease-in-out infinite; }
+.cd-ceo .cd-core { fill: var(--cd-accent); transform-box: fill-box; transform-origin: center; }
+.cd-ceo .cd-beam { fill: none; stroke: var(--cd-accent); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 14 86; animation: cd-beam 3.2s linear infinite; }
+.cd-ceo .cd-edge { fill: none; stroke: var(--cd-line-2); stroke-width: 1; }
+.cd-ceo .cd-call { fill: none; stroke: var(--cd-accent); stroke-width: 1.2; transform-box: fill-box; transform-origin: center; animation: cd-call 2.6s ease-out infinite; }
+.cd-ceo:hover .cd-edge, .cd-ceo:focus-visible .cd-edge { stroke: var(--cd-accent); stroke-width: 2; }
+.cd-ceo.cd-think .cd-core { animation: cd-pulse 0.5s ease-out; }
+.cd-ceo-t { fill: var(--cd-on-accent); font-family: var(--font-display); font-weight: 800; letter-spacing: -0.03em; }
+.cd-ceo-s { fill: var(--cd-on-accent); opacity: 0.65; font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.14em; }
+
+/* SVG · oficina */
+.cd-room { fill: color-mix(in srgb, var(--cd-accent) 6%, var(--cd-panel)); stroke: color-mix(in srgb, var(--cd-accent) 45%, var(--cd-line-2)); stroke-width: 1; }
+.cd-zone { fill: color-mix(in srgb, var(--cd-bg) 40%, transparent); stroke: var(--cd-line-2); stroke-width: 1; stroke-dasharray: 3 4; }
+.cd-zlbl { fill: var(--cd-muted); font: 500 10.5px var(--font-mono); letter-spacing: 0.08em; }
+.cd-net { stroke: var(--cd-line-2); stroke-width: 1; stroke-dasharray: 1 5; }
+.cd-desk .cd-table { fill: var(--cd-panel); stroke: var(--cd-line-2); stroke-width: 1; }
+.cd-desk .cd-scr { fill: var(--cd-screen); stroke: var(--cd-line-2); stroke-width: 1; }
+.cd-desk .cd-stand { fill: var(--cd-line-2); }
+.cd-desk .cd-sl { fill: var(--cd-screen-ink); opacity: 0.6; transform-box: fill-box; transform-origin: left center; }
+.cd-desk.cd-busy .cd-sl { fill: var(--cd-accent); opacity: 1; animation: cd-type 1.2s steps(5) infinite; }
+.cd-desk.cd-busy .cd-s2 { animation-delay: 0.4s; }
+.cd-desk.cd-busy .cd-s3 { animation-delay: 0.8s; }
+.cd-desk .cd-person { fill: var(--cd-fg); transform-box: fill-box; transform-origin: center bottom; }
+.cd-desk.cd-busy .cd-person { animation: cd-bob 0.45s ease-in-out infinite alternate; }
+.cd-desk .cd-prog { fill: none; stroke: var(--cd-accent); stroke-width: 2; stroke-linecap: round; opacity: 0; }
+.cd-desk.cd-busy .cd-prog { opacity: 1; }
+.cd-desk .cd-head-ring { fill: none; stroke: var(--cd-accent); stroke-width: 2; }
+.cd-dname { fill: var(--cd-fg); font: 700 12px var(--font); }
+.cd-otool text { fill: var(--cd-muted); font: 500 10px var(--font-mono); transition: fill 0.4s; }
+.cd-otool.cd-in text { fill: var(--cd-fg); }
+.cd-otool.cd-out text { fill: var(--cd-done); }
+.cd-bub { opacity: 0; transition: opacity 0.25s; }
+.cd-bub.cd-show { opacity: 1; }
+.cd-bub rect { fill: var(--cd-fg); }
+.cd-bub text { fill: var(--cd-bg); font: 500 10.5px var(--font); }
+.cd-bub.cd-done rect { fill: var(--cd-done); }
+.cd-bub.cd-done text { fill: var(--cd-on-accent); }
+.cd-bub.cd-boss rect { fill: var(--cd-accent); }
+.cd-bub.cd-boss text { fill: var(--cd-on-accent); }
+
+/* Consola de actividad (compacta: 3 líneas) */
+.cd-console {
+  border: 1px solid var(--cd-line);
+  border-radius: var(--radius-sm);
+  background: var(--cd-panel);
+  overflow: hidden;
+}
+.cd-console__h {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--cd-line);
+  font: 500 0.72rem var(--font-mono);
+  color: var(--cd-muted);
+}
+.cd-log { list-style: none; margin: 0; padding: 0; }
+.cd-log li {
+  display: grid;
+  grid-template-columns: 52px 130px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--cd-line);
+  animation: cd-in 0.45s ease-out;
+}
+.cd-log li:first-child { border-top: 0; }
+.cd-log li:nth-child(3) { opacity: 0.5; }
+.cd-t { font: 500 0.72rem var(--font-mono); color: var(--cd-muted); font-variant-numeric: tabular-nums; }
+.cd-who { font: 500 0.72rem var(--font-mono); color: var(--cd-fg); display: flex; align-items: center; gap: 7px; }
+.cd-who::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cd-done); flex: none; }
+.cd-who--ceo::before { background: var(--cd-accent); }
+.cd-msg { font-size: 0.88rem; min-width: 0; color: var(--cd-fg); }
+
+.cd-note {
+  margin: 14px 0 0;
+  font-size: 0.82rem;
+  color: var(--cd-muted);
+}
+.cd-cta { margin-top: 28px; }
+
+@container (max-width: 559px) {
+  .cd-scene { aspect-ratio: 400 / 680; }
+  .cd-log li { grid-template-columns: auto 1fr; row-gap: 2px; }
+  .cd-msg { grid-column: 1 / -1; }
+  /* Contadores en una fila compacta: solo rótulo y cifra */
+  .cd-stat { flex: 1 1 0; padding: 10px 10px; }
+  .cd-stat:first-child { border-left: 0; margin-left: 0; }
+  .cd-k { font-size: 0.58rem; letter-spacing: 0.04em; line-height: 1.3; }
+  .cd-v { font-size: 1.15rem; }
+  .cd-d { display: none; }
+  .cd-olbl { display: none; }
+  .cd-hint { font-size: 0.68rem; }
+}
+
+/* Fuera de pantalla o con la pestaña oculta, las animaciones CSS también paran */
+.cd-paused * { animation-play-state: paused !important; }
+
+@keyframes cd-beam { to { stroke-dashoffset: -100; } }
+@keyframes cd-breathe { 50% { transform: scale(1.1); opacity: 0.14; } }
+@keyframes cd-pulse { 40% { transform: scale(1.05); } }
+@keyframes cd-call { 0% { opacity: 0.7; transform: scale(1); } 100% { opacity: 0; transform: scale(1.45); } }
+@keyframes cd-in { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes cd-type { from { transform: scaleX(0.15); } to { transform: scaleX(1); } }
+@keyframes cd-bob { to { transform: translateY(1.5px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cd-beam, .cd-halo, .cd-call, .cd-log li, .cd-ceo.cd-think .cd-core,
+  .cd-desk.cd-busy .cd-sl, .cd-desk.cd-busy .cd-person { animation: none !important; }
+}

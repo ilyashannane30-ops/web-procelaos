@@ -211,6 +211,65 @@
       </div>
     </section>
 
+    <!-- Tu equipo IA: escalera de crecimiento + simulación del CEO digital.
+         Estilos con prefijo cd- (styles.css) y motor en ceo-digital.js, que
+         solo corre con la sección en pantalla y la pestaña visible. -->
+    <section class="section cd-section" id="equipo-ia" aria-labelledby="cd-titulo">
+      <div class="container">
+        <p class="eyebrow reveal">Tu equipo IA</p>
+        <h2 class="section__title split reveal" id="cd-titulo">Empiezas con una tarea. Acabas con un equipo.</h2>
+        <p class="section__lead reveal">Cada empleado IA se encarga de una cosa. Cuando tienes varios, un CEO digital los coordina. Funcionan 24/7, conectados a las herramientas que ya usas. Tú decides hasta dónde llegar, paso a paso y con precio cerrado en cada uno.</p>
+
+        <ol class="cd-steps reveal">
+          <li class="cd-step">
+            <span class="cd-step__n">01</span>
+            <h3>Un agente</h3>
+            <p>Quitas una tarea repetitiva.</p>
+          </li>
+          <li class="cd-step">
+            <span class="cd-step__n">02</span>
+            <h3>Un departamento</h3>
+            <p>Varios agentes coordinados: Comercial, Administración y finanzas…</p>
+          </li>
+          <li class="cd-step cd-step--top">
+            <span class="cd-step__n">03</span>
+            <h3>CEO digital</h3>
+            <p>Todo el equipo orquestado.</p>
+          </li>
+        </ol>
+
+        <div class="cd-demo reveal" id="cd-equipo">
+          <div class="cd-stats">
+            <div class="cd-stat"><span class="cd-k">Hora</span><span class="cd-v" id="cd-clock">03:12</span><span class="cd-d" id="cd-shift">domingo<span class="cd-tag">cerrado</span></span></div>
+            <div class="cd-stat"><span class="cd-k">Tareas resueltas hoy</span><span class="cd-v" id="cd-tasks">37</span><span class="cd-d">sin intervención humana</span></div>
+            <div class="cd-stat"><span class="cd-k">Horas ahorradas</span><span class="cd-v" id="cd-hours">9,6 h</span><span class="cd-d">de trabajo manual</span></div>
+          </div>
+
+          <div class="cd-scene" id="cd-scene">
+            <svg id="cd-svg" viewBox="0 0 760 540" role="img" aria-label="Animación: un CEO digital reparte tareas a sus empleados IA de operaciones, comercial y administración y finanzas, conectados a las herramientas del negocio"></svg>
+            <span class="cd-ui cd-hint" id="cd-hint">↗ Pulsa el <b>CEO</b> para entrar en la oficina</span>
+            <button class="cd-ui cd-back" id="cd-back" type="button" hidden>← Volver al esquema</button>
+            <span class="cd-ui cd-olbl" id="cd-olbl" hidden>Oficina virtual · 11 empleados IA</span>
+          </div>
+
+          <div class="cd-console">
+            <div class="cd-console__h"><span>actividad</span><span>en tiempo real</span></div>
+            <ol class="cd-log" id="cd-log" aria-live="off">
+              <li><span class="cd-t">03:11</span><span class="cd-who">Facturación</span><span class="cd-msg">Factura #2040 leída y pasada al Excel</span></li>
+              <li><span class="cd-t">03:09</span><span class="cd-who cd-who--ceo">CEO digital</span><span class="cd-msg">Factura recibida → Facturación</span></li>
+              <li><span class="cd-t">03:06</span><span class="cd-who">Propuestas</span><span class="cd-msg">Propuesta para Hotel Mar Azul enviada</span></li>
+            </ol>
+          </div>
+        </div>
+
+        <p class="cd-note">Simulación ilustrativa. En la reunión vemos qué agentes tienen sentido en tu negocio.</p>
+
+        <div class="cd-cta reveal">
+          <a href="/agendar-reunion" class="btn btn--primary btn--lg">Agendar reunión</a>
+        </div>
+      </div>
+    </section>
+
     <section class="section section--alt">
       <div class="container">
         <p class="eyebrow reveal">Cómo trabajamos</p>
@@ -275,5 +334,6 @@
 
   <script src="cookies.js"></script>
   <script src="script.js"></script>
+  <script src="ceo-digital.js" defer></script>
 </body>
 </html>
