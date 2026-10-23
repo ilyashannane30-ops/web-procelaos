@@ -131,61 +131,127 @@
       </div>
     </section>
 
-    <!-- Galería de trabajo real. Las capturas son de un panel que ya hemos
-         construido y está funcionando; se sirven desde el repo, así que no
-         hay que duplicar binarios en esta web. -->
+    <!-- Galería de trabajo real: capturas de plataformas que ya hemos
+         construido y están funcionando, en images/plataformas/<nombre>/.
+         Sin nombres de sector: las pestañas dicen qué tipo de herramienta
+         es, no para quién se hizo. -->
     <section class="section section--alt">
       <div class="container">
         <p class="eyebrow reveal">Trabajo real, no maquetas</p>
         <h2 class="section__title reveal">Lo que podemos crear para ti <span class="highlight">y mucho más</span></h2>
-        <!-- Baraja: las 7 capturas abiertas en abanico. Cada carta abre el
-         visor (lightbox) en esa posición y desde ahí se pasa una a una.
-         --o es la distancia al centro del abanico; --a, su valor absoluto. -->
-        <div class="deck-wrap reveal">
-          <ul class="deck" id="deck">
-            <li class="deck__item" style="--o:-3;--a:3">
-              <button class="deck__card" type="button" data-title="Todo el día, de un vistazo" data-desc="Lo que pasa hoy, sin entrar a buscar nada en ningún sitio." aria-label="Ver captura 1 de 7: Inicio">
-                <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Inicio</span></span>
-                <img class="deck__img" src="https://raw.githubusercontent.com/danielAR-1/web-Corporativa/main/images/admin/admin-dashboard.png" alt="Panel de inicio con las citas del día, las completadas, los clientes registrados y las valoraciones recientes" loading="lazy">
-              </button>
-            </li>
-            <li class="deck__item" style="--o:-2;--a:2">
-              <button class="deck__card" type="button" data-title="La agenda visual de tu equipo" data-desc="Ve qué tiene cada persona en su columna, hora a hora, todo el día." aria-label="Ver captura 2 de 7: Agenda">
-                <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Agenda</span></span>
-                <img class="deck__img" src="https://raw.githubusercontent.com/danielAR-1/web-Corporativa/main/images/admin/admin-calendario.png" alt="Calendario semanal con una columna por persona del equipo, mostrando sus citas hora a hora" loading="lazy">
-              </button>
-            </li>
-            <li class="deck__item" style="--o:-1;--a:1">
-              <button class="deck__card" type="button" data-title="Tus clientes, organizados" data-desc="Historial, contacto y avisos automáticos de quien lleva tiempo sin volver." aria-label="Ver captura 3 de 7: Clientes">
-                <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Clientes</span></span>
-                <img class="deck__img" src="https://raw.githubusercontent.com/danielAR-1/web-Corporativa/main/images/admin/admin-clientes.png" alt="Listado de clientes con historial, datos de contacto y alertas de clientes inactivos" loading="lazy">
-              </button>
-            </li>
-            <li class="deck__item" style="--o:0;--a:0">
-              <button class="deck__card" type="button" data-title="Tu negocio, medido de verdad" data-desc="Resultados, valoraciones y qué meses van mejor, sin hacer cuentas a mano." aria-label="Ver captura 4 de 7: Estadísticas">
-                <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Estadísticas</span></span>
-                <img class="deck__img" src="https://raw.githubusercontent.com/danielAR-1/web-Corporativa/main/images/admin/admin-estadisticas.png" alt="Panel de estadísticas con totales por resultado, puntuación media de satisfacción y evolución de ingresos" loading="lazy">
-              </button>
-            </li>
-            <li class="deck__item" style="--o:1;--a:1">
-              <button class="deck__card" type="button" data-title="Dónde tienes hueco libre" data-desc="Un mapa de calor te dice qué horas y qué personas están menos ocupadas." aria-label="Ver captura 5 de 7: Ocupación">
-                <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Ocupación</span></span>
-                <img class="deck__img" src="https://raw.githubusercontent.com/danielAR-1/web-Corporativa/main/images/admin/admin-ocupacion.png" alt="Mapa de calor de ocupación por persona y franja horaria a lo largo de la semana" loading="lazy">
-              </button>
-            </li>
-            <li class="deck__item" style="--o:2;--a:2">
-              <button class="deck__card" type="button" data-title="Qué te da más dinero" data-desc="Compara ingresos por tipo y detecta qué sube y qué baja mes a mes." aria-label="Ver captura 6 de 7: Ingresos">
-                <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Ingresos</span></span>
-                <img class="deck__img" src="https://raw.githubusercontent.com/danielAR-1/web-Corporativa/main/images/admin/admin-ingresos.png" alt="Gráfico comparativo de ingresos por tipo de servicio mes a mes" loading="lazy">
-              </button>
-            </li>
-            <li class="deck__item" style="--o:3;--a:3">
-              <button class="deck__card" type="button" data-title="Configurable sin tocar código" data-desc="Horarios, días y reglas, cambiados en segundos desde el propio panel." aria-label="Ver captura 7 de 7: Ajustes">
-                <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Ajustes</span></span>
-                <img class="deck__img" src="https://raw.githubusercontent.com/danielAR-1/web-Corporativa/main/images/admin/admin-ajustes.png" alt="Pantalla de ajustes con horarios, días de apertura y reglas de reserva" loading="lazy">
-              </button>
-            </li>
-          </ul>
+        <!-- Selector de plataformas: cada pestaña enseña su baraja. Para añadir
+             una, copiar un bloque .plat__panel con sus capturas y su botón.
+             TODO: los paneles "crm" y "web" llevan cartas de reserva hasta
+             que lleguen sus capturas; no publicar así. -->
+        <div class="plat reveal">
+          <div class="plat__tabs" role="tablist" aria-label="Plataformas">
+            <button class="plat__tab" type="button" role="tab" id="plat-tab-panel" aria-controls="plat-panel" aria-selected="true">Panel de gestión</button>
+            <button class="plat__tab" type="button" role="tab" id="plat-tab-crm" aria-controls="plat-crm" aria-selected="false" tabindex="-1">CRM</button>
+            <button class="plat__tab" type="button" role="tab" id="plat-tab-web" aria-controls="plat-web" aria-selected="false" tabindex="-1">Web, app y CRM</button>
+          </div>
+
+          <div class="plat__panel" id="plat-panel" role="tabpanel" aria-labelledby="plat-tab-panel">
+            <!-- Baraja: las 7 capturas abiertas en abanico. Cada carta abre el
+             visor (lightbox) en esa posición y desde ahí se pasa una a una.
+             --o es la distancia al centro del abanico; --a, su valor absoluto. -->
+            <div class="deck-wrap">
+              <ul class="deck">
+                <li class="deck__item" style="--o:-3;--a:3">
+                  <button class="deck__card" type="button" data-title="Todo el día, de un vistazo" data-desc="Lo que pasa hoy, sin entrar a buscar nada en ningún sitio." aria-label="Ver captura 1 de 7: Inicio">
+                    <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Inicio</span></span>
+                    <img class="deck__img" src="/images/plataformas/panel/dashboard.png" alt="Panel de inicio con las citas del día, las completadas, los clientes registrados y las valoraciones recientes" loading="lazy">
+                  </button>
+                </li>
+                <li class="deck__item" style="--o:-2;--a:2">
+                  <button class="deck__card" type="button" data-title="La agenda visual de tu equipo" data-desc="Ve qué tiene cada persona en su columna, hora a hora, todo el día." aria-label="Ver captura 2 de 7: Agenda">
+                    <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Agenda</span></span>
+                    <img class="deck__img" src="/images/plataformas/panel/calendario.png" alt="Calendario semanal con una columna por persona del equipo, mostrando sus citas hora a hora" loading="lazy">
+                  </button>
+                </li>
+                <li class="deck__item" style="--o:-1;--a:1">
+                  <button class="deck__card" type="button" data-title="Tus clientes, organizados" data-desc="Historial, contacto y avisos automáticos de quien lleva tiempo sin volver." aria-label="Ver captura 3 de 7: Clientes">
+                    <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Clientes</span></span>
+                    <img class="deck__img" src="/images/plataformas/panel/clientes.png" alt="Listado de clientes con historial, datos de contacto y alertas de clientes inactivos" loading="lazy">
+                  </button>
+                </li>
+                <li class="deck__item" style="--o:0;--a:0">
+                  <button class="deck__card" type="button" data-title="Tu negocio, medido de verdad" data-desc="Resultados, valoraciones y qué meses van mejor, sin hacer cuentas a mano." aria-label="Ver captura 4 de 7: Estadísticas">
+                    <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Estadísticas</span></span>
+                    <img class="deck__img" src="/images/plataformas/panel/estadisticas.png" alt="Panel de estadísticas con totales por resultado, puntuación media de satisfacción y evolución de ingresos" loading="lazy">
+                  </button>
+                </li>
+                <li class="deck__item" style="--o:1;--a:1">
+                  <button class="deck__card" type="button" data-title="Dónde tienes hueco libre" data-desc="Un mapa de calor te dice qué horas y qué personas están menos ocupadas." aria-label="Ver captura 5 de 7: Ocupación">
+                    <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Ocupación</span></span>
+                    <img class="deck__img" src="/images/plataformas/panel/ocupacion.png" alt="Mapa de calor de ocupación por persona y franja horaria a lo largo de la semana" loading="lazy">
+                  </button>
+                </li>
+                <li class="deck__item" style="--o:2;--a:2">
+                  <button class="deck__card" type="button" data-title="Qué te da más dinero" data-desc="Compara ingresos por tipo y detecta qué sube y qué baja mes a mes." aria-label="Ver captura 6 de 7: Ingresos">
+                    <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Ingresos</span></span>
+                    <img class="deck__img" src="/images/plataformas/panel/ingresos.png" alt="Gráfico comparativo de ingresos por tipo de servicio mes a mes" loading="lazy">
+                  </button>
+                </li>
+                <li class="deck__item" style="--o:3;--a:3">
+                  <button class="deck__card" type="button" data-title="Configurable sin tocar código" data-desc="Horarios, días y reglas, cambiados en segundos desde el propio panel." aria-label="Ver captura 7 de 7: Ajustes">
+                    <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__bar-title">Ajustes</span></span>
+                    <img class="deck__img" src="/images/plataformas/panel/ajustes.png" alt="Pantalla de ajustes con horarios, días de apertura y reglas de reserva" loading="lazy">
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="plat__panel" id="plat-crm" role="tabpanel" aria-labelledby="plat-tab-crm" hidden>
+          <div class="deck-wrap">
+            <ul class="deck">
+              <li class="deck__item" style="--o:-1;--a:1">
+                <span class="deck__card deck__card--soon" aria-hidden="true">
+                  <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span></span>
+                  <span class="deck__soon">Capturas en camino</span>
+                </span>
+              </li>
+              <li class="deck__item" style="--o:0;--a:0">
+                <span class="deck__card deck__card--soon" aria-hidden="true">
+                  <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span></span>
+                  <span class="deck__soon">Capturas en camino</span>
+                </span>
+              </li>
+              <li class="deck__item" style="--o:1;--a:1">
+                <span class="deck__card deck__card--soon" aria-hidden="true">
+                  <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span></span>
+                  <span class="deck__soon">Capturas en camino</span>
+                </span>
+              </li>
+            </ul>
+          </div>
+          </div>
+
+          <div class="plat__panel" id="plat-web" role="tabpanel" aria-labelledby="plat-tab-web" hidden>
+          <div class="deck-wrap">
+            <ul class="deck">
+              <li class="deck__item" style="--o:-1;--a:1">
+                <span class="deck__card deck__card--soon" aria-hidden="true">
+                  <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span></span>
+                  <span class="deck__soon">Capturas en camino</span>
+                </span>
+              </li>
+              <li class="deck__item" style="--o:0;--a:0">
+                <span class="deck__card deck__card--soon" aria-hidden="true">
+                  <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span></span>
+                  <span class="deck__soon">Capturas en camino</span>
+                </span>
+              </li>
+              <li class="deck__item" style="--o:1;--a:1">
+                <span class="deck__card deck__card--soon" aria-hidden="true">
+                  <span class="deck__bar"><span class="deck__dot"></span><span class="deck__dot"></span><span class="deck__dot"></span></span>
+                  <span class="deck__soon">Capturas en camino</span>
+                </span>
+              </li>
+            </ul>
+          </div>
+          </div>
+
           <p class="deck__hint">Pulsa una carta para verla en grande y pasar a la siguiente</p>
         </div>
 

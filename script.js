@@ -122,7 +122,8 @@ document.addEventListener('DOMContentLoaded', function () {
   inicializarRecorrido();
   inicializarGlitchTitular();
 
-  // Lightbox de la galería de capturas (capacidades.html).
+  // Galería de capturas (capacidades.html): pestañas y visor.
+  inicializarSelectorPlataformas();
   inicializarLightboxGaleria();
 
   function prefiereMovimientoReducido() {
@@ -1111,6 +1112,45 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Pestañas de plataformas encima de la baraja. Al cambiar, el panel nuevo
+  // arranca cerrado y la baraja vuelve a abrirse en abanico. Flechas
+  // izquierda/derecha mueven entre pestañas (patrón ARIA de tabs).
+  function inicializarSelectorPlataformas() {
+    var pestanas = Array.prototype.slice.call(document.querySelectorAll('.plat__tab'));
+    if (pestanas.length === 0) return;
+
+    function activar(pestana, conFoco) {
+      pestanas.forEach(function (p) {
+        var activa = p === pestana;
+        var panel = document.getElementById(p.getAttribute('aria-controls'));
+        p.setAttribute('aria-selected', activa ? 'true' : 'false');
+        p.tabIndex = activa ? 0 : -1;
+        if (!panel) return;
+        if (activa && panel.hidden) {
+          panel.classList.add('is-closed');
+          panel.hidden = false;
+          void panel.offsetWidth;
+          panel.classList.remove('is-closed');
+        } else if (!activa) {
+          panel.hidden = true;
+        }
+      });
+      if (conFoco) pestana.focus();
+    }
+
+    pestanas.forEach(function (pestana, i) {
+      pestana.addEventListener('click', function () { activar(pestana); });
+      pestana.addEventListener('keydown', function (e) {
+        var destino = null;
+        if (e.key === 'ArrowRight') destino = pestanas[(i + 1) % pestanas.length];
+        else if (e.key === 'ArrowLeft') destino = pestanas[(i - 1 + pestanas.length) % pestanas.length];
+        if (!destino) return;
+        e.preventDefault();
+        activar(destino, true);
+      });
+    });
+  }
+
   // Visor de la baraja "Lo que podemos crear para ti": al pulsar una carta
   // se abre en esa captura y se pasa una a una con flechas, teclado, puntos
   // o arrastrando. Las diapositivas se crean desde las cartas, así título,
@@ -1119,8 +1159,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // Guarda nula al principio: en las páginas sin galería no hace nada.
   function inicializarLightboxGaleria() {
     var lightbox = document.getElementById('lightbox');
-    var cartas = Array.prototype.slice.call(document.querySelectorAll('.deck__card'));
-    if (!lightbox || cartas.length === 0) return;
+    // Solo las cartas con captura (botón); las de reserva son <span>.
+    var todas = Array.prototype.slice.call(document.querySelectorAll('button.deck__card'));
+    if (!lightbox || todas.length === 0) return;
 
     var dialogo = lightbox.querySelector('.lightbox__dialog');
     var escenario = lightbox.querySelector('.lightbox__stage');
@@ -1134,36 +1175,57 @@ document.addEventListener('DOMContentLoaded', function () {
     var DURACION_CIERRE_MS = 280; // debe coincidir con la transition de .lightbox__dialog
     var UMBRAL_ARRASTRE = 0.18;   // fracción del ancho para pasar de captura
 
-    var total = cartas.length;
+    // El visor enseña la baraja de la carta pulsada: cada plataforma tiene
+    // la suya y se reconstruye solo al cambiar de baraja.
+    var cartas = [];
+    var imagenes = [];
+    var puntos = [];
+    var barajaActual = null;
+    var total = 0;
     var actual = 0;
     var ultimoFoco = null;
     var cierreTimeout = null;
-    var puntos = [];
 
-    cartas.forEach(function (carta, i) {
-      var img = carta.querySelector('img');
-      var slide = document.createElement('div');
-      slide.className = 'lightbox__slide';
-      var grande = document.createElement('img');
-      grande.className = 'lightbox__img';
-      grande.alt = img ? img.alt : '';
-      grande.dataset.src = img ? img.src : '';
-      grande.draggable = false;
-      slide.appendChild(grande);
-      pista.appendChild(slide);
+    function montarBaraja(baraja) {
+      if (baraja === barajaActual) return;
+      barajaActual = baraja;
+      cartas = Array.prototype.slice.call(baraja.querySelectorAll('button.deck__card'));
+      total = cartas.length;
+      pista.innerHTML = '';
+      puntosEl.innerHTML = '';
+      imagenes = [];
+      puntos = [];
 
-      var punto = document.createElement('button');
-      punto.type = 'button';
-      punto.className = 'lightbox__dot';
-      punto.setAttribute('aria-label', 'Ir a la captura ' + (i + 1));
-      punto.addEventListener('click', function () { ir(i); });
-      puntosEl.appendChild(punto);
-      puntos.push(punto);
+      cartas.forEach(function (carta, i) {
+        var img = carta.querySelector('img');
+        var slide = document.createElement('div');
+        slide.className = 'lightbox__slide';
+        var grande = document.createElement('img');
+        grande.className = 'lightbox__img';
+        grande.alt = img ? img.alt : '';
+        grande.dataset.src = img ? img.src : '';
+        grande.draggable = false;
+        slide.appendChild(grande);
+        pista.appendChild(slide);
+        imagenes.push(grande);
 
-      carta.addEventListener('click', function () { abrir(i, carta); });
+        var punto = document.createElement('button');
+        punto.type = 'button';
+        punto.className = 'lightbox__dot';
+        punto.setAttribute('aria-label', 'Ir a la captura ' + (i + 1));
+        punto.addEventListener('click', function () { ir(i); });
+        puntosEl.appendChild(punto);
+        puntos.push(punto);
+      });
+    }
+
+    todas.forEach(function (carta) {
+      carta.addEventListener('click', function () {
+        var baraja = carta.closest('.deck');
+        montarBaraja(baraja);
+        abrir(cartas.indexOf(carta), carta);
+      });
     });
-
-    var imagenes = Array.prototype.slice.call(pista.querySelectorAll('.lightbox__img'));
 
     // Carga la actual y sus vecinas; el resto, cuando toque.
     function cargar(i) {
