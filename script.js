@@ -1111,38 +1111,98 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Lightbox de la galería "Lo que podemos crear para ti": al pulsar una
-  // captura se reutiliza el mismo diálogo para las 7, poniendo su imagen y
-  // un pie formado por el nombre de pantalla (barra de la ventana) + el
-  // titular de la tarjeta, así no hace falta duplicar ese texto en el HTML.
+  // Visor de la baraja "Lo que podemos crear para ti": al pulsar una carta
+  // se abre en esa captura y se pasa una a una con flechas, teclado, puntos
+  // o arrastrando. Las diapositivas se crean desde las cartas, así título,
+  // texto e imagen viven solo en el HTML de la baraja.
   //
   // Guarda nula al principio: en las páginas sin galería no hace nada.
   function inicializarLightboxGaleria() {
     var lightbox = document.getElementById('lightbox');
-    var disparadores = Array.prototype.slice.call(document.querySelectorAll('.admin-card__zoom'));
-    if (!lightbox || disparadores.length === 0) return;
+    var cartas = Array.prototype.slice.call(document.querySelectorAll('.deck__card'));
+    if (!lightbox || cartas.length === 0) return;
 
     var dialogo = lightbox.querySelector('.lightbox__dialog');
-    var imgEl = lightbox.querySelector('.lightbox__img');
+    var escenario = lightbox.querySelector('.lightbox__stage');
+    var pista = lightbox.querySelector('.lightbox__track');
+    var btnPrev = lightbox.querySelector('.lightbox__nav--prev');
+    var btnNext = lightbox.querySelector('.lightbox__nav--next');
+    var contadorEl = lightbox.querySelector('.lightbox__count');
+    var tituloEl = lightbox.querySelector('.lightbox__title');
     var pieEl = lightbox.querySelector('.lightbox__caption');
+    var puntosEl = lightbox.querySelector('.lightbox__dots');
     var DURACION_CIERRE_MS = 280; // debe coincidir con la transition de .lightbox__dialog
+    var UMBRAL_ARRASTRE = 0.18;   // fracción del ancho para pasar de captura
 
+    var total = cartas.length;
+    var actual = 0;
     var ultimoFoco = null;
     var cierreTimeout = null;
+    var puntos = [];
 
-    function abrir(disparador) {
-      var img = disparador.querySelector('img');
-      var tarjeta = disparador.closest('.admin-card');
-      if (!img || !tarjeta) return;
+    cartas.forEach(function (carta, i) {
+      var img = carta.querySelector('img');
+      var slide = document.createElement('div');
+      slide.className = 'lightbox__slide';
+      var grande = document.createElement('img');
+      grande.className = 'lightbox__img';
+      grande.alt = img ? img.alt : '';
+      grande.dataset.src = img ? img.src : '';
+      grande.draggable = false;
+      slide.appendChild(grande);
+      pista.appendChild(slide);
 
+      var punto = document.createElement('button');
+      punto.type = 'button';
+      punto.className = 'lightbox__dot';
+      punto.setAttribute('aria-label', 'Ir a la captura ' + (i + 1));
+      punto.addEventListener('click', function () { ir(i); });
+      puntosEl.appendChild(punto);
+      puntos.push(punto);
+
+      carta.addEventListener('click', function () { abrir(i, carta); });
+    });
+
+    var imagenes = Array.prototype.slice.call(pista.querySelectorAll('.lightbox__img'));
+
+    // Carga la actual y sus vecinas; el resto, cuando toque.
+    function cargar(i) {
+      [i - 1, i, i + 1].forEach(function (k) {
+        var im = imagenes[k];
+        if (im && !im.src) im.src = im.dataset.src;
+      });
+    }
+
+    function pintar(desplazamientoPx) {
+      var extra = desplazamientoPx ? ' translateX(' + desplazamientoPx + 'px)' : '';
+      pista.style.transform = 'translateX(' + (-actual * 100) + '%)' + extra;
+    }
+
+    function ir(i) {
+      actual = Math.max(0, Math.min(total - 1, i));
+      cargar(actual);
+      pintar(0);
+      var carta = cartas[actual];
+      contadorEl.textContent = String(actual + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+      tituloEl.textContent = carta.dataset.title || '';
+      pieEl.textContent = carta.dataset.desc || '';
+      btnPrev.disabled = actual === 0;
+      btnNext.disabled = actual === total - 1;
+      puntos.forEach(function (p, k) {
+        if (k === actual) p.setAttribute('aria-current', 'true');
+        else p.removeAttribute('aria-current');
+      });
+    }
+
+    function abrir(i, carta) {
       clearTimeout(cierreTimeout);
-      ultimoFoco = disparador;
+      ultimoFoco = carta;
 
-      var pantalla = tarjeta.querySelector('.admin-card__bar-title');
-      var titular = tarjeta.querySelector('.admin-card__text h3');
-      imgEl.src = img.currentSrc || img.src;
-      imgEl.alt = img.alt;
-      pieEl.textContent = (pantalla ? pantalla.textContent + ' \u2014 ' : '') + (titular ? titular.textContent : '');
+      // Abre ya en su sitio, sin animar el viaje desde la anterior.
+      pista.style.transition = 'none';
+      ir(i);
+      void pista.offsetWidth;
+      pista.style.transition = '';
 
       lightbox.hidden = false;
       document.body.style.overflow = 'hidden';
@@ -1167,31 +1227,74 @@ document.addEventListener('DOMContentLoaded', function () {
 
       cierreTimeout = setTimeout(function () {
         lightbox.hidden = true;
-        imgEl.src = '';
       }, DURACION_CIERRE_MS);
 
-      if (ultimoFoco) ultimoFoco.focus();
+      // Vuelve el foco a la carta de la captura que se estaba viendo.
+      var destino = cartas[actual] || ultimoFoco;
+      if (destino) destino.focus({ preventScroll: true });
     }
 
     function alPulsarTecla(e) {
       if (e.key === 'Escape') cerrar();
+      else if (e.key === 'ArrowRight') ir(actual + 1);
+      else if (e.key === 'ArrowLeft') ir(actual - 1);
     }
 
-    disparadores.forEach(function (disparador) {
-      disparador.addEventListener('click', function () { abrir(disparador); });
+    btnPrev.addEventListener('click', function () { ir(actual - 1); });
+    btnNext.addEventListener('click', function () { ir(actual + 1); });
+
+    // Arrastre con dedo o ratón: la pista sigue al puntero y, al soltar,
+    // pasa de captura si se ha movido lo suficiente.
+    var inicioX = 0, inicioY = 0, dx = 0, arrastrando = false, horizontal = null;
+
+    escenario.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.lightbox__nav')) return;
+      arrastrando = true;
+      horizontal = null;
+      inicioX = e.clientX;
+      inicioY = e.clientY;
+      dx = 0;
     });
+
+    escenario.addEventListener('pointermove', function (e) {
+      if (!arrastrando) return;
+      dx = e.clientX - inicioX;
+      var dy = e.clientY - inicioY;
+      if (horizontal === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+        horizontal = Math.abs(dx) > Math.abs(dy);
+        if (horizontal) {
+          escenario.classList.add('is-dragging');
+          escenario.setPointerCapture(e.pointerId);
+        }
+      }
+      if (!horizontal) return;
+      // En los extremos, resistencia para que se note que no hay más.
+      var enBorde = (actual === 0 && dx > 0) || (actual === total - 1 && dx < 0);
+      pintar(enBorde ? dx * 0.3 : dx);
+    });
+
+    function soltar() {
+      if (!arrastrando) return;
+      arrastrando = false;
+      escenario.classList.remove('is-dragging');
+      if (!horizontal) return;
+      var umbral = escenario.clientWidth * UMBRAL_ARRASTRE;
+      if (dx < -umbral) ir(actual + 1);
+      else if (dx > umbral) ir(actual - 1);
+      else pintar(0);
+    }
+
+    escenario.addEventListener('pointerup', soltar);
+    escenario.addEventListener('pointercancel', soltar);
 
     Array.prototype.slice.call(lightbox.querySelectorAll('[data-lightbox-close]')).forEach(function (el) {
       el.addEventListener('click', cerrar);
     });
 
-    // El clic ya cierra al llegar al backdrop porque el diálogo no lo cubre
-    // entero; esto es por si el diálogo crece y lo tapa bajo el cursor.
-    if (dialogo) {
-      dialogo.addEventListener('click', function (e) {
-        if (e.target === dialogo) cerrar();
-      });
-    }
+    // Clic en el hueco del diálogo (fuera de imagen y controles) también cierra.
+    dialogo.addEventListener('click', function (e) {
+      if (e.target === dialogo) cerrar();
+    });
   }
 
 });
