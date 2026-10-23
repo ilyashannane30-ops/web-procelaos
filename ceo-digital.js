@@ -173,6 +173,7 @@ const easeIn=k=>k*k*k, easeOut=k=>1-Math.pow(1-k,3);
 function ui(){const o=view==='office';$('#cd-hint').hidden=o;$('#cd-back').hidden=!o;$('#cd-olbl').hidden=!o}
 async function go(target,p){
   if(moving||view===target)return;moving=true;
+  try{
   if(!RM){
     const b=N.base, run=animVB(b,zoomBox(p||N.ceo,b,10),850,easeIn);
     setTimeout(()=>svg.style.opacity=0,560);await run;
@@ -184,6 +185,7 @@ async function go(target,p){
   }else svg.style.opacity=1;
   moving=false;
   if(target==='ring')N.ceoEl.focus({preventScroll:true});else $('#cd-back').focus({preventScroll:true});
+  }catch(err){fail(err)}
 }
 $('#cd-back').addEventListener('click',()=>go('ring'));
 
@@ -266,14 +268,14 @@ async function task(i,chained){
   if(a.next!=null&&!busy[a.next]&&Math.random()<.55){
     await send(N.ag[i],N.ceo,'var(--cd-accent)',600);
     think(a.next);log('CEO digital',`${a.n} terminó → relevo a ${AG[a.next].n}`,true);
-    busy[i]=false;task(a.next,true);return;
+    busy[i]=false;task(a.next,true).catch(fail);return;
   }
   busy[i]=false;
 }
 function spawn(){
   if(moving)return;
   const idle=AG.map((_,i)=>i).filter(i=>!busy[i]);
-  if(AG.length-idle.length<4)task(pick(idle));
+  if(AG.length-idle.length<4)task(pick(idle)).catch(fail);
 }
 
 /* ---------- Arranque perezoso y pausa ---------- */
@@ -286,7 +288,7 @@ function start(){
   raf=requestAnimationFrame(loop);
   iTick=setInterval(tick,90);
   iSpawn=setInterval(spawn,RM?3000:1100);
-  if(!started){started=true;task(3);setTimeout(()=>task(6),500);setTimeout(()=>task(9),1000)}
+  if(!started){started=true;task(3).catch(fail);setTimeout(()=>task(6).catch(fail),500);setTimeout(()=>task(9).catch(fail),1000)}
 }
 function stop(){
   if(!running)return;running=false;
@@ -296,17 +298,32 @@ function stop(){
 }
 const sync=()=>onScreen&&!document.hidden?start():stop();
 
+// Si algo revienta (navegador raro, SVG sin soporte), se para el motor y se
+// cambia el SVG a medio pintar por un esquema estático. Stats y consola ya
+// traen contenido en el HTML, así que la sección sigue teniendo sentido.
+let failed=false;
+function fail(err){
+  if(failed)return;failed=true;
+  console.error('[ceo-digital]',err);
+  try{stop()}catch(e){}
+  flush();svg.innerHTML='';svg.style.display='none';
+  ['#cd-hint','#cd-back','#cd-olbl'].forEach(s=>$(s).hidden=true);
+  const fb=document.createElement('div');fb.className='cd-fallback';
+  fb.innerHTML='<b>CEO digital</b><span>coordina a</span><ul><li>Operaciones · 5 agentes</li><li>Comercial · 3 agentes</li><li>Administración y finanzas · 3 agentes</li></ul>';
+  scene.appendChild(fb);
+}
+
 // La escena se monta al acercarse a pantalla, no en la carga: build() mide el
 // ancho (fuerza layout) y crea cientos de nodos SVG. La altura ya está
 // reservada con aspect-ratio, así que montarla tarde no mueve nada.
 root.classList.add('cd-paused');
 let built=false,rt,lastNarrow;
-function mount(){if(built)return;built=true;build();ui();lastNarrow=narrow();sync()}
-addEventListener('resize',()=>{if(!built)return;clearTimeout(rt);rt=setTimeout(()=>{if(narrow()!==lastNarrow&&!moving){lastNarrow=narrow();build()}},200)});
-document.addEventListener('visibilitychange',()=>{if(built)sync()});
+function mount(){if(built)return;built=true;try{build();ui();lastNarrow=narrow();sync()}catch(err){fail(err)}}
+addEventListener('resize',()=>{if(!built||failed)return;clearTimeout(rt);rt=setTimeout(()=>{if(narrow()!==lastNarrow&&!moving){lastNarrow=narrow();try{build()}catch(err){fail(err)}}},200)});
+document.addEventListener('visibilitychange',()=>{if(built&&!failed)sync()});
 if('IntersectionObserver' in window){
   const pre=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){pre.disconnect();mount()}},{rootMargin:'400px'});
   pre.observe(root);
-  new IntersectionObserver(es=>{es.forEach(e=>{onScreen=e.isIntersecting});if(built)sync()},{threshold:0}).observe(root);
+  new IntersectionObserver(es=>{es.forEach(e=>{onScreen=e.isIntersecting});if(built&&!failed)sync()},{threshold:0}).observe(root);
 }else{onScreen=true;mount()}
 })();
