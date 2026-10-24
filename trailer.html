@@ -1,0 +1,1399 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lo que podemos hacer · ProceLaos</title>
+<meta name="robots" content="noindex">
+<style>html,body{margin:0;background:transparent}</style>
+</head>
+<body>
+<!-- ========== TRÁILER PROCELAOS · copiar desde aquí ========== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+.tr-root{
+  --tr-bg:#110C08;--tr-sf:#1C1611;--tr-sf2:#241C16;--tr-bd:rgba(255,255,255,.1);--tr-bd2:rgba(255,255,255,.06);
+  --tr-tx:#F4F1ED;--tr-mu:#938A83;--tr-ac:#F8894B;--tr-ac2:#FF9C5E;--tr-ok:#5FD08A;
+  --tr-ease:cubic-bezier(0.16,1,0.3,1);--tr-k:1;
+  position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;isolation:isolate;
+  background:var(--tr-bg);color:var(--tr-tx);border-radius:clamp(10px,1.6cqw,22px);
+  font-family:'Manrope',system-ui,sans-serif;container-type:inline-size;
+  -webkit-font-smoothing:antialiased;line-height:1.35;user-select:none;-webkit-user-select:none;
+}
+.tr-root *,.tr-root *::before,.tr-root *::after{box-sizing:border-box;margin:0;padding:0}
+.tr-mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.tr-canvas{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;transform:scale(var(--tr-k))}
+.tr-abs{position:absolute}
+
+/* fondo */
+.tr-bgl{position:absolute;inset:0;overflow:hidden}
+.tr-glow{position:absolute;border-radius:50%;filter:blur(90px);will-change:opacity,transform}
+.tr-glow-a{width:760px;height:520px;left:260px;top:260px;background:radial-gradient(closest-side,rgba(248,137,75,.42),rgba(248,137,75,0))}
+.tr-glow-b{width:520px;height:420px;left:-120px;top:-160px;background:radial-gradient(closest-side,rgba(255,156,94,.16),rgba(255,156,94,0))}
+.tr-dots{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.2px);background-size:28px 28px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 55%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse 70% 60% at 50% 55%,#000 30%,transparent 80%)}
+
+/* cámara + ventana */
+.tr-cam{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;will-change:transform}
+.tr-win{position:absolute;left:100px;top:126px;width:1080px;height:552px;border-radius:16px;background:var(--tr-sf);
+  border:1px solid var(--tr-bd);overflow:hidden;transform-origin:50% 100%;will-change:transform,opacity;
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 40px 120px -30px rgba(0,0,0,.8),0 0 0 1px rgba(0,0,0,.4)}
+.tr-tbar{position:absolute;left:0;top:0;right:0;height:40px;border-bottom:1px solid var(--tr-bd2);display:flex;align-items:center;padding:0 16px;gap:8px;background:#19130F}
+.tr-tbar i{width:11px;height:11px;border-radius:50%;background:#3A302A;display:block}
+.tr-tbar-t{position:absolute;left:0;right:0;text-align:center;font-size:12.5px;color:var(--tr-mu);pointer-events:none}
+.tr-tbar-t b{color:var(--tr-tx);font-weight:600}
+.tr-live{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--tr-ok);background:rgba(95,208,138,.1);border:1px solid rgba(95,208,138,.22);padding:4px 10px;border-radius:99px;position:relative;z-index:1}
+.tr-pulse{width:7px;height:7px;border-radius:50%;background:var(--tr-ok)}
+
+/* barra lateral */
+.tr-side{position:absolute;left:0;top:40px;bottom:0;width:196px;border-right:1px solid var(--tr-bd2);padding:18px 12px;background:#181210}
+.tr-brand{display:flex;align-items:center;gap:10px;padding:0 8px;height:36px}
+.tr-logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(140deg,var(--tr-ac2),#D9622A);display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:700;font-size:16px;color:#1A0F08}
+.tr-brand span{font-family:'Bricolage Grotesque';font-weight:700;font-size:17px;letter-spacing:-.01em}
+.tr-nav{position:absolute;left:12px;right:12px;top:84px}
+.tr-nav-hl{position:absolute;left:0;right:0;top:0;height:40px;border-radius:10px;background:rgba(255,255,255,.065);border:1px solid var(--tr-bd2);will-change:transform}
+.tr-nav-i{position:relative;height:40px;display:flex;align-items:center;gap:11px;padding:0 10px;font-size:13.5px;color:var(--tr-mu);font-weight:500}
+.tr-nav-i svg{width:17px;height:17px;flex:none}
+.tr-nav-i.tr-on{color:var(--tr-tx)}
+.tr-side-card{position:absolute;left:12px;right:12px;bottom:14px;border:1px solid var(--tr-bd);border-radius:12px;padding:12px;background:var(--tr-sf)}
+.tr-side-card p{font-size:12px;color:var(--tr-mu)}
+.tr-side-card strong{display:block;font-size:13px;font-weight:600;margin-top:2px}
+.tr-ic{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* zona principal */
+.tr-main{position:absolute;left:196px;top:40px;width:884px;height:512px}
+.tr-scene{position:absolute;inset:0;opacity:0;will-change:opacity,transform}
+.tr-clip{overflow:hidden}
+.tr-h1{font-family:'Bricolage Grotesque';font-weight:700;font-size:22px;letter-spacing:-.015em}
+.tr-sub{font-size:12.5px;color:var(--tr-mu);margin-top:3px}
+.tr-card{position:absolute;background:var(--tr-sf2);border:1px solid var(--tr-bd2);border-radius:14px}
+.tr-cardh{font-size:12.5px;color:var(--tr-mu);font-weight:500}
+.tr-ct{position:absolute;left:16px;top:14px;font-size:13.5px;font-weight:600}
+.tr-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--tr-bd);color:var(--tr-mu);white-space:nowrap}
+.tr-chip-ac{color:var(--tr-ac);border-color:rgba(248,137,75,.3);background:rgba(248,137,75,.08)}
+.tr-chip-ok{color:var(--tr-ok);border-color:rgba(95,208,138,.3);background:rgba(95,208,138,.08)}
+.tr-spark{width:12px;height:12px}
+.tr-sw{width:36px;height:20px;border-radius:99px;background:var(--tr-ok);position:relative;flex:none;transition:none}
+.tr-sw i{position:absolute;top:2px;left:18px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.tr-dot{width:7px;height:7px;border-radius:50%;background:var(--tr-ok);flex:none}
+
+/* panel */
+.tr-kpi{top:84px;width:200px;height:98px;padding:14px 16px}
+.tr-kpi .tr-v{font-size:27px;font-weight:600;margin-top:6px;letter-spacing:-.02em}
+.tr-kpi .tr-d{font-size:11px;color:var(--tr-ok);margin-top:4px}
+.tr-kpi .tr-d.tr-acc{color:var(--tr-ac)}
+.tr-feed-i{position:absolute;left:14px;right:14px;height:46px;display:flex;align-items:center;gap:10px;font-size:12.5px;border-top:1px solid var(--tr-bd2)}
+.tr-feed-i small{display:block;color:var(--tr-mu);font-size:11px}
+.tr-ok-ic{width:22px;height:22px;border-radius:50%;background:rgba(95,208,138,.12);color:var(--tr-ok);display:grid;place-items:center;flex:none}
+.tr-ok-ic svg{width:12px;height:12px}
+
+/* clientes */
+.tr-row{position:absolute;left:10px;right:10px;height:52px;border-radius:10px;display:flex;align-items:center;gap:11px;padding:0 10px;font-size:13px}
+.tr-row small{display:block;color:var(--tr-mu);font-size:11px}
+.tr-av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:700;flex:none;color:#1A0F08}
+.tr-row .tr-chip{margin-left:auto}
+.tr-bub{position:absolute;max-width:330px;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.4}
+.tr-bub-in{left:20px;background:#2E251E;border-bottom-left-radius:4px}
+.tr-bub-out{right:20px;background:rgba(248,137,75,.14);border:1px solid rgba(248,137,75,.25);border-bottom-right-radius:4px}
+.tr-bub-me{right:20px;background:#3A3029;border:1px solid var(--tr-bd);border-bottom-right-radius:4px}
+.tr-meta{position:absolute;font-size:11px;color:var(--tr-mu);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tr-typing{position:absolute;left:20px;display:flex;gap:4px;padding:12px 14px;background:#2E251E;border-radius:14px;border-bottom-left-radius:4px}
+.tr-typing i{width:6px;height:6px;border-radius:50%;background:var(--tr-mu);display:block}
+.tr-aisw{position:absolute;right:16px;top:24px;display:flex;align-items:center;gap:10px;font-size:12px;padding:6px 8px 6px 12px;border-radius:99px;border:1px solid var(--tr-bd);background:rgba(255,255,255,.03)}
+.tr-compose{position:absolute;left:16px;right:16px;bottom:14px;height:44px;border-radius:12px;border:1px solid var(--tr-bd);background:#1E1813;display:flex;align-items:center;padding:0 6px 0 14px;font-size:13px;color:var(--tr-mu)}
+.tr-compose .tr-caret{display:inline-block;width:1.5px;height:15px;background:var(--tr-ac);margin-left:1px;vertical-align:-2px}
+.tr-send{margin-left:auto;width:32px;height:32px;border-radius:9px;background:var(--tr-ac);display:grid;place-items:center;color:#1A0F08;flex:none}
+.tr-send svg{width:15px;height:15px}
+
+/* facturas */
+.tr-th{position:absolute;top:76px;left:24px;width:572px;height:28px;font-size:11.5px;color:var(--tr-mu);border-bottom:1px solid var(--tr-bd2)}
+.tr-tr{position:absolute;left:24px;width:572px;height:52px;border-bottom:1px solid var(--tr-bd2);font-size:13px}
+.tr-th span,.tr-tr span{position:absolute;top:50%;transform:translateY(-50%);white-space:nowrap}
+.tr-btn{position:absolute;height:30px;border-radius:9px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
+.tr-btn-ac{background:var(--tr-ac);color:#1A0F08}
+.tr-btn-gh{border:1px solid var(--tr-bd);color:var(--tr-tx);background:rgba(255,255,255,.04)}
+.tr-stock{position:absolute;left:16px;right:16px;font-size:12.5px}
+.tr-bar{height:6px;border-radius:9px;background:rgba(255,255,255,.07);margin-top:7px;overflow:hidden}
+.tr-bar i{display:block;height:100%;border-radius:9px;background:var(--tr-mu);transform-origin:0 50%}
+
+/* agenda */
+.tr-gl{position:absolute;left:80px;right:24px;height:1px;background:var(--tr-bd2)}
+.tr-hr{position:absolute;left:24px;font-size:11px;color:var(--tr-mu)}
+.tr-day{position:absolute;top:76px;width:156px;font-size:12px;color:var(--tr-mu);padding-left:8px}
+.tr-day b{color:var(--tr-tx);font-weight:600}
+.tr-blk{position:absolute;width:148px;border-radius:9px;padding:7px 10px;font-size:11.5px;line-height:1.3;background:#2B231C;border-left:3px solid #6B5D52;will-change:transform}
+.tr-blk small{display:block;color:var(--tr-mu);font-size:10.5px}
+.tr-blk-ac{background:rgba(248,137,75,.16);border-left-color:var(--tr-ac)}
+.tr-blk-ok{background:rgba(95,208,138,.12);border-left-color:var(--tr-ok)}
+
+/* agentes IA */
+.tr-inb{position:absolute;left:10px;top:0;width:158px;height:50px;border-radius:10px;background:#2A211A;border:1px solid var(--tr-bd2);display:flex;align-items:center;gap:9px;padding:0 9px;font-size:11.5px;line-height:1.25;will-change:transform,opacity}
+.tr-inb b{display:block;font-weight:600;white-space:nowrap}
+.tr-inb span{display:block;color:var(--tr-mu);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:104px}
+.tr-chn{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.06);color:#E8C2A8;flex:none}
+.tr-chn svg{width:14px;height:14px}
+.tr-node{position:absolute;width:122px;height:42px;margin:-21px 0 0 -61px;border-radius:11px;background:#2A211A;border:1px solid var(--tr-bd);display:flex;align-items:center;gap:8px;padding:0 9px;font-size:11.5px;font-weight:600;white-space:nowrap;will-change:transform}
+.tr-node small{display:block;font-weight:400;color:var(--tr-mu);font-size:10px}
+.tr-node-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:rgba(248,137,75,.12);color:var(--tr-ac);flex:none}
+.tr-node-ic svg{width:13px;height:13px}
+.tr-ceo{position:absolute;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;display:grid;place-items:center;text-align:center;
+  background:radial-gradient(circle at 35% 30%,#FFB27F,var(--tr-ac) 45%,#C9541D);color:#1A0F08;font-weight:700;font-size:12.5px;line-height:1.2;z-index:2}
+.tr-ceo small{display:block;font-weight:500;font-size:10px;opacity:.75}
+.tr-ceo-ring{position:absolute;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;border:1.5px solid var(--tr-ac)}
+.tr-task{position:absolute;left:0;top:0;height:26px;margin:-13px 0 0 0;border-radius:99px;background:#3A2C22;border:1px solid rgba(248,137,75,.45);color:var(--tr-tx);font-size:10.5px;display:flex;align-items:center;gap:6px;padding:0 10px 0 6px;white-space:nowrap;box-shadow:0 8px 20px -6px rgba(0,0,0,.7);z-index:5;opacity:0;will-change:transform,opacity}
+.tr-task svg{width:12px;height:12px;color:var(--tr-ac)}
+.tr-agr{position:absolute;left:12px;right:12px;height:52px;display:flex;align-items:center;gap:9px;font-size:12px;border-top:1px solid var(--tr-bd2)}
+.tr-agr small{display:block;color:var(--tr-mu);font-size:10.5px}
+.tr-agr .tr-sw{margin-left:auto}
+.tr-det{position:absolute;left:432px;top:24px;width:428px;height:464px;border-radius:14px;background:#211A14;border:1px solid rgba(248,137,75,.28);box-shadow:-30px 0 60px -20px rgba(0,0,0,.7);opacity:0;z-index:6;will-change:transform,opacity}
+.tr-step{position:absolute;left:18px;right:18px;height:52px;display:flex;gap:12px;align-items:flex-start;font-size:13px}
+.tr-step small{display:block;font-size:11px;color:var(--tr-mu);margin-top:3px}
+.tr-stc{width:22px;height:22px;border-radius:50%;border:1.5px solid #4A3F37;flex:none;display:grid;place-items:center;position:relative;margin-top:1px}
+.tr-stc svg{width:12px;height:12px;opacity:0}
+
+/* agentes IA v2 */
+.tr-chp{position:absolute;left:10px;right:10px;height:56px;border-radius:11px;background:#2A211A;border:1px solid var(--tr-bd2);display:flex;align-items:center;gap:9px;padding:0 9px;font-size:12px;font-weight:600;will-change:transform}
+.tr-chp small{display:block;font-weight:400;color:var(--tr-mu);font-size:10.5px}
+.tr-node2{position:absolute;left:0;top:0;width:132px;height:46px;margin:-23px 0 0 -66px;border-radius:12px;background:#2A211A;border:1px solid var(--tr-bd);display:flex;align-items:center;gap:8px;padding:0 9px 0 6px;font-size:11.5px;font-weight:600;white-space:nowrap;will-change:transform,opacity}
+.tr-node2 small{display:block;font-weight:400;color:var(--tr-mu);font-size:10px}
+.tr-nic{position:relative;width:34px;height:34px;display:grid;place-items:center;flex:none;color:var(--tr-ac)}
+.tr-nic>svg.tr-ic{width:14px;height:14px}
+.tr-prog{position:absolute;inset:0;width:34px;height:34px;transform:rotate(-90deg)}
+.tr-okb{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;background:var(--tr-ok);color:#10200F;display:grid;place-items:center;font-size:11px;font-weight:800;opacity:0}
+.tr-core{position:absolute;width:0;height:0}
+.tr-core>*{position:absolute;left:0;top:0}
+.tr-sph{width:108px;height:108px;margin:-54px 0 0 -54px;border-radius:50%;display:grid;place-items:center;text-align:center;
+  background:radial-gradient(circle at 35% 30%,#FFC49A,#F8894B 42%,#B84A17 100%);color:#1A0F08;font-weight:700;font-size:13px;line-height:1.15;z-index:3;
+  box-shadow:0 0 60px rgba(248,137,75,.55),inset 0 -10px 24px rgba(120,40,10,.45)}
+.tr-sph small{display:block;font-weight:500;font-size:10px;opacity:.75}
+.tr-rip{width:108px;height:108px;margin:-54px 0 0 -54px;border-radius:50%;border:1.5px solid rgba(248,137,75,.8);opacity:0}
+.tr-rings{width:260px;height:260px;margin:-130px 0 0 -130px;overflow:visible}
+.tr-outi{position:absolute;left:8px;right:8px;top:0;height:50px;border-radius:10px;background:rgba(95,208,138,.07);border:1px solid rgba(95,208,138,.2);display:flex;align-items:center;gap:8px;padding:0 8px;font-size:11px;line-height:1.25;will-change:transform,opacity}
+.tr-outi b{display:block;font-weight:600;white-space:nowrap;font-size:11px}
+.tr-outi span.tr-o2{display:block;color:var(--tr-mu);font-size:10px;white-space:nowrap}
+.tr-chip2{position:absolute;left:0;top:0;height:26px;margin-top:-13px;border-radius:99px;background:#3A2C22;border:1px solid rgba(248,137,75,.5);color:var(--tr-tx);font-size:10.5px;display:flex;align-items:center;gap:6px;padding:0 10px 0 6px;white-space:nowrap;box-shadow:0 8px 20px -6px rgba(0,0,0,.7),0 0 16px rgba(248,137,75,.25);z-index:12;opacity:0;will-change:transform,opacity}
+.tr-chip2 svg{width:12px;height:12px;color:var(--tr-ac)}
+.tr-spk{position:absolute;left:0;top:0;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--tr-ok);box-shadow:0 0 12px 3px rgba(95,208,138,.7);z-index:12;opacity:0;will-change:transform,opacity}
+.tr-ctl{position:absolute;left:600px;top:24px;width:260px;height:464px;border-radius:14px;background:#211A14;border:1px solid var(--tr-bd);box-shadow:-30px 0 60px -20px rgba(0,0,0,.7);opacity:0;z-index:14;will-change:transform,opacity}
+.tr-lb{position:absolute;left:0;right:0;height:0;background:#000;z-index:3}
+.tr-lb-t{top:0}.tr-lb-b{bottom:0}
+.tr-warp{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.tr-dark{position:absolute;inset:0;background:radial-gradient(circle at 50% 56%,rgba(0,0,0,0) 14%,rgba(0,0,0,.92) 62%);opacity:0;pointer-events:none}
+
+/* dentro de Procelaos */
+.tr-ins{position:absolute;left:0;top:40px;width:1080px;height:512px;z-index:7;opacity:0;visibility:hidden;transform-origin:638px 268px;overflow:hidden;
+  background:radial-gradient(ellipse 60% 70% at 50% 45%,rgba(248,137,75,.13),rgba(248,137,75,0) 70%),#140E0A;will-change:transform,opacity}
+.tr-ins::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.2px);background-size:24px 24px;pointer-events:none}
+.tr-ins .tr-card{background:rgba(36,28,22,.92)}
+.tr-part{position:absolute;inset:0;will-change:transform,opacity}
+.tr-si{position:absolute;left:12px;right:12px;top:0;height:54px;border-radius:11px;background:#2A211A;border:1px solid var(--tr-bd2);display:flex;align-items:center;gap:10px;padding:0 10px;font-size:12px;line-height:1.25;will-change:transform,opacity}
+.tr-si b{display:block;font-weight:600}
+.tr-si span.tr-s2{display:block;color:var(--tr-mu);font-size:11px;white-space:nowrap}
+.tr-si .tr-chip{margin-left:auto}
+.tr-th-l{position:absolute;left:18px;right:18px;height:30px;display:flex;align-items:center;gap:12px;font-size:13px}
+.tr-th-l em{font-style:normal;width:76px;flex:none;color:var(--tr-ac);font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.tr-cls{position:absolute;left:18px;right:18px;display:flex;flex-wrap:wrap;gap:7px}
+.tr-tr2{position:absolute;left:12px;right:12px;height:42px;border-radius:10px;display:flex;align-items:center;gap:9px;padding:0 10px;font-size:12px;border:1px solid transparent}
+.tr-tr2 .tr-chip{margin-left:auto}
+.tr-mem{position:absolute;width:280px;height:64px;border-radius:11px;background:#2A211A;border:1px solid var(--tr-bd2);padding:10px 12px 0 46px;font-size:12.5px;line-height:1.3;will-change:opacity,transform}
+.tr-mem small{display:block;color:var(--tr-mu);font-size:11px;margin-bottom:2px}
+.tr-mem .tr-node-ic{position:absolute;left:11px;top:15px;width:26px;height:26px}
+.tr-flash{position:absolute;inset:0;background:radial-gradient(circle at 56% 60%,rgba(255,178,127,.95),rgba(248,137,75,.55) 30%,rgba(17,12,8,0) 70%);opacity:0;pointer-events:none}
+
+/* informe */
+.tr-rep{position:absolute;left:0;top:0;width:884px;height:960px;will-change:transform}
+.tr-rk{top:62px;width:200px;height:86px;padding:13px 15px}
+.tr-rk .tr-v{font-size:23px;font-weight:600;letter-spacing:-.02em;margin-top:5px}
+.tr-rk p{font-size:11.5px;color:var(--tr-mu)}
+.tr-rk small{display:block;font-size:10.5px;color:var(--tr-ok);margin-top:3px}
+.tr-hb{position:absolute;left:16px;right:16px;font-size:12px}
+.tr-hb em{font-style:normal;float:right;color:var(--tr-mu)}
+.tr-cbar{position:absolute;bottom:0;width:18px;border-radius:5px 5px 2px 2px;transform-origin:50% 100%}
+.tr-risk{position:absolute;left:16px;right:16px;height:50px;display:flex;align-items:center;gap:11px;font-size:12.5px;border-top:1px solid var(--tr-bd2)}
+.tr-risk small{display:block;color:var(--tr-mu);font-size:11px}
+.tr-risk .tr-chip{margin-left:auto}
+.tr-ab{position:absolute;left:16px;right:16px;height:22px;display:flex;align-items:center;gap:10px;font-size:11.5px}
+.tr-ab span{width:78px;flex:none;color:#CFC6BE}
+.tr-ab div{height:10px;border-radius:5px;background:var(--tr-ac);transform-origin:0 50%}
+.tr-ab em{font-style:normal;color:var(--tr-mu);font-size:10.5px}
+
+/* toast + cursor */
+.tr-toast{position:absolute;right:18px;bottom:18px;display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;background:#2E251E;border:1px solid var(--tr-bd);font-size:12.5px;box-shadow:0 18px 40px -10px rgba(0,0,0,.6);opacity:0;z-index:8;will-change:transform,opacity}
+.tr-cursor{position:absolute;left:0;top:0;width:24px;height:24px;pointer-events:none;will-change:transform;z-index:9;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.tr-ripple{position:absolute;left:-18px;top:-18px;width:36px;height:36px;border-radius:50%;border:2px solid var(--tr-ac2);opacity:0}
+
+/* baraja final */
+.tr-deck{position:absolute;inset:0;pointer-events:none}
+.tr-pc{position:absolute;left:510px;top:262px;width:260px;height:172px;border-radius:14px;background:var(--tr-sf);border:1px solid var(--tr-bd);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.85);transform-origin:50% 260%;opacity:0;overflow:hidden;will-change:transform,opacity}
+.tr-pc-h{height:30px;border-bottom:1px solid var(--tr-bd2);display:flex;align-items:center;gap:6px;padding:0 11px;font-size:11.5px;font-weight:600}
+.tr-pc-h i{width:7px;height:7px;border-radius:50%;background:#3A302A;display:block}
+.tr-pc-h span{margin-left:6px}
+.tr-pc-b{position:absolute;left:12px;right:12px;top:42px;bottom:12px}
+.tr-sk{position:absolute;height:8px;border-radius:5px;background:rgba(255,255,255,.08)}
+
+/* capa de interfaz (no escalada) */
+.tr-ui{position:absolute;inset:0;pointer-events:none}
+.tr-vig{position:absolute;left:0;right:0;top:0;height:24%;background:linear-gradient(to bottom,rgba(17,12,8,.92),rgba(17,12,8,.6) 55%,rgba(17,12,8,0));opacity:0;will-change:opacity}
+.tr-cap{position:absolute;left:6%;right:6%;top:3.4%;text-align:center;opacity:0;will-change:transform,opacity,filter}
+.tr-cap p{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;letter-spacing:-.025em;line-height:1.05;font-size:clamp(17px,3.7cqw,48px);text-shadow:0 2px 24px rgba(17,12,8,.9)}
+.tr-cap span{display:block;font-size:clamp(9px,1.05cqw,13.5px);color:var(--tr-ac);margin-bottom:.6em;font-family:'JetBrains Mono',monospace}
+.tr-end{position:absolute;inset:0;opacity:0;visibility:hidden}
+.tr-end h2{position:absolute;left:5%;right:5%;top:6.5%;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;letter-spacing:-.03em;line-height:1;font-size:clamp(22px,5.4cqw,70px)}
+.tr-cta{position:absolute;left:0;right:0;bottom:8.5%;display:flex;flex-direction:column;align-items:center;gap:clamp(4px,.8cqw,12px)}
+.tr-cta a{pointer-events:auto;text-decoration:none;font-family:'Manrope',sans-serif}
+.tr-cta-main{background:var(--tr-ac);color:#1A0F08;font-weight:700;font-size:clamp(11px,1.45cqw,18px);padding:clamp(7px,1.1cqw,15px) clamp(14px,2.2cqw,30px);border-radius:999px;
+  transition:background .25s var(--tr-ease),transform .4s var(--tr-ease);box-shadow:0 10px 40px -8px rgba(248,137,75,.55)}
+.tr-cta-main:hover{background:var(--tr-ac2);transform:translateY(-2px)}
+.tr-cta-sub{color:var(--tr-mu);font-size:clamp(10px,1.15cqw,14px);transition:color .2s}
+.tr-cta-sub:hover{color:var(--tr-tx)}
+.tr-cta a:focus-visible,.tr-btnui:focus-visible,.tr-play:focus-visible{outline:2px solid var(--tr-ac2);outline-offset:3px}
+.tr-ctrls{position:absolute;right:clamp(8px,1.4cqw,18px);bottom:clamp(6px,1.2cqw,16px);display:flex;gap:clamp(4px,.6cqw,8px);opacity:0;transition:opacity .5s var(--tr-ease)}
+.tr-root.tr-is-on .tr-ctrls{opacity:1}
+.tr-btnui{pointer-events:auto;width:clamp(26px,2.9cqw,38px);height:clamp(26px,2.9cqw,38px);border-radius:50%;border:1px solid var(--tr-bd);background:rgba(28,22,17,.75);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--tr-tx);display:grid;place-items:center;cursor:pointer;transition:background .2s,border-color .2s}
+.tr-btnui:hover{background:rgba(48,38,30,.9);border-color:rgba(255,255,255,.2)}
+.tr-btnui svg{width:42%;height:42%}
+/* pantalla completa: real (Fullscreen API) o simulada agrandando el iframe (iPhone) */
+html.tr-full,html.tr-full body{height:100%;background:#000}
+html.tr-full body{display:grid;place-items:center;overflow:hidden}
+html.tr-full .tr-root{width:min(100vw,177.78vh);border-radius:0}
+.tr-cover{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 55%,rgba(17,12,8,.25),rgba(17,12,8,.7));
+  transition:opacity .6s var(--tr-ease),visibility .6s;pointer-events:auto}
+.tr-root.tr-is-on .tr-cover{opacity:0;visibility:hidden}
+.tr-play{position:relative;display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.1cqw,14px);background:none;border:0;color:var(--tr-tx);cursor:pointer;font-family:'Manrope',sans-serif;margin-top:6%}
+.tr-play-c{width:clamp(56px,8.2cqw,104px);height:clamp(56px,8.2cqw,104px);border-radius:50%;background:var(--tr-ac);display:grid;place-items:center;color:#1A0F08;position:relative;
+  box-shadow:0 0 0 clamp(6px,.9cqw,12px) rgba(248,137,75,.16),0 20px 60px -10px rgba(248,137,75,.6);transition:transform .5s var(--tr-ease),background .25s}
+.tr-play:hover .tr-play-c{transform:scale(1.07);background:var(--tr-ac2)}
+.tr-play-c svg{width:34%;height:34%;margin-left:7%}
+.tr-play-l{font-size:clamp(10px,1.2cqw,15px);font-weight:600;color:var(--tr-tx);text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.tr-play-l em{font-style:normal;color:var(--tr-mu);font-weight:500}
+.tr-spin{position:absolute;inset:-6px;border-radius:50%;border:2px solid transparent;border-top-color:var(--tr-ac2);opacity:0}
+.tr-root.tr-is-loading .tr-spin{opacity:1;animation:tr-rot .8s linear infinite}
+@keyframes tr-rot{to{transform:rotate(360deg)}}
+.tr-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){.tr-root .tr-spin{animation:none}.tr-cta-main,.tr-play-c{transition:none}}
+</style>
+
+<section class="tr-root" id="tr-trailer" aria-label="Recorrido ilustrativo de un software de gestión con agentes de IA">
+  <div class="tr-canvas" aria-hidden="true">
+    <div class="tr-bgl"><div class="tr-glow tr-glow-b"></div><div class="tr-glow tr-glow-a" data-tr="glow"></div><div class="tr-dots"></div></div>
+
+    <div class="tr-cam" data-tr="cam">
+      <div class="tr-win" data-tr="win">
+        <div class="tr-tbar"><i></i><i></i><i></i>
+          <div class="tr-tbar-t"><b>Núcleo</b> &nbsp;/&nbsp; Estudio Alba</div>
+          <div class="tr-live"><span class="tr-pulse" data-tr="pulse"></span><span>IA activa</span></div>
+        </div>
+
+        <aside class="tr-side">
+          <div class="tr-brand"><div class="tr-logo">N</div><span>Núcleo</span></div>
+          <div class="tr-nav">
+            <div class="tr-nav-hl" data-tr="navhl"></div>
+            <div class="tr-nav-i" data-nav="0"><svg viewBox="0 0 24 24" class="tr-ic"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</div>
+            <div class="tr-nav-i" data-nav="1"><svg viewBox="0 0 24 24" class="tr-ic"><circle cx="9" cy="8" r="3.6"/><path d="M2.5 20c.4-3.6 3-5.6 6.5-5.6s6.1 2 6.5 5.6M16 4.6a3.6 3.6 0 0 1 0 6.8M21.5 20c-.2-2.4-1.4-4-3.3-4.9"/></svg>Clientes</div>
+            <div class="tr-nav-i" data-nav="2"><svg viewBox="0 0 24 24" class="tr-ic"><path d="M6 2.5h8.5L19 7v14.5H6z"/><path d="M14 2.5V7.5h5M9 12.5h7M9 16.5h5"/></svg>Facturas</div>
+            <div class="tr-nav-i" data-nav="3"><svg viewBox="0 0 24 24" class="tr-ic"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Agenda</div>
+            <div class="tr-nav-i" data-nav="4"><svg viewBox="0 0 24 24" class="tr-ic"><rect x="4" y="8" width="16" height="12" rx="3.5"/><path d="M12 4v4M9.5 14v.5M14.5 14v.5M2 13v2M22 13v2"/></svg>Agentes IA</div>
+            <div class="tr-nav-i" data-nav="5"><svg viewBox="0 0 24 24" class="tr-ic"><path d="M4 20V11M10 20V5M16 20v-6M2 20.5h20"/></svg>Informes</div>
+          </div>
+          <div class="tr-side-card"><p>Agentes IA</p><strong data-tr="sidecount">8 de 8 trabajando</strong></div>
+        </aside>
+
+        <div class="tr-main">
+          <!-- PANEL -->
+          <div class="tr-scene" data-sc="dash">
+            <div class="tr-abs" style="left:24px;top:22px"><div class="tr-h1">Buenos días, Laura</div><div class="tr-sub">Viernes 23 de octubre. Tus agentes llevan trabajando desde las 7:00.</div></div>
+            <div class="tr-card tr-kpi" style="left:24px" data-tr="k0"><div class="tr-cardh">Horas ahorradas</div><div class="tr-v tr-mono" data-tr="kv0">0 h</div><div class="tr-d tr-acc">esta semana, gracias a la IA</div></div>
+            <div class="tr-card tr-kpi" style="left:236px" data-tr="k1"><div class="tr-cardh">Tareas resueltas hoy</div><div class="tr-v tr-mono" data-tr="kv1">0</div><div class="tr-d">31 por la IA · 6 por ti</div></div>
+            <div class="tr-card tr-kpi" style="left:448px" data-tr="k2"><div class="tr-cardh">Facturado este mes</div><div class="tr-v tr-mono" data-tr="kv2">0 €</div><div class="tr-d">+8 % frente a septiembre</div></div>
+            <div class="tr-card tr-kpi" style="left:660px" data-tr="k3"><div class="tr-cardh">Mensajes respondidos</div><div class="tr-v tr-mono" data-tr="kv3">0</div><div class="tr-d">en 4 s de media</div></div>
+            <div class="tr-card" style="left:24px;top:196px;width:536px;height:292px">
+              <div class="tr-cardh" style="position:absolute;left:16px;top:14px">Ingresos de los últimos 30 días</div>
+              <svg class="tr-abs" style="left:16px;top:46px" width="504" height="228" viewBox="0 0 504 228">
+                <defs><linearGradient id="tr-ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F8894B" stop-opacity=".35"/><stop offset="1" stop-color="#F8894B" stop-opacity="0"/></linearGradient></defs>
+                <g stroke="rgba(255,255,255,.06)"><path d="M0 57H504M0 114H504M0 171H504"/></g>
+                <path data-tr="area" fill="url(#tr-ga)" d="M0 190 C40 182 60 160 95 165 S150 140 185 146 S240 118 280 124 S340 92 375 98 S440 60 504 48 V228 H0Z"/>
+                <path data-tr="line" fill="none" stroke="#F8894B" stroke-width="2.5" stroke-linecap="round" d="M0 190 C40 182 60 160 95 165 S150 140 185 146 S240 118 280 124 S340 92 375 98 S440 60 504 48"/>
+                <circle data-tr="ldot" cx="504" cy="48" r="5" fill="#F8894B" stroke="#241C16" stroke-width="3"/>
+              </svg>
+            </div>
+            <div class="tr-card" style="left:572px;top:196px;width:288px;height:292px">
+              <div class="tr-cardh" style="position:absolute;left:14px;top:14px">Lo último que ha hecho la IA</div>
+              <div data-tr="feed"></div>
+            </div>
+          </div>
+
+          <!-- CLIENTES -->
+          <div class="tr-scene" data-sc="crm">
+            <div class="tr-card" style="left:24px;top:24px;width:320px;height:464px">
+              <div class="tr-abs" style="left:16px;top:14px"><div class="tr-h1" style="font-size:19px">Clientes</div><div class="tr-sub">248 contactos</div></div>
+              <div data-tr="crmrows"></div>
+            </div>
+            <div class="tr-card" data-tr="crmd" style="left:356px;top:24px;width:504px;height:464px;overflow:hidden">
+              <div class="tr-abs" style="left:18px;top:16px;display:flex;align-items:center;gap:12px">
+                <div class="tr-av" style="width:42px;height:42px;background:#F8B98F">ML</div>
+                <div><div style="font-weight:700;font-size:16px">Marta López</div><div class="tr-sub" style="margin:0">WhatsApp · llegó por Instagram</div></div>
+              </div>
+              <div class="tr-aisw"><span data-tr="aiswtx">Responde la IA</span><span class="tr-sw" data-tr="crmsw"><i></i></span></div>
+              <div class="tr-abs" style="left:18px;right:18px;top:76px;height:1px;background:var(--tr-bd2)"></div>
+              <div class="tr-meta" data-tr="crmlbl" style="left:20px;top:90px"><span class="tr-dot"></span>La IA atiende esta conversación</div>
+              <div class="tr-meta" data-tr="crmlbl2" style="left:20px;top:90px;color:var(--tr-ac)"><span class="tr-dot" style="background:var(--tr-ac)"></span>IA en pausa: ahora respondes tú</div>
+              <div class="tr-bub tr-bub-in" data-tr="b1" style="top:116px">Hola, ¿tenéis hueco el jueves por la mañana?</div>
+              <div class="tr-typing" data-tr="typing" style="top:172px"><i></i><i></i><i></i></div>
+              <div class="tr-bub tr-bub-out" data-tr="b2" style="top:172px">¡Hola, Marta! Sí, el jueves a las 12:00 está libre. ¿Te lo reservo?</div>
+              <div class="tr-meta" data-tr="b2m" style="right:20px;top:234px"><svg viewBox="0 0 24 24" class="tr-ic tr-spark" style="color:var(--tr-ac)"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Respondido por la IA en 4 s</div>
+              <div class="tr-bub tr-bub-in" data-tr="b3" style="top:258px">Sí, perfecto. ¿Y me podéis hacer precio para mi madre también?</div>
+              <div class="tr-bub tr-bub-me" data-tr="b4" style="top:326px">Claro, Marta. Os hago un 10 % a las dos 😊</div>
+              <div class="tr-meta" data-tr="b4m" style="right:20px;top:368px">Enviado por Laura</div>
+              <div class="tr-compose"><span data-tr="ctext">Escribe un mensaje…</span><span class="tr-caret" data-tr="caret"></span><span class="tr-send"><svg viewBox="0 0 24 24" class="tr-ic" style="stroke-width:2.2"><path d="M4 12l16-8-6 16-2.5-6.5z"/></svg></span></div>
+            </div>
+          </div>
+
+          <!-- FACTURAS -->
+          <div class="tr-scene" data-sc="fact">
+            <div class="tr-abs" style="left:24px;top:22px"><div class="tr-h1">Facturas</div><div class="tr-sub">Octubre</div></div>
+            <div class="tr-btn tr-btn-ac" style="left:500px;top:28px;width:96px">+ Nueva</div>
+            <div class="tr-th"><span style="left:12px">Nº</span><span style="left:84px">Cliente</span><span style="left:226px">Fecha</span><span style="left:296px">Importe</span><span style="left:384px">Estado</span></div>
+            <div data-tr="frows"></div>
+            <div class="tr-card" data-tr="fai" style="left:608px;top:24px;width:252px;height:150px;padding:16px">
+              <span class="tr-chip tr-chip-ac"><svg viewBox="0 0 24 24" class="tr-ic tr-spark"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Hecha por la IA</span>
+              <p style="font-size:13px;margin-top:12px;line-height:1.45">Al terminar la cita de Marta, la IA creó la factura F-0214 y se la envió por email.</p>
+            </div>
+            <div class="tr-card" style="left:608px;top:186px;width:252px;height:302px">
+              <div class="tr-cardh" style="position:absolute;left:16px;top:14px">Inventario</div>
+              <div class="tr-stock" style="top:48px">Papel de impresora <span class="tr-mono" style="float:right;color:var(--tr-mu)">120 uds</span><div class="tr-bar"><i style="width:72%"></i></div></div>
+              <div class="tr-stock" style="top:100px">Tóner <span class="tr-mono" style="float:right;color:var(--tr-mu)">18 uds</span><div class="tr-bar"><i style="width:46%"></i></div></div>
+              <div class="tr-stock" style="top:152px">Cajas de envío <span class="tr-mono" style="float:right;color:var(--tr-ac)">4 uds</span><div class="tr-bar"><i style="width:12%;background:var(--tr-ac)"></i></div></div>
+              <div class="tr-abs" data-tr="stockok" style="left:16px;right:16px;bottom:16px;padding:10px 12px;border-radius:10px;background:rgba(95,208,138,.08);border:1px solid rgba(95,208,138,.22);font-size:12px;line-height:1.4">
+                <b style="color:var(--tr-ok);font-weight:600">Pedido preparado</b><br><span style="color:var(--tr-mu)">50 cajas al proveedor. Solo falta tu OK.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- AGENDA -->
+          <div class="tr-scene" data-sc="agenda">
+            <div class="tr-abs" style="left:24px;top:22px"><div class="tr-h1">Agenda</div></div>
+            <div class="tr-abs" style="left:130px;top:28px"><span class="tr-chip tr-chip-ok"><span class="tr-dot"></span>Sincronizada con tu calendario</span></div>
+            <div class="tr-btn tr-btn-gh" style="left:752px;top:24px;width:108px">Semana 43</div>
+            <div data-tr="grid"></div>
+          </div>
+
+          <!-- AGENTES IA -->
+          <div class="tr-scene" data-sc="ai">
+            <div class="tr-card" style="left:24px;top:24px;width:140px;height:464px"><div class="tr-ct">Canales</div><div data-tr="chans"></div></div>
+            <div class="tr-card" data-tr="stage" style="left:176px;top:24px;width:532px;height:464px;overflow:hidden;background:radial-gradient(ellipse 60% 55% at 50% 52%,rgba(248,137,75,.1),rgba(248,137,75,0) 70%),var(--tr-sf2)">
+              <div class="tr-ct">Tu equipo de IA</div>
+              <div class="tr-abs tr-mono" style="right:14px;top:16px;font-size:11px;color:var(--tr-mu)" data-tr="tasktot">0 tareas hoy</div>
+              <svg class="tr-abs" style="left:0;top:0;overflow:visible" width="532" height="464" viewBox="0 0 532 464" data-tr="links"></svg>
+              <div class="tr-core" style="left:266px;top:244px">
+                <svg class="tr-rings" viewBox="-130 -130 260 260" data-tr="rings">
+                  <g data-tr="rg1"><circle r="72" fill="none" stroke="rgba(248,137,75,.55)" stroke-width="1.5" stroke-dasharray="38 18"/></g>
+                  <g data-tr="rg2"><circle r="90" fill="none" stroke="rgba(255,178,127,.35)" stroke-width="1" stroke-dasharray="120 60 30 60"/><circle cx="90" cy="0" r="3" fill="#FFB27F"/></g>
+                  <g data-tr="rg3"><circle r="110" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="2 6"/><circle cx="0" cy="-110" r="2.5" fill="#F8894B"/><circle cx="0" cy="110" r="2.5" fill="#F8894B"/></g>
+                </svg>
+                <div class="tr-rip"></div><div class="tr-rip"></div><div class="tr-rip"></div>
+                <div class="tr-sph" data-tr="ceo"><div>Procelaos<small>reparte el trabajo</small></div></div>
+              </div>
+              <div data-tr="nodes"></div>
+            </div>
+            <div class="tr-card" style="left:720px;top:24px;width:140px;height:464px;overflow:hidden"><div class="tr-ct">Hecho</div><div class="tr-abs" style="right:10px;top:16px;width:7px;height:7px;border-radius:50%;background:var(--tr-ok)"></div><div data-tr="outs"></div></div>
+            <div data-tr="flights"></div>
+            <div class="tr-ctl" data-tr="ctl">
+              <div class="tr-ct">Agentes</div>
+              <div class="tr-abs" style="right:14px;top:16px;font-size:11px;color:var(--tr-mu)">Automático</div>
+              <div data-tr="agrows"></div>
+            </div>
+            <div class="tr-det" data-tr="det" style="z-index:15">
+              <div class="tr-abs" style="left:18px;top:18px;display:flex;gap:11px;align-items:center">
+                <span class="tr-node-ic" style="width:36px;height:36px;border-radius:10px"><svg viewBox="0 0 24 24" class="tr-ic" style="width:18px;height:18px"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
+                <div><div style="font-weight:700;font-size:15px">Recepción IA</div><div class="tr-sub" style="margin:0">Atiende WhatsApp, email y la web</div></div>
+              </div>
+              <div class="tr-abs" style="right:18px;top:26px"><span class="tr-chip tr-chip-ok"><span class="tr-dot"></span>Trabajando</span></div>
+              <div class="tr-abs" style="left:18px;right:18px;top:72px;padding:10px 12px;border-radius:11px;background:#2E251E;font-size:12.5px;line-height:1.4">
+                <span style="color:var(--tr-mu);font-size:11px">Marta López · WhatsApp</span><br>¿Tenéis hueco el jueves por la mañana?
+              </div>
+              <div class="tr-abs" style="left:18px;right:18px;top:136px;height:3px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden"><i data-tr="detbar" style="display:block;height:100%;background:var(--tr-ac);transform-origin:0 50%;transform:scaleX(0)"></i></div>
+              <div data-tr="steps"></div>
+              <div class="tr-abs" style="left:18px;right:18px;bottom:16px;display:flex;align-items:center;gap:6px">
+                <span class="tr-chip">Agenda</span><span class="tr-chip">WhatsApp</span><span class="tr-chip">Fichas</span>
+                <span class="tr-mono" style="margin-left:auto;font-size:11.5px;color:var(--tr-mu)" data-tr="dettime">0,0 s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- INFORMES -->
+          <div class="tr-scene tr-clip" data-sc="report">
+            <div class="tr-rep" data-tr="rep">
+              <div class="tr-abs" style="left:24px;top:18px"><div class="tr-h1">Informe de octubre</div></div>
+              <div class="tr-abs" style="left:228px;top:23px"><span class="tr-chip tr-chip-ac"><svg viewBox="0 0 24 24" class="tr-ic tr-spark"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Preparado por la IA hoy a las 8:00</span></div>
+              <div class="tr-card tr-rk" style="left:24px" data-tr="rk0"><p>Ingresos del mes</p><div class="tr-v tr-mono" data-tr="rv0">0 €</div><small>+8 % frente a septiembre</small></div>
+              <div class="tr-card tr-rk" style="left:236px;border-color:rgba(248,137,75,.3)" data-tr="rk1"><p>Previsión de cierre</p><div class="tr-v tr-mono" style="color:var(--tr-ac)" data-tr="rv1">0 €</div><small style="color:var(--tr-ac)">calculada por la IA</small></div>
+              <div class="tr-card tr-rk" style="left:448px" data-tr="rk2"><p>Clientes nuevos</p><div class="tr-v tr-mono" data-tr="rv2">0</div><small>+5 frente a septiembre</small></div>
+              <div class="tr-card tr-rk" style="left:660px" data-tr="rk3"><p>Horas ahorradas</p><div class="tr-v tr-mono" data-tr="rv3">0 h</div><small>este mes</small></div>
+
+              <div class="tr-card" style="left:24px;top:164px;width:536px;height:280px">
+                <div class="tr-ct">Ingresos y previsión</div>
+                <div class="tr-abs" style="right:16px;top:14px;display:flex;gap:14px;font-size:11px;color:var(--tr-mu)">
+                  <span style="display:flex;align-items:center;gap:6px"><i style="width:14px;height:2.5px;background:var(--tr-ac);display:block"></i>Real</span>
+                  <span style="display:flex;align-items:center;gap:6px"><i style="width:14px;height:0;border-top:2px dashed var(--tr-ac);display:block"></i>Previsión</span>
+                </div>
+                <svg class="tr-abs" style="left:16px;top:44px" width="504" height="222" viewBox="0 0 504 222">
+                  <defs><clipPath id="tr-rclip"><rect data-tr="rclip" x="0" y="0" width="0" height="222"/></clipPath>
+                    <linearGradient id="tr-gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F8894B" stop-opacity=".28"/><stop offset="1" stop-color="#F8894B" stop-opacity="0"/></linearGradient></defs>
+                  <g stroke="rgba(255,255,255,.06)"><path d="M0 50H504M0 100H504M0 150H504"/></g>
+                  <g clip-path="url(#tr-rclip)">
+                    <path fill="url(#tr-gb)" d="M8 186 C60 178 90 166 130 162 S200 146 240 136 S310 118 368 104 V200 H8Z"/>
+                    <path fill="rgba(248,137,75,.12)" d="M368 104 C410 86 440 66 494 40 L494 92 C440 104 410 110 368 104Z"/>
+                    <path fill="none" stroke="#F8894B" stroke-width="2.5" stroke-linecap="round" d="M8 186 C60 178 90 166 130 162 S200 146 240 136 S310 118 368 104"/>
+                    <path fill="none" stroke="#F8894B" stroke-width="2" stroke-dasharray="5 5" d="M368 104 C410 92 440 80 494 64"/>
+                  </g>
+                  <g data-tr="today"><path d="M368 20V200" stroke="rgba(255,255,255,.18)" stroke-dasharray="2 4"/><text x="368" y="14" fill="#938A83" font-size="10.5" text-anchor="middle" font-family="Manrope, system-ui, sans-serif">Hoy</text><circle cx="368" cy="104" r="4.5" fill="#F8894B" stroke="#241C16" stroke-width="3"/></g>
+                  <g data-tr="fclabel"><rect x="408" y="22" width="88" height="24" rx="7" fill="#3A2C22" stroke="rgba(248,137,75,.4)"/><text x="452" y="38" fill="#F4F1ED" font-size="11.5" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace">24.300 €</text></g>
+                  <g fill="#938A83" font-size="10" font-family="Manrope, system-ui, sans-serif"><text x="8" y="218">1 oct</text><text x="230" y="218">15 oct</text><text x="470" y="218">31 oct</text></g>
+                </svg>
+              </div>
+              <div class="tr-card" style="left:572px;top:164px;width:288px;height:280px">
+                <div class="tr-ct">De dónde vienen</div>
+                <div data-tr="srv"></div>
+                <div class="tr-abs" style="left:16px;right:16px;bottom:14px;padding:9px 11px;border-radius:10px;background:rgba(248,137,75,.08);border:1px solid rgba(248,137,75,.22);font-size:11.5px;line-height:1.4" data-tr="tip">
+                  <b style="color:var(--tr-ac);font-weight:600">La IA sugiere:</b> lanzar un bono de 5 sesiones en noviembre.
+                </div>
+              </div>
+
+              <div class="tr-card" style="left:24px;top:460px;width:276px;height:214px">
+                <div class="tr-ct">Clientes</div>
+                <svg class="tr-abs" style="left:18px;top:52px" width="132" height="132" viewBox="0 0 132 132">
+                  <circle cx="66" cy="66" r="50" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="16"/>
+                  <circle data-tr="dn1" cx="66" cy="66" r="50" fill="none" stroke="#F8894B" stroke-width="16" stroke-dasharray="0 314" transform="rotate(-90 66 66)"/>
+                  <circle data-tr="dn2" cx="66" cy="66" r="50" fill="none" stroke="#5FD08A" stroke-width="16" stroke-dasharray="0 314" transform="rotate(-90 66 66)"/>
+                  <text x="66" y="64" fill="#F4F1ED" font-size="22" font-weight="600" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" data-tr="dntx">0</text>
+                  <text x="66" y="82" fill="#938A83" font-size="10.5" text-anchor="middle" font-family="Manrope, system-ui, sans-serif">activos</text>
+                </svg>
+                <div class="tr-abs" style="left:166px;top:74px;font-size:12px;line-height:1.5">
+                  <div style="display:flex;align-items:center;gap:7px"><i style="width:9px;height:9px;border-radius:3px;background:var(--tr-ac);display:block"></i>Recurrentes</div>
+                  <div class="tr-mono" style="font-size:17px;margin:0 0 10px 16px">61 %</div>
+                  <div style="display:flex;align-items:center;gap:7px"><i style="width:9px;height:9px;border-radius:3px;background:var(--tr-ok);display:block"></i>Nuevos</div>
+                  <div class="tr-mono" style="font-size:17px;margin-left:16px">39 %</div>
+                </div>
+              </div>
+              <div class="tr-card" style="left:312px;top:460px;width:548px;height:214px">
+                <div class="tr-ct">En riesgo de irse</div>
+                <div class="tr-abs" style="right:16px;top:15px;font-size:11px;color:var(--tr-mu)">Detectados por la IA</div>
+                <div data-tr="risk"></div>
+              </div>
+
+              <div class="tr-card" style="left:24px;top:690px;width:536px;height:242px">
+                <div class="tr-ct">Lo que ha hecho la IA este mes</div>
+                <div class="tr-abs tr-mono" style="right:16px;top:14px;font-size:12px;color:var(--tr-ac)" data-tr="aitot">0 tareas</div>
+                <div data-tr="abars"></div>
+              </div>
+              <div class="tr-card" style="left:572px;top:690px;width:288px;height:242px">
+                <div class="tr-ct">Horas en tareas repetitivas</div>
+                <div class="tr-abs tr-mono" style="left:16px;top:40px;font-size:24px;font-weight:600;color:var(--tr-ac)" data-tr="hsave">0 h</div>
+                <div class="tr-abs" style="left:16px;top:72px;font-size:11px;color:var(--tr-mu)">menos por semana</div>
+                <div class="tr-abs" style="right:16px;top:44px;display:flex;flex-direction:column;gap:4px;font-size:10.5px;color:var(--tr-mu)">
+                  <span style="display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:2px;background:#4A3F37;display:block"></i>Antes</span>
+                  <span style="display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:2px;background:var(--tr-ac);display:block"></i>Con IA</span>
+                </div>
+                <div class="tr-abs" style="left:16px;right:16px;top:100px;height:106px;border-bottom:1px solid var(--tr-bd)" data-tr="bars"></div>
+                <div class="tr-abs" style="left:16px;right:16px;top:212px" data-tr="barlbl"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tr-toast" data-tr="toast"><span class="tr-ok-ic"><svg viewBox="0 0 24 24" class="tr-ic" style="stroke-width:3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span data-tr="toasttx"></span></div>
+        </div>
+
+        <div class="tr-ins" data-tr="ins">
+          <div class="tr-abs" style="left:24px;top:16px;display:flex;align-items:center;gap:10px;z-index:2">
+            <span style="width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFB27F,#F8894B 45%,#C9541D);display:block" data-tr="inorb"></span>
+            <b style="font-family:'Bricolage Grotesque';font-size:17px;font-weight:700">Procelaos</b><span style="color:var(--tr-mu);font-size:13px" data-tr="insub">por dentro: decide quién hace cada tarea</span>
+          </div>
+          <div class="tr-abs" style="right:24px;top:18px;display:flex;gap:8px;align-items:center;z-index:2">
+            <span class="tr-chip tr-chip-ok"><span class="tr-dot"></span>En directo</span><span class="tr-chip tr-mono" data-tr="indec">1.202 decisiones hoy</span>
+          </div>
+          <div class="tr-part" data-tr="part1">
+            <div class="tr-card" style="left:24px;top:60px;width:276px;height:436px;overflow:hidden"><div class="tr-ct">Lo que entra</div><div class="tr-abs" style="left:0;right:0;top:0" data-tr="stream"></div></div>
+            <div class="tr-card" style="left:312px;top:60px;width:456px;height:436px;overflow:hidden"><div class="tr-ct">Procelaos piensa</div>
+              <div class="tr-abs" style="left:0;top:0;right:0;bottom:0" data-tr="thA"></div>
+              <div class="tr-abs" style="left:0;top:0;right:0;bottom:0" data-tr="thB"></div>
+              <div class="tr-abs" style="left:18px;right:18px;top:0;height:2px;background:linear-gradient(90deg,transparent,#FF9C5E,transparent);box-shadow:0 0 14px #F8894B;opacity:0" data-tr="scan"></div>
+              <div class="tr-cardh" style="position:absolute;left:18px;top:352px">Tipo de tarea</div>
+              <div class="tr-cls" style="top:376px" data-tr="cls"></div>
+            </div>
+            <div class="tr-card" style="left:780px;top:60px;width:276px;height:436px"><div class="tr-ct">A quién se lo paso</div><div data-tr="targets"></div></div>
+          </div>
+          <div class="tr-part" data-tr="part2">
+            <div class="tr-card" style="left:24px;top:60px;width:596px;height:436px"><div class="tr-ct">Lo que sabe de tu negocio</div>
+              <div class="tr-abs" style="right:16px;top:15px;font-size:11px;color:var(--tr-mu)">Tú lo revisas y lo actualizas</div>
+              <div data-tr="mems"></div></div>
+            <svg class="tr-abs" style="left:0;top:0;pointer-events:none" width="1080" height="512" viewBox="0 0 1080 512" data-tr="beams"></svg>
+            <div class="tr-card" style="left:632px;top:60px;width:424px;height:436px"><div class="tr-ct">Pregunta</div>
+              <div class="tr-abs" style="left:18px;top:44px"><span class="tr-chip">Iván Ruiz · WhatsApp</span></div>
+              <div class="tr-bub tr-bub-in" data-tr="mq" style="left:18px;top:80px">¿Abrís el sábado? ¿Y cuánto cuesta el bono?</div>
+              <div class="tr-cardh" style="position:absolute;left:18px;top:150px">Respuesta de Procelaos</div>
+              <div class="tr-abs" style="left:18px;right:18px;top:174px;min-height:96px;padding:12px 14px;border-radius:12px;background:rgba(248,137,75,.12);border:1px solid rgba(248,137,75,.28);font-size:13.5px;line-height:1.5" data-tr="mabox"><span data-tr="mans"></span><span class="tr-caret" data-tr="mcaret" style="display:inline-block;width:1.5px;height:15px;background:var(--tr-ac);margin-left:1px;vertical-align:-2px"></span></div>
+              <div class="tr-abs" style="left:18px;top:292px" data-tr="msrc"><span class="tr-chip tr-chip-ok">✓ Basado en 4 datos de tu negocio</span></div>
+              <div class="tr-abs" style="left:18px;right:18px;top:334px;display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--tr-mu);line-height:1.45" data-tr="mnote">
+                <span class="tr-node-ic" style="width:26px;height:26px;flex:none"><svg viewBox="0 0 24 24" class="tr-ic"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+                <span>Si algo no lo sabe, no se lo inventa:<br><b style="color:var(--tr-tx);font-weight:600">te lo pregunta a ti.</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tr-cursor" data-tr="cursor">
+          <div class="tr-ripple" data-tr="ripple"></div>
+          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 2.5v17.2l4.6-4.4 3 6.6 3-1.4-3-6.4h6.4z" fill="#F4F1ED" stroke="#110C08" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="tr-deck" data-tr="deck"></div>
+  </div>
+
+  <div class="tr-ui">
+    <div class="tr-dark" data-tr="dark"></div>
+    <canvas class="tr-warp" data-tr="warp"></canvas>
+    <div class="tr-flash" data-tr="flash"></div>
+    <div class="tr-lb tr-lb-t" data-tr="lbt"></div><div class="tr-lb tr-lb-b" data-tr="lbb"></div>
+    <div class="tr-vig" data-tr="vig"></div>
+    <div data-tr="caps"></div>
+    <div class="tr-end" data-tr="end">
+      <h2>Lo que tu negocio necesite</h2>
+      <div class="tr-cta" data-tr="cta">
+        <a class="tr-cta-main" href="/agendar-reunion" target="_top" tabindex="-1" data-tr="cta1">Quiero esto en mi negocio</a>
+        <a class="tr-cta-sub" href="https://wa.me/34631279662" target="_blank" rel="noopener" tabindex="-1" data-tr="cta2">o escríbenos por WhatsApp</a>
+      </div>
+    </div>
+    <div class="tr-ctrls">
+      <button class="tr-btnui" type="button" data-tr="bpause" aria-label="Pausar"><svg viewBox="0 0 24 24" fill="currentColor" data-tr="icpause"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
+      <button class="tr-btnui" type="button" data-tr="bmute" aria-label="Silenciar"><svg viewBox="0 0 24 24" class="tr-ic" style="stroke-width:2" data-tr="icmute"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg></button>
+      <button class="tr-btnui" type="button" data-tr="bfull" aria-label="Pantalla completa"><svg viewBox="0 0 24 24" class="tr-ic" style="stroke-width:2" data-tr="icfull"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+    </div>
+    <div class="tr-cover" data-tr="cover">
+      <button class="tr-play" type="button" data-tr="play" aria-label="Reproducir recorrido de 1 minuto con sonido">
+        <span class="tr-play-c"><span class="tr-spin"></span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.8v16.4a1 1 0 0 0 1.5.86l13.6-8.2a1 1 0 0 0 0-1.72L7.5 2.94A1 1 0 0 0 6 3.8z"/></svg></span>
+        <span class="tr-play-l">Ver el recorrido <em>· 1 min con sonido</em></span>
+      </button>
+    </div>
+    <div class="tr-sr" aria-live="polite" data-tr="live"></div>
+  </div>
+</section>
+
+<script>
+(function () {
+  /* ======================= AJUSTES ======================= */
+  // Música en audio/trailer.mp3, ya recortada y sincronizada con CUES.
+  var MUSIC_SRC    = '/audio/trailer.mp3';
+  var MUSIC_OFFSET = 0;
+  var MUSIC_VOL    = 0.9;    // volumen de la música (0–1)
+  var SFX_VOL      = 0.22;   // volumen de los efectos (por debajo de la música)
+  var DURATION     = 58.6;     // duración total (s)
+  // Cortes de escena (segundos del tráiler) — caen en los golpes de la pista.
+  var CUES = { panel: 2.38, agentes: 6.66, detalle: 10.94, control: 15.22, dentro: 20.16, memoria: 24.48, clientes: 28.78, facturas: 34.13, agenda: 37.42, informe: 41.71, informe2: 46.03, cierre: 50.35 };
+  var BEAT0 = 2.38, BEAT = 60 / 112.3; // pulso de la música para los latidos visuales
+  /* ======================================================= */
+
+  var root = document.getElementById('tr-trailer');
+  if (!root) return;
+  var P = CUES.panel, A = CUES.agentes, IN = CUES.dentro, MEM = CUES.memoria, D = CUES.detalle, K = CUES.control, CL = CUES.clientes, F = CUES.facturas, G = CUES.agenda, R = CUES.informe, R2 = CUES.informe2, Z = CUES.cierre;
+  var ALLC = [P, A, IN, MEM, D, K, CL, F, G, R, R2, Z];
+  var q = function (k) { return root.querySelector('[data-tr="' + k + '"]'); };
+  var RM = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+
+  /* ---------- utilidades ---------- */
+  function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function seg(t, a, b) { return clamp((t - a) / (b - a)); }
+  function eo(p) { return RM.matches ? (p > 0 ? 1 : 0) : 1 - Math.pow(1 - p, 4); }
+  function eio(p) { return RM.matches ? (p > 0 ? 1 : 0) : (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2); }
+  function lerp(a, b, p) { return a + (b - a) * p; }
+  function ap(t, a, d) { return eo(seg(t, a, a + (d || .55))); }
+  function st(el, prop, v) { var c = el.__s || (el.__s = {}); if (c[prop] !== v) { c[prop] = v; el.style[prop] = v; } }
+  function sa(el, k, v) { var c = el.__a || (el.__a = {}); if (c[k] !== v) { c[k] = v; el.setAttribute(k, v); } }
+  function tx(el, v) { if (el.__t !== v) { el.__t = v; el.textContent = v; } }
+  function cls(el, v) { if (el.__c !== v) { el.__c = v; el.className = v; } }
+  function show(el, p, dy, sc) {
+    st(el, 'opacity', p.toFixed(3));
+    st(el, 'transform', 'translate3d(0,' + ((1 - p) * (dy == null ? 12 : dy)).toFixed(2) + 'px,0) scale(' + (sc ? lerp(sc, 1, p) : 1).toFixed(4) + ')');
+  }
+  function fmt(v, d) { return v.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: true }); }
+  function eur(v) { var s = Math.round(v).toString(); return s.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €'; }
+  function count(t, a, d, target) { return target * eo(seg(t, a, a + d)); }
+  function html(el, s) { el.innerHTML = s; }
+  function sw(swEl, off) { st(swEl.firstChild, 'transform', 'translateX(' + (-16 * off).toFixed(1) + 'px)'); st(swEl, 'background', off > .5 ? '#4A3F37' : 'var(--tr-ok)'); }
+  var CHECK = '<span class="tr-ok-ic"><svg viewBox="0 0 24 24" class="tr-ic" style="stroke-width:3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
+  var SPARK = '<svg viewBox="0 0 24 24" class="tr-ic tr-spark"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>';
+  var ICO = {
+    msg: '<path d="M4 5h16v11H9l-5 4z"/>', cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    deal: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>', eur: '<path d="M17 6.5A7 7 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/>',
+    box: '<path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/>', star: '<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z"/>',
+    mega: '<path d="M3.5 10v4h3l7 4V6l-7 4zM17 9.5a3.5 3.5 0 0 1 0 5"/>', head: '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/>',
+    mail: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/>', web: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 2.5 14.4 0 17M12 3.5c-2.5 2.6-2.5 14.4 0 17"/>',
+    ig: '<rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><path d="M16.8 7.2h.01"/>', chat: '<path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/>'
+  };
+  function ic(k) { return '<svg viewBox="0 0 24 24" class="tr-ic">' + ICO[k] + '</svg>'; }
+
+  /* ---------- panel ---------- */
+  var feedItems = [['Cita confirmada con Pedro R.', 'hace 1 min'], ['Factura F-0213 enviada', 'hace 6 min'], ['Respuesta a una reseña de Google', 'hace 14 min'], ['Recordatorio a 6 clientes de mañana', 'hace 22 min'], ['Pedido al proveedor preparado', 'hace 31 min']];
+  html(q('feed'), feedItems.map(function (f, i) { return '<div class="tr-feed-i" style="top:' + (44 + i * 48) + 'px">' + CHECK + '<div>' + f[0] + '<small>' + f[1] + '</small></div></div>'; }).join(''));
+  var feedEls = q('feed').children;
+
+  /* ---------- clientes ---------- */
+  var crm = [['AG', '#E6C7A8', 'Ana Gil', 'Ayer, 18:40', 'Propuesta', ''], ['ML', '#F8B98F', 'Marta López', 'Mensaje nuevo', 'Nuevo', 'ac'], ['JP', '#BFD8C4', 'Jorge Pérez', 'Hace 3 días', 'Cliente', 'ok'], ['LM', '#D9C6E8', 'Lucía Martín', 'Hace 5 días', 'Cliente', 'ok'], ['IR', '#C9D6EA', 'Iván Ruiz', 'Hace 1 semana', 'Propuesta', ''], ['SN', '#EAD7A6', 'Sara Núñez', 'Hace 2 semanas', 'Cliente', 'ok']];
+  html(q('crmrows'), crm.map(function (r, i) { return '<div class="tr-row" style="top:' + (64 + i * 56) + 'px"><div class="tr-av" style="background:' + r[1] + '">' + r[0] + '</div><div>' + r[2] + '<small>' + r[3] + '</small></div><span class="tr-chip' + (r[5] ? ' tr-chip-' + r[5] : '') + '">' + r[4] + '</span></div>'; }).join(''));
+  var crmEls = q('crmrows').children;
+  var REPLY = 'Claro, Marta. Os hago un 10 % a las dos 😊';
+
+  /* ---------- facturas ---------- */
+  var fr = [['F-0214', 'Marta López', '23 oct', '65,00 €', 'ai'], ['F-0213', 'Jorge Pérez', '21 oct', '240,00 €', 'pend'], ['F-0212', 'Lucía Martín', '20 oct', '120,00 €', 'ok'], ['F-0211', 'Ana Gil', '18 oct', '480,00 €', 'ok'], ['F-0210', 'Sara Núñez', '17 oct', '95,00 €', 'ok']];
+  html(q('frows'), fr.map(function (r, i) {
+    var stt = r[4] === 'ai' ? '<span class="tr-chip tr-chip-ac">' + SPARK + 'Enviada</span>' : r[4] === 'pend' ? '<span class="tr-chip tr-chip-ac" data-pill>Pendiente</span>' : '<span class="tr-chip tr-chip-ok">Pagada</span>';
+    return '<div class="tr-tr" style="top:' + (104 + i * 52) + 'px"><span class="tr-mono" style="left:12px;color:var(--tr-mu)">' + r[0] + '</span><span style="left:84px">' + r[1] + '</span><span style="left:226px;color:var(--tr-mu)">' + r[2] + '</span><span class="tr-mono" style="left:296px">' + r[3] + '</span><span style="left:384px">' + stt + '</span>' +
+      (r[4] === 'pend' ? '<div class="tr-btn tr-btn-gh" data-pay style="left:458px;top:11px;width:104px">Marcar pagada</div>' : '') + '</div>';
+  }).join(''));
+  var frEls = q('frows').children;
+  var payBtn = q('frows').querySelector('[data-pay]'), pill = q('frows').querySelector('[data-pill]');
+
+  /* ---------- agenda ---------- */
+  var g = '';
+  ['Lun <b>20</b>', 'Mar <b>21</b>', 'Mié <b>22</b>', 'Jue <b>23</b>', 'Vie <b>24</b>'].forEach(function (d, i) { g += '<div class="tr-day" style="left:' + (80 + i * 156) + 'px">' + d + '</div>'; });
+  for (var h = 0; h < 7; h++) { g += '<div class="tr-gl" style="top:' + (100 + h * 64) + 'px"></div>'; if (h < 6) g += '<div class="tr-hr tr-mono" style="top:' + (93 + h * 64) + 'px">' + (9 + h) + ':00</div>'; }
+  var blocks = [[0, 0, 1, 'Ana Gil', 'Consulta', ''], [0, 2, 1, 'Iván Ruiz', 'Seguimiento', ''], [2, 0, 2, 'Reunión de equipo', 'Sala 1', ''], [2, 4, 1, 'Sara Núñez', 'Primera visita', ''], [3, 1, 1, 'Jorge Pérez', 'Sesión', ''], [4, 2, 2, 'Lucía Martín', 'Sesión doble', ''], [3, 3, 1, 'Marta López', 'Reservada por la IA', 'ok']];
+  function blk(c, r, l, a, b, tone, extra) { return '<div class="tr-blk' + (tone ? ' tr-blk-' + tone : '') + '"' + (extra || '') + ' style="left:' + (84 + c * 156) + 'px;top:' + (103 + r * 64) + 'px;height:' + (l * 64 - 6) + 'px"><b style="font-weight:600">' + a + '</b><small>' + b + '</small></div>'; }
+  blocks.forEach(function (b) { g += blk(b[0], b[1], b[2], b[3], b[4], b[5]); });
+  g += blk(1, 1, 1, 'Elena Ros', 'Desde lista de espera', 'ok', ' data-b="elena"');
+  g += blk(1, 1, 1, 'Carlos Vidal', 'Revisión', 'ac', ' data-b="carlos"');
+  html(q('grid'), g);
+  var bCarlos = q('grid').querySelector('[data-b="carlos"]'), bElena = q('grid').querySelector('[data-b="elena"]');
+
+  /* ---------- agentes IA ---------- */
+  ICO.phone = '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>';
+  var CX = 266, CY = 244, ORX = 202, ORY = 160;           // núcleo y órbita (coords del escenario)
+  var SX = 176, SY = 24;                                   // origen del escenario en la zona principal
+  var agents = [['Recepción', 'msg', 23], ['Agenda', 'cal', 9], ['Ventas', 'deal', 5], ['Contable', 'eur', 4], ['Inventario', 'box', 3], ['Reseñas', 'star', 6], ['Marketing', 'mega', 2], ['Soporte', 'head', 7]];
+  var CH = [['WhatsApp', 'chat', 41], ['Email', 'mail', 18], ['Web', 'web', 9], ['Reseñas', 'star', 6], ['Instagram', 'ig', 12], ['Teléfono', 'phone', 4]];
+  html(q('chans'), CH.map(function (c, i) { return '<div class="tr-chp" style="top:' + (46 + i * 68) + 'px"><span class="tr-chn">' + ic(c[1]) + '</span><div>' + c[0] + '<small class="tr-mono" data-c>' + c[2] + ' hoy</small></div></div>'; }).join(''));
+  var chEls = q('chans').children, chCnt = Array.prototype.map.call(chEls, function (e) { return e.querySelector('[data-c]'); });
+  function chY(i) { return 24 + 46 + i * 68 + 28; }
+  html(q('nodes'), agents.map(function (a) { return '<div class="tr-node2"><span class="tr-nic"><svg class="tr-prog" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="rgba(248,137,75,.1)" stroke="rgba(255,255,255,.08)" stroke-width="2"/><circle cx="17" cy="17" r="15" fill="none" stroke="#F8894B" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="0 95" data-p/></svg>' + ic(a[1]) + '</span><div>' + a[0] + '<small data-n>0 hoy</small></div><span class="tr-okb">✓</span></div>'; }).join(''));
+  var nodeEls = q('nodes').children;
+  var nodeCnt = Array.prototype.map.call(nodeEls, function (n) { return n.querySelector('[data-n]'); });
+  var nodeProg = Array.prototype.map.call(nodeEls, function (n) { return n.querySelector('[data-p]'); });
+  var nodeOk = Array.prototype.map.call(nodeEls, function (n) { return n.querySelector('.tr-okb'); });
+  var svgNS = 'http://www.w3.org/2000/svg', links = q('links');
+  function mk(tag, at) { var e = document.createElementNS(svgNS, tag); for (var k in at) e.setAttribute(k, at[k]); links.appendChild(e); return e; }
+  mk('ellipse', { cx: CX, cy: CY, rx: ORX, ry: ORY, fill: 'none', stroke: 'rgba(248,137,75,.16)', 'stroke-width': 1, 'stroke-dasharray': '3 7', 'data-o': 1 });
+  var orbitEl = links.lastChild;
+  var inPaths = [], inDots = [];
+  CH.forEach(function (c, i) {
+    var y = chY(i) - SY;
+    inPaths.push(mk('path', { d: 'M-12 ' + y + ' C 90 ' + y + ' 150 ' + CY + ' ' + (CX - 56) + ' ' + CY, fill: 'none', stroke: 'rgba(248,137,75,.14)', 'stroke-width': 1.2 }));
+  });
+  inPaths.forEach(function () { inDots.push(mk('circle', { r: 2.4, fill: '#FFB27F', opacity: 0 })); });
+  var obeams = agents.map(function () { return mk('path', { fill: 'none', stroke: '#F8894B', 'stroke-width': 1.3, opacity: .25 }); });
+  var beamDots = agents.map(function () { return mk('circle', { r: 2.4, fill: '#FFD2B0', opacity: 0 }); });
+  var ripEls = root.querySelectorAll('.tr-rip');
+
+  // tareas: [pulso tras A, canal, texto, agente, resultado]
+  var TASKS = [
+    [0, 0, '¿Hueco el jueves?', 1, 'Cita reservada'], [1, 1, 'Factura de octubre', 3, 'Factura registrada'], [2, 3, 'Reseña de 5★', 5, 'Reseña respondida'],
+    [3, 2, 'Pide presupuesto', 2, 'Presupuesto enviado'], [4, 4, 'Mensaje directo', 6, 'Respondido en Instagram'], [5, 5, 'Llamada perdida', 0, 'Le hemos escrito'],
+    [6, 0, '¿Cómo va lo mío?', 7, 'Estado enviado'], [9, 1, 'Cambiar mi cita', 1, 'Cita movida'], [11, 0, '¿Abrís el sábado?', 0, 'Horario enviado'],
+    [13, 2, 'Pedido de cajas', 4, 'Pedido preparado'], [19, 3, 'Reseña de 4★', 5, 'Reseña respondida'], [21, 1, 'Recibo cobrado', 3, 'Pago conciliado']
+  ];
+  TASKS.forEach(function (k) { k.t0 = A + .15 + k[0] * BEAT; k.core = k.t0 + .55; k.disp = k.t0 + .7; k.arr = k.t0 + 2 * BEAT; k.done = k.arr + .85; k.out = k.done + .4; });
+  html(q('flights'), TASKS.map(function (k) { return '<div class="tr-chip2">' + ic(CH[k[1]][1]) + k[2] + '</div><div class="tr-spk"></div>'; }).join(''));
+  var fl = q('flights').children;
+  html(q('outs'), TASKS.map(function (k) { return '<div class="tr-outi">' + CHECK + '<div><b>' + k[4] + '</b><span class="tr-o2">' + agents[k[3]][0] + ' IA</span></div></div>'; }).join(''));
+  var outEls = q('outs').children;
+  html(q('agrows'), agents.map(function (a, i) { return '<div class="tr-agr" style="top:' + (48 + i * 51) + 'px"><span class="tr-dot"></span><div>' + a[0] + ' IA<small data-m>Automático</small></div><span class="tr-sw"><i></i></span></div>'; }).join(''));
+  var agRows = q('agrows').children, vSw = agRows[2].querySelector('.tr-sw'), vMode = agRows[2].querySelector('[data-m]'), vDot = agRows[2].querySelector('.tr-dot');
+  function orbit(k, t) {
+    var rot = RM.matches ? 0 : (t - A) * .11;
+    var an = -Math.PI / 2 + k * Math.PI / 4 + rot, dp = Math.sin(an);
+    return { x: CX + Math.cos(an) * ORX, y: CY + dp * ORY, d: dp };
+  }
+  function qb(a, c, b, p) { var u = 1 - p; return u * u * a + 2 * u * p * c + p * p * b; }
+
+  var STEPS = [['Entender el mensaje', 'Quiere reservar una cita'], ['Mirar la agenda', 'Jueves: 10:00 ocupado, 12:00 libre'], ['Responder a Marta', '«¿Te va bien el jueves a las 12:00?»'], ['Reservar y avisar', 'Cita creada y recordatorio programado']];
+  html(q('steps'), STEPS.map(function (s, i) { return '<div class="tr-step" style="top:' + (156 + i * 58) + 'px"><span class="tr-stc"><svg viewBox="0 0 24 24" class="tr-ic" style="stroke-width:3;color:#1A0F08"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div>' + s[0] + '<small>' + s[1] + '</small></div></div>'; }).join(''));
+  var stepEls = q('steps').children;
+
+  /* ---------- informes ---------- */
+  var SRV = [['Sesiones', 62], ['Revisiones', 21], ['Bonos', 11], ['Productos', 6]];
+  html(q('srv'), SRV.map(function (s, i) { return '<div class="tr-hb" style="top:' + (48 + i * 40) + 'px">' + s[0] + '<em class="tr-mono">' + s[1] + ' %</em><div class="tr-bar"><i style="width:' + s[1] + '%;background:' + (i === 0 ? 'var(--tr-ac)' : '#7A6B60') + '"></i></div></div>'; }).join(''));
+  var srvBars = q('srv').querySelectorAll('i');
+  var RISK = [['NV', '#C9D6EA', 'Nuria Vidal', 'Última visita hace 52 días', 'La IA le escribió ayer'], ['PG', '#E6C7A8', 'Pablo Gómez', 'Última visita hace 47 días', 'Cupón de vuelta enviado'], ['RC', '#D9C6E8', 'Rosa Castro', 'Canceló 2 citas seguidas', 'Te lo dejamos a ti']];
+  html(q('risk'), RISK.map(function (r, i) { return '<div class="tr-risk" style="top:' + (44 + i * 54) + 'px"><div class="tr-av" style="background:' + r[1] + '">' + r[0] + '</div><div>' + r[2] + '<small>' + r[3] + '</small></div><span class="tr-chip ' + (i < 2 ? 'tr-chip-ok' : 'tr-chip-ac') + '">' + r[4] + '</span></div>'; }).join(''));
+  var riskEls = q('risk').children;
+  var AB = [['Recepción', 148], ['Agenda', 86], ['Soporte', 52], ['Contable', 41], ['Ventas', 33], ['Reseñas', 24], ['Marketing', 18], ['Inventario', 10]];
+  html(q('abars'), AB.map(function (a, i) { return '<div class="tr-ab" style="top:' + (44 + i * 23) + 'px"><span>' + a[0] + '</span><div style="width:' + (a[1] / 148 * 340).toFixed(0) + 'px"></div><em class="tr-mono">' + a[1] + '</em></div>'; }).join(''));
+  var abEls = q('abars').children;
+  var antes = [3.2, 2.8, 3.5, 3.0, 2.6], conIA = [1.2, 1.0, 1.4, 1.0, 0.9], dias = ['L', 'M', 'X', 'J', 'V'];
+  var bh = '', bl = '';
+  for (var d = 0; d < 5; d++) {
+    var bx = 10 + d * 50;
+    bh += '<div class="tr-cbar" style="left:' + bx + 'px;height:' + (antes[d] / 3.6 * 100).toFixed(0) + 'px;background:#4A3F37"></div><div class="tr-cbar" style="left:' + (bx + 20) + 'px;height:' + (conIA[d] / 3.6 * 100).toFixed(0) + 'px;background:var(--tr-ac)"></div>';
+    bl += '<span style="position:absolute;left:' + (bx + 12) + 'px;font-size:10.5px;color:var(--tr-mu)">' + dias[d] + '</span>';
+  }
+  html(q('bars'), bh); html(q('barlbl'), bl);
+  var barEls = q('bars').children;
+
+  /* ---------- baraja final ---------- */
+  var deckDef = [
+    ['Clientes', '<div class="tr-sk" style="top:2px;left:0;width:24px;height:24px;border-radius:50%;background:#F8B98F"></div><div class="tr-sk" style="top:6px;left:34px;width:110px"></div><div class="tr-sk" style="top:44px;left:0;width:24px;height:24px;border-radius:50%;background:#BFD8C4"></div><div class="tr-sk" style="top:48px;left:34px;width:90px"></div><div class="tr-sk" style="top:86px;left:0;width:24px;height:24px;border-radius:50%;background:#C9D6EA"></div><div class="tr-sk" style="top:90px;left:34px;width:120px"></div>'],
+    ['Facturas', '<div class="tr-sk" style="top:4px;left:0;width:120px"></div><div class="tr-sk" style="top:2px;right:0;width:50px;height:12px;background:rgba(95,208,138,.35)"></div><div class="tr-sk" style="top:40px;left:0;width:100px"></div><div class="tr-sk" style="top:38px;right:0;width:50px;height:12px;background:rgba(95,208,138,.35)"></div><div class="tr-sk" style="top:76px;left:0;width:130px"></div><div class="tr-sk" style="top:74px;right:0;width:50px;height:12px;background:rgba(95,208,138,.35)"></div>'],
+    ['Agentes IA', '<svg width="236" height="118" viewBox="0 0 236 118" style="position:absolute;left:0;top:0"><g stroke="rgba(248,137,75,.5)" stroke-width="1.5"><path d="M118 59L30 18M118 59L206 18M118 59L30 100M118 59L206 100M118 59L118 6M118 59L118 112"/></g><circle cx="118" cy="59" r="22" fill="#F8894B"/><g fill="#2A211A" stroke="rgba(255,255,255,.15)"><rect x="8" y="8" width="44" height="20" rx="6"/><rect x="184" y="8" width="44" height="20" rx="6"/><rect x="8" y="90" width="44" height="20" rx="6"/><rect x="184" y="90" width="44" height="20" rx="6"/></g></svg>'],
+    ['Agenda', '<div class="tr-sk" style="top:0;left:0;width:64px;height:30px;border-radius:6px;background:rgba(248,137,75,.3)"></div><div class="tr-sk" style="top:40px;left:80px;width:64px;height:54px;border-radius:6px"></div><div class="tr-sk" style="top:10px;left:160px;width:64px;height:30px;border-radius:6px;background:rgba(95,208,138,.3)"></div><div class="tr-sk" style="top:84px;left:0;width:64px;height:30px;border-radius:6px"></div><div class="tr-sk" style="top:70px;left:160px;width:64px;height:40px;border-radius:6px"></div>'],
+    ['Informes', '<svg width="236" height="118" viewBox="0 0 236 118" style="position:absolute;left:0;top:0"><path d="M4 100 C40 92 60 80 90 76 S140 58 160 52" fill="none" stroke="#F8894B" stroke-width="2.5"/><path d="M160 52 C185 44 205 34 232 22" fill="none" stroke="#F8894B" stroke-width="2" stroke-dasharray="4 4"/><circle cx="160" cy="52" r="4" fill="#F8894B"/></svg>']
+  ];
+  html(q('deck'), deckDef.map(function (c) { return '<div class="tr-pc"><div class="tr-pc-h"><i></i><i></i><i></i><span>' + c[0] + '</span></div><div class="tr-pc-b">' + c[1] + '</div></div>'; }).join(''));
+  var deckEls = q('deck').children;
+  var deckFrom = [[-560, -200, -30], [-300, 320, 20], [0, -420, 0], [320, 330, -18], [580, -180, 26]];
+
+  /* ---------- dentro de Procelaos ---------- */
+  var STREAM = [['mail', 'Cliente web', 'El pedido llegó roto', 'Queja urgente', 'ac', IN + 2.3], ['chat', 'Marta', '¿Hueco el jueves?', 'Cita', 'ac', IN + .2],
+    ['mail', 'Proveedor', 'Factura de octubre', 'Factura', '', -1], ['star', 'Reseña 5★', '«Trato genial»', 'Reseña', '', -1], ['ig', 'Instagram', 'Posts de la semana', 'Marketing', '', -1], ['box', 'Stock', 'Cajas bajo mínimos', 'Pedido', '', -1], ['chat', 'Iván', '¿Cómo va lo mío?', 'Consulta', '', -1]];
+  html(q('stream'), STREAM.map(function (k) { return '<div class="tr-si"><span class="tr-chn">' + ic(k[0]) + '</span><div><b>' + k[1] + '</b><span class="tr-s2">' + k[2] + '</span></div><span class="tr-chip' + (k[4] ? ' tr-chip-' + k[4] : '') + '">' + k[3] + '</span></div>'; }).join(''));
+  var strEls = q('stream').children;
+  var THINK = [
+    { base: IN + .2, from: 'Marta · WhatsApp', msg: '¿Tenéis hueco el jueves por la mañana?', lines: [['Entiendo', 'Quiere reservar una cita'], ['Contexto', 'Clienta nueva, llegó por Instagram'], ['Prioridad', 'Normal: responder en menos de 1 min'], ['Decido', 'Recepción responde y Agenda reserva']], cls: [0], tg: [0, 1] },
+    { base: IN + 2.3, from: 'Cliente web · email', msg: 'El pedido llegó roto y lo necesito para el lunes.', lines: [['Entiendo', 'Es una queja: producto dañado'], ['Contexto', 'Cliente desde 2023, 9 compras'], ['Prioridad', 'Alta: puede acabar en mala reseña'], ['Decido', 'Soporte se disculpa y Ventas lo repone']], cls: [2, 4], tg: [7, 2] }
+  ];
+  ['thA', 'thB'].forEach(function (id, n) {
+    var T = THINK[n];
+    html(q(id), '<div class="tr-abs" style="left:18px;right:18px;top:46px;padding:11px 13px;border-radius:12px;background:#2E251E;font-size:13px;line-height:1.4"><span style="color:var(--tr-mu);font-size:11px">' + T.from + '</span><br>' + T.msg + '</div>' +
+      T.lines.map(function (l, i) { return '<div class="tr-th-l" style="top:' + (126 + i * 40) + 'px"><em>' + l[0] + '</em><span>' + l[1] + '</span></div>'; }).join(''));
+    T.el = q(id); T.lineEls = Array.prototype.slice.call(T.el.querySelectorAll('.tr-th-l'));
+  });
+  var CLS = ['Cita', 'Factura', 'Queja', 'Venta', 'Urgente', 'Marketing', 'Reseña'];
+  html(q('cls'), CLS.map(function (c) { return '<span class="tr-chip">' + c + '</span>'; }).join(''));
+  var clsEls = q('cls').children;
+  html(q('targets'), agents.map(function (a, i) { return '<div class="tr-tr2" style="top:' + (44 + i * 48) + 'px"><span class="tr-node-ic">' + ic(a[1]) + '</span>' + a[0] + '<span class="tr-chip tr-chip-ac">Asignado</span></div>'; }).join(''));
+  var tgEls = q('targets').children;
+  var MEMS = [['cal', 'Horario', 'L–V 9–20 h · Sáb 10–14 h'], ['eur', 'Precios', 'Sesión 45 € · Bono de 5: 200 €'], ['web', 'Normas', 'Cancelar gratis hasta 24 h antes'], ['head', 'Equipo', 'Laura y Pablo, de lunes a sábado'],
+    ['msg', 'Iván Ruiz', 'Cliente desde 2023 · 9 visitas'], ['star', 'Tono', 'Cercano, tutea, sin tecnicismos'], ['box', 'Servicios', 'Sesión, revisión, bonos, productos'], ['deal', 'Dirección', 'C/ Mayor 12, local 3'],
+    ['mail', 'Proveedores', 'Pedidos los lunes antes de las 12'], ['chat', 'Preguntas frecuentes', '32 respuestas aprobadas por ti']];
+  html(q('mems'), MEMS.map(function (m, i) { return '<div class="tr-mem" style="left:' + (16 + (i % 2) * 288) + 'px;top:' + (46 + Math.floor(i / 2) * 76) + 'px"><span class="tr-node-ic">' + ic(m[0]) + '</span><small>' + m[1] + '</small>' + m[2] + '</div>'; }).join(''));
+  var memEls = q('mems').children, USED = [0, 1, 4, 5], beamEls = [];
+  USED.forEach(function (u, n) {
+    var x0 = 24 + 16 + (u % 2) * 288 + 280, y0 = 60 + 46 + Math.floor(u / 2) * 76 + 32, x1 = 650, y1 = 60 + 200 + n * 14;
+    var pth = document.createElementNS(svgNS, 'path');
+    pth.setAttribute('d', 'M' + x0 + ' ' + y0 + ' C' + (x0 + 60) + ' ' + y0 + ' ' + (x1 - 60) + ' ' + y1 + ' ' + x1 + ' ' + y1);
+    pth.setAttribute('fill', 'none'); pth.setAttribute('stroke', '#F8894B'); pth.setAttribute('stroke-width', '1.6'); pth.setAttribute('stroke-dasharray', '400'); pth.setAttribute('stroke-dashoffset', '400');
+    q('beams').appendChild(pth); beamEls.push(pth);
+  });
+  var MANS = '¡Hola, Iván! El sábado abrimos de 10 a 14 h y el bono de 5 sesiones son 200 €. ¿Te reservo hora?';
+
+  var insCards = Array.prototype.slice.call(q('part1').querySelectorAll(':scope > .tr-card')).concat(Array.prototype.slice.call(q('part2').querySelectorAll(':scope > .tr-card')));
+  // estelas de velocidad (inmersión)
+  var warp = q('warp'), wctx = warp.getContext ? warp.getContext('2d') : null, wOn = false, STREAKS = [];
+  for (var w = 0; w < 140; w++) STREAKS.push([Math.random() * Math.PI * 2, .4 + Math.random() * .9, Math.random(), .5 + Math.random() * 1.5]);
+  function drawWarp(k, t) {
+    if (!wctx) return;
+    var W = warp.width, H = warp.height;
+    if (k <= 0.001) { if (wOn) { wctx.clearRect(0, 0, W, H); wOn = false; } return; }
+    wOn = true; wctx.clearRect(0, 0, W, H);
+    var cx = W / 2, cy = H * .55, R = Math.hypot(W, H) * .6;
+    wctx.lineCap = 'round';
+    for (var i = 0; i < STREAKS.length; i++) {
+      var s = STREAKS[i], ph = (s[2] + t * s[1] * 1.6) % 1, r0 = ph * ph * R, len = (20 + 260 * k) * ph * s[1];
+      var c = Math.cos(s[0]), sn = Math.sin(s[0]);
+      wctx.strokeStyle = 'rgba(255,' + (190 + (i % 3) * 20) + ',150,' + (k * .75 * ph).toFixed(3) + ')';
+      wctx.lineWidth = s[3] * (W / 1280) * (1 + k);
+      wctx.beginPath(); wctx.moveTo(cx + c * r0, cy + sn * r0); wctx.lineTo(cx + c * (r0 + len), cy + sn * (r0 + len)); wctx.stroke();
+    }
+  }
+
+  /* ---------- rótulos ---------- */
+  var CAPS = [
+    [-1, P, 'Recorrido por un negocio con IA', 'Así trabaja un negocio que se organiza solo'],
+    [P, A, 'Panel', 'Todo tu negocio, en una pantalla'],
+    [A, D, 'Agentes IA', 'Un equipo de IA trabajando 24/7'],
+    [D, K, 'Agente en detalle', 'Cada agente sabe qué tiene que hacer'],
+    [K, IN - 1.5, 'Control', 'Y tú decides cuándo actúa'],
+    [IN + .5, MEM, 'Dentro de Procelaos', 'Lee, entiende y reparte cada tarea'],
+    [MEM, CL - .7, 'Memoria del negocio', 'Responde con lo que sabe de tu negocio'],
+    [CL, CL + 2.9, 'Clientes', 'Ningún cliente sin respuesta'],
+    [CL + 2.9, F, 'Clientes', 'Y cuando quieras, respondes tú'],
+    [F, G, 'Facturación', 'Facturas que se hacen solas'],
+    [G, R, 'Agenda', 'Tu agenda, siempre al día'],
+    [R, R2, 'Informes', 'Tus números, claros y al día'],
+    [R2, Z, 'Informes', 'Y todo lo que la IA ha hecho por ti']
+  ];
+  html(q('caps'), CAPS.map(function (c) { return '<div class="tr-cap"><span>' + c[2] + '</span><p>' + c[3] + '</p></div>'; }).join(''));
+  var capEls = q('caps').children;
+
+  /* ---------- guion ---------- */
+  var SC = { dash: [P, A], ai: [A, CL], crm: [CL, F], fact: [F, G], agenda: [G, R], report: [R, Z] };
+  var scEls = {}; Array.prototype.forEach.call(root.querySelectorAll('[data-sc]'), function (e) { scEls[e.getAttribute('data-sc')] = e; });
+  var navEls = root.querySelectorAll('[data-nav]');
+  var NAV = [[-1, 0], [A - .1, 4], [CL - .1, 1], [F - .1, 2], [G - .1, 3], [R - .1, 5]];
+  var CRM_OFF = CL + 3.1, TYPE0 = CL + 3.35, TYPE1 = CL + 4.2, SEND = CL + 4.45, VENTAS_OFF = K + 1.0;
+
+  // Cursor (coordenadas de la ventana): [t, x, y]
+  var CUR = [
+    [P + .2, 760, 470], [P + 1.7, 640, 200], [P + 2.2, 640, 200], [A - .3, 90, 304],
+    [A + .3, 90, 304], [A + 1.8, 560, 560], [K + .1, 900, 520], [K + .85, 1024, 239], [K + 1.6, 990, 330], [IN - 1.5, 900, 470], [CL - .6, 400, 420], [CL - .3, 90, 184],
+    [CL + .15, 90, 184], [CL + .7, 390, 210], [CL + 1.1, 430, 260], [CL + 2.1, 900, 300], [CL + 2.5, 960, 200], [CL + 3.0, 1020, 102],
+    [CL + 3.3, 1000, 160], [CL + 4.1, 1000, 440], [CL + 4.38, 1018, 490], [CL + 4.7, 1010, 480], [F - .3, 90, 224],
+    [F + .2, 90, 224], [F + 1.3, 726, 230], [F + 1.55, 726, 230], [F + 2.3, 860, 420], [G - .3, 90, 264],
+    [G + .15, 90, 264], [G + .85, 510, 236], [G + 1.0, 510, 236], [G + 1.95, 822, 428], [G + 2.5, 870, 470], [R + .3, 940, 470]
+  ];
+  var CLICKS = [A - .15, VENTAS_OFF, CL - .15, CL + .8, CRM_OFF, SEND, F - .15, F + 1.45, G - .15, G + 1.0, G + 2.0];
+  var DRAG = [G + 1.0, G + 1.95];
+
+  // Cámara (coordenadas del lienzo): [t, escala, focoX, focoY]
+  var CAM = [
+    [0, .94, 640, 400], [P, 1, 640, 360], [A + .2, 1, 640, 360], [D - .4, 1.03, 640, 380], [D + .5, 1.16, 930, 420], [K - .5, 1.16, 930, 430], [K + .3, 1, 640, 360],
+    [K + .5, 1, 640, 360], [K + 1.0, 1.1, 900, 400], [K + 2.6, 1.1, 900, 400], [IN - 1.5, 1, 700, 410], [IN - .02, 3.6, 738, 434], [IN + .5, 1, 640, 360],
+    [CL - .8, 1, 640, 360], [CL - .4, 1, 640, 360],
+    [CL + .7, 1, 640, 360], [CL + 1.3, 1.18, 880, 430], [CL + 4.6, 1.18, 880, 450], [F - .35, 1, 640, 360],
+    [F + .7, 1, 640, 360], [F + 1.1, 1.2, 780, 360], [F + 1.8, 1.2, 780, 360], [F + 2.5, 1, 640, 360],
+    [G + .3, 1, 640, 360], [G + .8, 1.12, 760, 410], [G + 2.5, 1.12, 760, 410], [R - .1, 1, 640, 360],
+    [Z, 1.03, 640, 380], [DURATION, 1, 640, 360]
+  ];
+  var TOASTS = [[G + 2.15, R - .2, 'La IA avisó a Carlos por WhatsApp y él confirmó'], [VENTAS_OFF + .1, VENTAS_OFF + 2.2, 'Ventas IA en pausa. Ahora lo llevas tú.']];
+
+  // Efectos de sonido sincronizados
+  var EV = [];
+  ALLC.forEach(function (c) { if (c !== IN) EV.push([c, 'whoosh']); });
+  EV.push([IN - 1.45, 'riser'], [IN - .02, 'boom'], [CL - .75, 'whoosh']);
+  CLICKS.forEach(function (c) { EV.push([c, 'click']); });
+  EV.push([P + .55, 'pop'], [CL + 1.2, 'notif'], [CL + 2.0, 'notif'], [CL + 2.5, 'notif'], [SEND + .1, 'pop'], [F + .45, 'pop'], [F + 1.5, 'done'], [F + 2.2, 'pop'],
+    [G + 2.15, 'notif'], [G + 2.6, 'pop'], [VENTAS_OFF + .1, 'pop'], [Z + 1.6, 'done']);
+  TASKS.forEach(function (k) { EV.push([k.core, 'tick']); EV.push([k.done, 'pop']); });
+  STEPS.forEach(function (s, i) { EV.push([D + .9 + i * .75, 'tick']); });
+  THINK.forEach(function (T) { EV.push([T.base + 1.4, 'pop']); });
+  USED.forEach(function (u, n) { EV.push([MEM + 1.1 + n * .25, 'tick']); });
+  EV.push([MEM + 3.8, 'done']);
+  EV.sort(function (a, b) { return a[0] - b[0]; });
+
+  function kf(arr, t, n) {
+    if (t <= arr[0][0]) return arr[0].slice(1);
+    for (var i = 0; i < arr.length - 1; i++) {
+      var a = arr[i], b = arr[i + 1];
+      if (t < b[0]) { var p = eio(seg(t, a[0], b[0])), o = []; for (var j = 1; j <= n; j++) o.push(lerp(a[j], b[j], p)); return o; }
+    }
+    return arr[arr.length - 1].slice(1);
+  }
+
+  /* ---------- render(t): todo el estado sale del tiempo ---------- */
+  var els = { cam: q('cam'), win: q('win'), glow: q('glow'), navhl: q('navhl'), cursor: q('cursor'), ripple: q('ripple'), toast: q('toast'), toasttx: q('toasttx'), end: q('end'), pulse: q('pulse'), ring: q('ring'), ceo: q('ceo'), vig: q('vig'), cta: q('cta') };
+  var lastNav = -1;
+
+  function render(t) {
+    if (!(t >= 0)) t = 0;
+    var motion = !RM.matches, i, j;
+    var beat = ((t - BEAT0) / BEAT) % 1; if (beat < 0) beat += 1;
+    var thump = t > BEAT0 ? Math.pow(1 - beat, 3) : 0;
+
+    st(els.glow, 'opacity', (0.55 + 0.25 * seg(t, 0, A) + (motion ? 0.2 * thump * seg(t, P, A) : 0)).toFixed(3));
+
+    // ventana
+    var pin = eo(seg(t, 0, P)), pout = eo(seg(t, Z, Z + .7));
+    var rx = motion ? lerp(16, 0, pin) : 0, sc = (motion ? lerp(.92, 1, pin) : 1) * lerp(1, .5, pout);
+    st(els.win, 'transform', 'perspective(1800px) rotateX(' + rx.toFixed(2) + 'deg) translateY(' + (motion ? lerp(28, 0, pin) - pout * 40 : 0).toFixed(1) + 'px) scale(' + sc.toFixed(4) + ')');
+    st(els.win, 'opacity', (lerp(.75, 1, pin) * (1 - pout)).toFixed(3));
+
+    // cámara
+    var cm = motion ? kf(CAM, t, 3) : [1, 640, 360];
+    st(els.vig, 'opacity', clamp((cm[0] - 1) * 6 * (1 - seg(t, Z, Z + .4))).toFixed(3));
+    st(els.cam, 'transform', 'translate(' + (640 - cm[1] * cm[0]).toFixed(2) + 'px,' + (360 - cm[2] * cm[0]).toFixed(2) + 'px) scale(' + cm[0].toFixed(4) + ')');
+
+    // navegación
+    var nav = 0, navPrev = 0, nt = -1;
+    for (i = 0; i < NAV.length; i++) if (t >= NAV[i][0]) { navPrev = nav; nav = NAV[i][1]; nt = NAV[i][0]; }
+    st(els.navhl, 'transform', 'translateY(' + lerp(navPrev * 40, nav * 40, nt < 0 ? 1 : eo(seg(t, nt, nt + .45))).toFixed(2) + 'px)');
+    if (nav !== lastNav) { for (i = 0; i < navEls.length; i++) navEls[i].classList.toggle('tr-on', i === nav); lastNav = nav; }
+
+    // escenas
+    for (var k in SC) {
+      var a = SC[k][0], b = SC[k][1], el = scEls[k];
+      var pi = k === 'dash' ? eo(seg(t, 0, P + .3)) : eo(seg(t, a - .05, a + .5)), po = k === 'report' ? 0 : eo(seg(t, b - .08, b + .25));
+      var vis = pi * (1 - po);
+      st(el, 'opacity', vis.toFixed(3));
+      st(el, 'transform', 'translate3d(' + (motion ? (1 - pi) * 26 - po * 26 : 0).toFixed(1) + 'px,0,0)');
+      st(el, 'visibility', vis > 0.001 ? 'visible' : 'hidden');
+    }
+
+    // --- Panel
+    var d0 = P;
+    for (i = 0; i < 4; i++) show(q('k' + i), ap(t, d0 - 1.2 + i * .12, .7), 14);
+    tx(q('kv0'), fmt(count(t, d0, 1.8, 9.6), 1) + ' h');
+    tx(q('kv1'), fmt(Math.round(count(t, d0 + .1, 1.8, 37)), 0));
+    tx(q('kv2'), eur(count(t, d0 + .2, 1.8, 18420)));
+    tx(q('kv3'), fmt(Math.round(count(t, d0 + .3, 1.8, 126)), 0));
+    var lp = eo(seg(t, d0 - .4, d0 + 2.2)), line = q('line');
+    st(line, 'strokeDasharray', '620'); st(line, 'strokeDashoffset', ((1 - lp) * 620).toFixed(1));
+    st(q('area'), 'opacity', lp.toFixed(3)); st(q('ldot'), 'opacity', seg(t, d0 + 1.9, d0 + 2.2).toFixed(2));
+    for (i = 0; i < feedEls.length; i++) show(feedEls[i], ap(t, d0 + .4 + i * .3, .6), 10);
+
+    // --- Clientes
+    var c1 = CL;
+    for (i = 0; i < crmEls.length; i++) { show(crmEls[i], ap(t, c1 + i * .06, .5), 8); st(crmEls[i], 'background', i === 1 && t >= c1 + .8 ? 'rgba(248,137,75,.1)' : 'transparent'); }
+    var dp = ap(t, c1 + .85, .6);
+    st(q('crmd'), 'opacity', dp.toFixed(3)); st(q('crmd'), 'transform', 'translateX(' + ((1 - dp) * 30).toFixed(1) + 'px)');
+    var off = eo(seg(t, CRM_OFF, CRM_OFF + .3));
+    sw(q('crmsw'), off); tx(q('aiswtx'), off > .5 ? 'Respondes tú' : 'Responde la IA');
+    st(q('crmlbl'), 'opacity', (1 - off).toFixed(3)); st(q('crmlbl2'), 'opacity', off.toFixed(3));
+    show(q('b1'), ap(t, c1 + 1.2, .45), 10, .96);
+    var ty = t > c1 + 1.5 && t < c1 + 2.0;
+    st(q('typing'), 'opacity', ty ? '1' : '0');
+    if (ty && motion) { var dots = q('typing').children; for (i = 0; i < 3; i++) st(dots[i], 'transform', 'translateY(' + (-3 * Math.max(0, Math.sin((t * 9) - i * .9))).toFixed(1) + 'px)'); }
+    show(q('b2'), ap(t, c1 + 2.0, .45), 10, .96);
+    show(q('b2m'), ap(t, c1 + 2.2, .4), 6);
+    show(q('b3'), ap(t, c1 + 2.5, .45), 10, .96);
+    var nch = Math.round(REPLY.length * seg(t, TYPE0, TYPE1));
+    var typed = t >= SEND ? '' : REPLY.slice(0, nch);
+    tx(q('ctext'), typed || 'Escribe un mensaje…'); st(q('ctext'), 'color', typed ? 'var(--tr-tx)' : 'var(--tr-mu)');
+    st(q('caret'), 'opacity', t >= TYPE0 - .2 && t < SEND && (motion ? (Math.floor(t * 4) % 2 === 0 || (t > TYPE0 && t < TYPE1)) : true) ? '1' : '0');
+    show(q('b4'), ap(t, SEND + .05, .45), 12, .96);
+    show(q('b4m'), ap(t, SEND + .3, .4), 6);
+
+    // --- Facturas
+    var c2 = F, push = ap(t, c2 + .4, .6);
+    for (i = 0; i < frEls.length; i++) {
+      if (i === 0) { st(frEls[i], 'opacity', push.toFixed(3)); st(frEls[i], 'transform', 'translateX(' + ((1 - push) * -20).toFixed(1) + 'px)'); st(frEls[i], 'background', 'rgba(248,137,75,' + (0.08 * (1 - seg(t, c2 + 1.2, c2 + 2.2))).toFixed(3) + ')'); }
+      else { st(frEls[i], 'opacity', ap(t, c2 + i * .05, .45).toFixed(3)); st(frEls[i], 'transform', 'translateY(' + (-(1 - push) * 52).toFixed(1) + 'px)'); }
+    }
+    var paid = t >= c2 + 1.5;
+    tx(pill, paid ? 'Pagada' : 'Pendiente'); cls(pill, 'tr-chip ' + (paid ? 'tr-chip-ok' : 'tr-chip-ac'));
+    st(pill, 'transform', 'scale(' + (1 + (motion && paid ? .18 * (1 - eo(seg(t, c2 + 1.5, c2 + 1.95))) : 0)).toFixed(3) + ')');
+    st(payBtn, 'opacity', (1 - seg(t, c2 + 1.55, c2 + 1.85)).toFixed(3));
+    st(payBtn, 'transform', 'scale(' + (t > c2 + 1.4 && t < c2 + 1.55 ? .94 : 1) + ')');
+    show(q('fai'), ap(t, c2 + .6, .6), 12);
+    show(q('stockok'), ap(t, c2 + 2.2, .5), 10);
+
+    // --- Agenda
+    var c3 = G;
+    st(q('grid'), 'opacity', ap(t, c3 - .05, .5).toFixed(3));
+    var dg = eio(seg(t, DRAG[0], DRAG[1])), lift = (t > DRAG[0] - .05 && t < DRAG[1] + .15) ? 1 : 0;
+    st(bCarlos, 'transform', 'translate(' + (312 * dg).toFixed(1) + 'px,' + (192 * dg).toFixed(1) + 'px) scale(' + (lift && motion ? 1.05 : 1) + ') rotate(' + (lift && motion ? -1.5 : 0) + 'deg)');
+    st(bCarlos, 'boxShadow', lift ? '0 18px 36px -8px rgba(0,0,0,.7)' : 'none'); st(bCarlos, 'zIndex', '3');
+    var ep = ap(t, c3 + 2.6, .5); st(bElena, 'opacity', ep.toFixed(3)); st(bElena, 'transform', 'scale(' + lerp(.9, 1, ep).toFixed(3) + ')');
+
+    // --- Agentes IA
+    var c4 = A, vOff = eo(seg(t, VENTAS_OFF, VENTAS_OFF + .3)), manual = vOff > .5;
+    var dive = eio(seg(t, IN - 1.5, IN)), diveA = t < IN + .1 ? dive : 0;
+    var cp = ap(t, c4 - .05, .8), ceoHit = 0;
+    for (i = 0; i < TASKS.length; i++) { var dh = t - TASKS[i].core; if (dh > -.05 && dh < .35) ceoHit = Math.max(ceoHit, 1 - Math.abs(dh - .1) / .3); }
+    st(els.ceo, 'transform', 'scale(' + (lerp(.5, 1, cp) * (1 + (motion ? .045 * thump + .08 * clamp(ceoHit) + .35 * diveA * diveA : 0))).toFixed(4) + ')');
+    st(els.ceo, 'opacity', cp.toFixed(3));
+    st(els.ceo, 'boxShadow', '0 0 ' + (60 + 140 * diveA + 40 * ceoHit).toFixed(0) + 'px rgba(248,137,75,' + (.55 + .4 * diveA).toFixed(2) + '),inset 0 -10px 24px rgba(120,40,10,.45)');
+    var spin = motion ? (t - c4) : 0, boost = motion ? 900 * Math.pow(diveA, 3) : 0;
+    st(q('rg1'), 'transform', 'rotate(' + (spin * 38 + boost).toFixed(1) + 'deg)');
+    st(q('rg2'), 'transform', 'rotate(' + (-spin * 24 - boost * .7).toFixed(1) + 'deg)');
+    st(q('rg3'), 'transform', 'rotate(' + (spin * 10 + boost * .4).toFixed(1) + 'deg)');
+    st(q('rings'), 'opacity', cp.toFixed(3)); st(q('rings'), 'transform', 'scale(' + (lerp(.6, 1, cp) * (1 + .25 * diveA)).toFixed(3) + ')');
+    for (i = 0; i < 3; i++) {
+      var rl = -1; for (j = i; j < TASKS.length; j += 3) if (t >= TASKS[j].core) rl = TASKS[j].core;
+      var rpp = rl > 0 ? (t - rl) / .9 : 2;
+      st(ripEls[i], 'opacity', (motion && rpp < 1 ? .7 * (1 - rpp) : 0).toFixed(3)); st(ripEls[i], 'transform', 'scale(' + (1 + 1.3 * clamp(rpp)).toFixed(3) + ')');
+    }
+    sa(orbitEl, 'stroke-dashoffset', motion ? (-(t - c4) * 12).toFixed(1) : '0');
+    // canales
+    for (i = 0; i < 6; i++) {
+      var cpi2 = ap(t, c4 + i * .06, .5), hit = 0, nCh = CH[i][2];
+      for (j = 0; j < TASKS.length; j++) if (TASKS[j][1] === i && t >= TASKS[j].t0) { nCh++; hit = Math.max(hit, 1 - seg(t, TASKS[j].t0, TASKS[j].t0 + .6)); }
+      st(chEls[i], 'opacity', cpi2.toFixed(3)); st(chEls[i], 'transform', 'translateX(' + ((1 - cpi2) * -12).toFixed(1) + 'px) scale(' + (1 + .04 * hit).toFixed(3) + ')');
+      st(chEls[i], 'borderColor', 'rgba(248,137,75,' + (.06 + .55 * hit).toFixed(2) + ')');
+      tx(chCnt[i], nCh + ' hoy');
+      var L = inPaths[i].__L || (inPaths[i].__L = inPaths[i].getTotalLength());
+      var ph = ((t - c4) * .45 + i * .19) % 1; if (ph < 0) ph += 1;
+      var pt = inPaths[i].getPointAtLength(L * ph);
+      sa(inDots[i], 'cx', pt.x.toFixed(1)); sa(inDots[i], 'cy', pt.y.toFixed(1)); sa(inDots[i], 'opacity', (motion && t > c4 + .4 ? Math.sin(ph * Math.PI) * .9 * (1 - diveA) : 0).toFixed(2));
+      sa(inPaths[i], 'stroke', 'rgba(248,137,75,' + (.14 + .5 * hit).toFixed(2) + ')');
+    }
+    // agentes en órbita
+    var cnt = agents.map(function (a) { return a[2]; }), tot = 0, pos = [];
+    for (i = 0; i < TASKS.length; i++) if (t >= TASKS[i].done) { cnt[TASKS[i][3]]++; tot++; }
+    tx(q('tasktot'), (59 + tot) + ' tareas hoy');
+    for (i = 0; i < 8; i++) {
+      var o = orbit(i, t); pos.push(o);
+      var npp = ap(t, c4 + .15 + i * .07, .7), nOff = i === 2 ? vOff : 0, depth = (o.d + 1) / 2;
+      var work = null, flash = 0, beamOn = 0;
+      for (j = 0; j < TASKS.length; j++) { var T = TASKS[j]; if (T[3] !== i) continue;
+        if (t >= T.arr && t < T.done) work = seg(t, T.arr, T.done);
+        if (t >= T.done) flash = Math.max(flash, 1 - seg(t, T.done, T.done + .7));
+        if (t >= T.disp - .05 && t < T.arr + .1) beamOn = 1; }
+      var scN = lerp(.82, 1.04, depth) * lerp(.7, 1, npp) * (1 + .06 * flash) * (1 - .3 * diveA);
+      st(nodeEls[i], 'transform', 'translate(' + (lerp(CX, o.x, npp)).toFixed(1) + 'px,' + (lerp(CY, o.y, npp)).toFixed(1) + 'px) scale(' + scN.toFixed(3) + ')');
+      st(nodeEls[i], 'opacity', (npp * lerp(.62, 1, depth) * (1 - .55 * nOff) * (1 - diveA)).toFixed(3));
+      st(nodeEls[i], 'zIndex', String(5 + Math.round(depth * 6)));
+      st(nodeEls[i], 'borderColor', flash > .02 ? 'rgba(95,208,138,' + (.3 + .6 * flash).toFixed(2) + ')' : work != null ? 'rgba(248,137,75,.7)' : (nOff > .5 ? 'rgba(248,137,75,.45)' : 'rgba(255,255,255,.1)'));
+      st(nodeEls[i], 'boxShadow', work != null ? '0 0 22px rgba(248,137,75,.3)' : flash > .02 ? '0 0 ' + (22 * flash).toFixed(0) + 'px rgba(95,208,138,' + (.4 * flash).toFixed(2) + ')' : 'none');
+      sa(nodeProg[i], 'stroke-dasharray', (94.2 * (work != null ? work : 0)).toFixed(1) + ' 95');
+      st(nodeOk[i], 'opacity', flash.toFixed(2)); st(nodeOk[i], 'transform', 'scale(' + (motion ? lerp(.4, 1, eo(clamp((1 - flash) * 4))) : 1).toFixed(2) + ')');
+      tx(nodeCnt[i], i === 2 && manual ? 'Manual' : work != null ? 'Trabajando…' : cnt[i] + ' hoy');
+      st(nodeCnt[i], 'color', work != null ? 'var(--tr-ac)' : '');
+      var mx = (CX + o.x) / 2, my = (CY + o.y) / 2, nx = -(o.y - CY) * .18, ny = (o.x - CX) * .18;
+      sa(obeams[i], 'd', 'M' + CX + ' ' + CY + ' Q' + (mx + nx).toFixed(1) + ' ' + (my + ny).toFixed(1) + ' ' + o.x.toFixed(1) + ' ' + o.y.toFixed(1));
+      sa(obeams[i], 'opacity', (eo(seg(t, c4 + .1 + i * .07, c4 + .7 + i * .07)) * (beamOn ? .95 : .22) * (1 - .7 * nOff) * (1 - diveA)).toFixed(3));
+      sa(obeams[i], 'stroke-width', beamOn ? '2.2' : '1.2');
+      sa(obeams[i], 'stroke-dasharray', nOff > .5 ? '3 6' : 'none');
+      var bp = ((t - c4) * .6 + i * .27) % 1; if (bp < 0) bp += 1; if (i % 2) bp = 1 - bp;
+      sa(beamDots[i], 'cx', qb(CX, mx + nx, o.x, bp).toFixed(1)); sa(beamDots[i], 'cy', qb(CY, my + ny, o.y, bp).toFixed(1));
+      sa(beamDots[i], 'opacity', (motion && t > c4 + .7 && nOff < .5 ? Math.sin(bp * Math.PI) * .8 * (1 - diveA) : 0).toFixed(2));
+    }
+    // tareas en vuelo (coords de la zona principal)
+    var xc = SX + CX, yc = SY + CY;
+    for (i = 0; i < TASKS.length; i++) {
+      var T2 = TASKS[i], ch = fl[i * 2], sp = fl[i * 2 + 1], s0 = T2.t0 + .05, ox = SX + pos[T2[3]].x, oy = SY + pos[T2[3]].y;
+      if (!motion || t < s0 || t > T2.arr + .2) st(ch, 'opacity', '0');
+      else {
+        var x, y, sc2, y0 = chY(T2[1]);
+        if (t < T2.core) { var p1 = eio(seg(t, s0, T2.core)); x = qb(150, 330, xc, p1); y = qb(y0, y0, yc + 66, p1); sc2 = lerp(.75, 1, p1); }
+        else if (t < T2.disp) { x = xc; y = yc + 66; sc2 = 1; }
+        else { var p2b = eio(seg(t, T2.disp, T2.arr)); x = lerp(xc, ox, p2b); y = lerp(yc + 66, oy, p2b); sc2 = lerp(1, .55, p2b); }
+        st(ch, 'opacity', (seg(t, s0, s0 + .1) * (1 - seg(t, T2.arr - .05, T2.arr + .15))).toFixed(3));
+        st(ch, 'transform', 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) translateX(-50%) scale(' + sc2.toFixed(3) + ')');
+      }
+      if (!motion || t < T2.done || t > T2.out + .1) st(sp, 'opacity', '0');
+      else {
+        var p3 = eio(seg(t, T2.done, T2.out)), tx3 = 720 + 70, ty3 = 24 + 44 + 25;
+        st(sp, 'opacity', (1 - seg(t, T2.out - .05, T2.out + .1)).toFixed(3));
+        st(sp, 'transform', 'translate(' + lerp(ox, tx3, p3).toFixed(1) + 'px,' + (lerp(oy, ty3, p3) - Math.sin(p3 * Math.PI) * 50).toFixed(1) + 'px)');
+      }
+      var slot = 0; for (j = i + 1; j < TASKS.length; j++) slot += eo(seg(t, TASKS[j].out, TASKS[j].out + .35));
+      var op2 = eo(seg(t, T2.out, T2.out + .35));
+      st(outEls[i], 'opacity', (op2 * (1 - seg(slot, 6.2, 7))).toFixed(3));
+      st(outEls[i], 'transform', 'translate(' + ((1 - op2) * 14).toFixed(1) + 'px,' + (44 + slot * 58).toFixed(1) + 'px) scale(' + lerp(.9, 1, op2).toFixed(3) + ')');
+    }
+    // panel de control
+    var cIn = eo(seg(t, K + .05, K + .55)), cOut = eo(seg(t, IN - 1.6, IN - 1.2)), cv2 = cIn * (1 - cOut);
+    st(q('ctl'), 'opacity', cv2.toFixed(3)); st(q('ctl'), 'transform', 'translateX(' + ((1 - cIn) * 60 + cOut * 60).toFixed(1) + 'px)');
+    for (i = 0; i < agRows.length; i++) st(agRows[i], 'opacity', ap(t, K + .15 + i * .05, .4).toFixed(3));
+    sw(vSw, vOff); tx(vMode, manual ? 'Manual: lo llevas tú' : 'Automático'); st(vMode, 'color', manual ? 'var(--tr-ac)' : '');
+    st(vDot, 'background', manual ? 'var(--tr-ac)' : 'var(--tr-ok)');
+    tx(q('sidecount'), manual ? '7 de 8 trabajando' : '8 de 8 trabajando');
+    st(els.pulse, 'boxShadow', '0 0 0 ' + (motion ? (beat * 6).toFixed(1) : 0) + 'px rgba(95,208,138,' + ((1 - beat) * .5).toFixed(2) + ')');
+    // detalle de un agente
+    var c5 = D, dIn = eo(seg(t, c5, c5 + .55)), dOut = eo(seg(t, K - .15, K + .3)), dv = dIn * (1 - dOut);
+    st(q('det'), 'opacity', dv.toFixed(3)); st(q('det'), 'transform', 'translateX(' + ((1 - dIn) * 60 + dOut * 60).toFixed(1) + 'px)');
+    st(nodeEls[0], 'outline', dv > .05 ? '2px solid rgba(248,137,75,' + (.8 * dv).toFixed(2) + ')' : 'none'); st(nodeEls[0], 'outlineOffset', '3px');
+    for (i = 0; i < 4; i++) {
+      var sA = c5 + .4 + i * .75, sD = sA + .5, done = t >= sD, act = t >= sA && !done, se = stepEls[i], circ = se.firstChild;
+      st(se, 'opacity', (t >= sA - .3 ? 1 : .4).toFixed(2));
+      st(circ, 'borderColor', done ? 'var(--tr-ok)' : act ? 'var(--tr-ac)' : '#4A3F37');
+      st(circ, 'background', done ? 'var(--tr-ok)' : 'transparent');
+      st(circ, 'transform', act && motion ? 'rotate(' + ((t * 540) % 360).toFixed(0) + 'deg)' : 'none');
+      st(circ, 'borderTopColor', act ? 'transparent' : done ? 'var(--tr-ok)' : '#4A3F37');
+      st(circ.firstChild, 'opacity', done ? '1' : '0');
+      st(se.lastChild.lastChild, 'opacity', ap(t, sD - .05, .35).toFixed(3));
+    }
+    st(q('detbar'), 'transform', 'scaleX(' + eo(seg(t, c5 + .4, c5 + .4 + 3 * .75 + .5)).toFixed(3) + ')');
+    tx(q('dettime'), fmt(4 * seg(t, c5 + .4, c5 + .4 + 3 * .75 + .5), 1) + ' s');
+
+    // --- Inmersión cinematográfica
+    var lb = eo(seg(t, IN - 1.5, IN - .9)) * (1 - eo(seg(t, IN + .5, IN + 1.2)));
+    st(q('lbt'), 'height', (lb * 11).toFixed(2) + '%'); st(q('lbb'), 'height', (lb * 11).toFixed(2) + '%');
+    st(q('dark'), 'opacity', (motion ? .9 * eio(seg(t, IN - 1.3, IN - .2)) * (1 - seg(t, IN - .05, IN + .1)) : 0).toFixed(3));
+    drawWarp(motion ? Math.pow(seg(t, IN - .9, IN - .05), 2) * (1 - seg(t, IN, IN + .35)) : 0, t);
+
+    // --- Dentro de Procelaos
+    var inIn = eio(seg(t, IN - .02, IN + .55)), inOut = eo(seg(t, CL - .75, CL - .25)), iv = inIn * (1 - inOut), ins = q('ins');
+    st(ins, 'opacity', iv.toFixed(3)); st(ins, 'visibility', iv > .001 ? 'visible' : 'hidden');
+    st(ins, 'transform', 'perspective(1400px) rotateX(' + (motion ? lerp(22, 0, eo(seg(t, IN, IN + .9))) : 0).toFixed(2) + 'deg) scale(' + (lerp(.3, 1, inIn) * lerp(1, .3, inOut)).toFixed(4) + ')');
+    for (i = 0; i < insCards.length; i++) { var icp = ap(t, (i < 3 ? IN + .25 : MEM - .05) + (i % 3) * .1, .6); st(insCards[i], 'transform', 'translateY(' + ((1 - icp) * 40).toFixed(1) + 'px) scale(' + lerp(.92, 1, icp).toFixed(3) + ')'); st(insCards[i], 'opacity', icp.toFixed(3)); }
+    st(q('flash'), 'opacity', (motion ? clamp(1 - Math.abs(t - IN) / (t < IN ? .25 : .45)) : 0).toFixed(3));
+    st(q('inorb'), 'transform', 'scale(' + (1 + (motion ? .12 * thump : 0)).toFixed(3) + ')');
+    var p2 = eo(seg(t, MEM - .1, MEM + .4));
+    st(q('part1'), 'opacity', (1 - p2).toFixed(3)); st(q('part1'), 'transform', 'translateX(' + (-30 * p2).toFixed(1) + 'px)'); st(q('part1'), 'visibility', p2 < .999 ? 'visible' : 'hidden');
+    st(q('part2'), 'opacity', p2.toFixed(3)); st(q('part2'), 'transform', 'translateX(' + (30 * (1 - p2)).toFixed(1) + 'px)'); st(q('part2'), 'visibility', p2 > .001 ? 'visible' : 'hidden');
+    tx(q('insub'), t >= MEM - .1 ? 'por dentro: usa lo que sabe de tu negocio' : 'por dentro: decide quién hace cada tarea');
+    var ndec = 1202 + (t >= THINK[0].base + 1.4 ? 1 : 0) + (t >= THINK[1].base + 1.4 ? 1 : 0) + (t >= MEM + 3.8 ? 1 : 0);
+    tx(q('indec'), fmt(ndec, 0).replace(/^(\d)(\d{3})$/, '$1.$2') + ' decisiones hoy');
+    var accS = 0;
+    for (i = 0; i < strEls.length; i++) {
+      var sa0 = STREAM[i][5], sp = sa0 < 0 ? 1 : eo(seg(t, sa0, sa0 + .4));
+      st(strEls[i], 'opacity', (sp * (1 - seg(accS, 5.2, 5.9))).toFixed(3));
+      st(strEls[i], 'transform', 'translate(' + ((1 - sp) * -16).toFixed(1) + 'px,' + (44 + accS * 62).toFixed(1) + 'px)');
+      st(strEls[i], 'borderColor', sa0 > 0 && t >= sa0 && t < sa0 + 2 ? 'rgba(248,137,75,.5)' : 'rgba(255,255,255,.06)');
+      st(strEls[i].lastChild, 'opacity', sa0 < 0 ? '1' : ap(t, sa0 + 1.1, .35).toFixed(3));
+      accS += sp;
+    }
+    var cur = t >= THINK[1].base ? 1 : 0;
+    for (j = 0; j < 2; j++) {
+      var T = THINK[j], tv = j === 0 ? ap(t, T.base, .3) * (1 - ap(t, THINK[1].base - .1, .25)) : ap(t, T.base, .3);
+      st(T.el, 'opacity', tv.toFixed(3));
+      for (i = 0; i < 4; i++) show(T.lineEls[i], ap(t, T.base + .35 + i * .3, .3), 6);
+      st(T.lineEls[3], 'color', t >= T.base + 1.25 ? 'var(--tr-ac2)' : '');
+    }
+    var TC = THINK[cur], th = t - TC.base;
+    st(q('scan'), 'opacity', (motion && th > .05 && th < 1.3 ? .9 : 0).toFixed(2));
+    st(q('scan'), 'transform', 'translateY(' + (50 + ((th * 220) % 230)).toFixed(1) + 'px)');
+    for (i = 0; i < clsEls.length; i++) cls(clsEls[i], 'tr-chip' + (th > .95 && TC.cls.indexOf(i) >= 0 ? ' tr-chip-ac' : ''));
+    for (i = 0; i < tgEls.length; i++) {
+      var on = th >= 1.4 && TC.tg.indexOf(i) >= 0, op = on ? ap(t, TC.base + 1.4 + TC.tg.indexOf(i) * .12, .35) : 0;
+      st(tgEls[i], 'background', 'rgba(248,137,75,' + (.12 * op).toFixed(3) + ')'); st(tgEls[i], 'borderColor', 'rgba(248,137,75,' + (.4 * op).toFixed(3) + ')');
+      st(tgEls[i].lastChild, 'opacity', op.toFixed(3)); st(tgEls[i], 'opacity', (th >= 1.4 && !on ? .5 : 1).toFixed(2));
+    }
+    for (i = 0; i < memEls.length; i++) {
+      var ui = USED.indexOf(i), lit = ui >= 0 ? ap(t, MEM + 1.1 + ui * .25, .3) : 0;
+      var mo = ap(t, MEM + i * .05, .4) * (t > MEM + .9 && ui < 0 ? lerp(1, .45, seg(t, MEM + .9, MEM + 1.2)) : 1);
+      st(memEls[i], 'opacity', mo.toFixed(3)); st(memEls[i], 'transform', 'translateY(' + ((1 - ap(t, MEM + i * .05, .4)) * 10).toFixed(1) + 'px) scale(' + (1 + .03 * lit).toFixed(3) + ')');
+      st(memEls[i], 'borderColor', lit > 0 ? 'rgba(248,137,75,' + (.65 * lit).toFixed(2) + ')' : 'rgba(255,255,255,.06)');
+      st(memEls[i], 'boxShadow', lit > 0 ? '0 0 ' + (20 * lit).toFixed(0) + 'px rgba(248,137,75,.25)' : 'none');
+      if (ui >= 0) sa(beamEls[ui], 'stroke-dashoffset', (400 * (1 - eo(seg(t, MEM + 1.15 + ui * .25, MEM + 1.55 + ui * .25)))).toFixed(1));
+    }
+    show(q('mq'), ap(t, MEM + .25, .45), 10, .96);
+    var mn = Math.round(MANS.length * seg(t, MEM + 2.1, MEM + 3.6));
+    tx(q('mans'), MANS.slice(0, mn)); st(q('mabox'), 'opacity', ap(t, MEM + 2.0, .3).toFixed(3));
+    st(q('mcaret'), 'opacity', t > MEM + 2.0 && t < MEM + 3.8 ? '1' : '0');
+    show(q('msrc'), ap(t, MEM + 3.8, .4), 8); show(q('mnote'), ap(t, MEM + 4.1, .4), 8);
+
+    // --- Informes
+    var c7 = R, c8 = R2;
+    var scr = eio(seg(t, c8 - .35, c8 + .55));
+    st(q('rep'), 'transform', 'translateY(' + (-428 * scr).toFixed(1) + 'px)');
+    for (i = 0; i < 4; i++) show(q('rk' + i), ap(t, c7 + i * .08, .6), 12);
+    tx(q('rv0'), eur(count(t, c7 + .1, 1.5, 18420)));
+    tx(q('rv1'), eur(count(t, c7 + .2, 1.8, 24300)));
+    tx(q('rv2'), fmt(Math.round(count(t, c7 + .3, 1.5, 23)), 0));
+    tx(q('rv3'), fmt(Math.round(count(t, c7 + .4, 1.5, 38)), 0) + ' h');
+    sa(q('rclip'), 'width', (504 * eo(seg(t, c7 + .4, c7 + 2.6))).toFixed(1));
+    st(q('today'), 'opacity', seg(t, c7 + 1.5, c7 + 1.8).toFixed(2));
+    var fcl = ap(t, c7 + 2.4, .5); st(q('fclabel'), 'opacity', fcl.toFixed(3)); st(q('fclabel'), 'transform', 'translateY(' + ((1 - fcl) * 6).toFixed(1) + 'px)');
+    for (i = 0; i < srvBars.length; i++) st(srvBars[i], 'transform', 'scaleX(' + eo(seg(t, c7 + .6 + i * .12, c7 + 1.5 + i * .12)).toFixed(3) + ')');
+    show(q('tip'), ap(t, c7 + 2.9, .5), 8);
+    var dnp = eo(seg(t, c8 + .1, c8 + 1.3));
+    sa(q('dn1'), 'stroke-dasharray', (314 * .61 * dnp).toFixed(1) + ' 314');
+    sa(q('dn2'), 'stroke-dasharray', (314 * .39 * dnp).toFixed(1) + ' 314'); sa(q('dn2'), 'stroke-dashoffset', (-314 * .61 * dnp).toFixed(1));
+    tx(q('dntx'), fmt(Math.round(186 * dnp), 0));
+    for (i = 0; i < riskEls.length; i++) { show(riskEls[i], ap(t, c8 + .3 + i * .15, .5), 8); st(riskEls[i].lastChild, 'opacity', ap(t, c8 + 1.0 + i * .25, .4).toFixed(3)); }
+    for (i = 0; i < abEls.length; i++) { var abp = eo(seg(t, c8 + .5 + i * .07, c8 + 1.4 + i * .07)); st(abEls[i].children[1], 'transform', 'scaleX(' + abp.toFixed(3) + ')'); st(abEls[i].lastChild, 'opacity', abp.toFixed(2)); }
+    tx(q('aitot'), fmt(Math.round(count(t, c8 + .5, 1.6, 412)), 0) + ' tareas');
+    tx(q('hsave'), '−' + fmt(count(t, c8 + .7, 1.4, 9.6), 1) + ' h');
+    for (i = 0; i < barEls.length; i++) st(barEls[i], 'transform', 'scaleY(' + eo(seg(t, c8 + .7 + Math.floor(i / 2) * .1 + (i % 2) * .15, c8 + 1.5 + Math.floor(i / 2) * .1 + (i % 2) * .15)).toFixed(3) + ')');
+
+    // toasts
+    var ta = null; for (i = 0; i < TOASTS.length; i++) if (t >= TOASTS[i][0] && t < TOASTS[i][1]) ta = TOASTS[i];
+    if (ta) { tx(els.toasttx, ta[2]); var tp = eo(seg(t, ta[0], ta[0] + .45)) * (1 - eo(seg(t, ta[1] - .3, ta[1]))); st(els.toast, 'opacity', tp.toFixed(3)); st(els.toast, 'transform', 'translateY(' + ((1 - tp) * 16).toFixed(1) + 'px)'); }
+    else st(els.toast, 'opacity', '0');
+
+    // cursor
+    var cv = motion ? seg(t, P, P + .4) * (1 - seg(t, R + .1, R + .5)) * (1 - iv) * (1 - diveA) : 0;
+    var cu = kf(CUR, t, 2), press = 0, rip = -1;
+    for (i = 0; i < CLICKS.length; i++) { var dc = t - CLICKS[i]; if (dc > -.08 && dc < .12) press = 1; if (dc >= 0 && dc < .5) rip = dc / .5; }
+    if (t > DRAG[0] && t < DRAG[1]) press = 1;
+    st(els.cursor, 'opacity', cv.toFixed(3));
+    st(els.cursor, 'transform', 'translate(' + (cu[0] - 4).toFixed(1) + 'px,' + (cu[1] - 3).toFixed(1) + 'px) scale(' + (press ? .86 : 1) + ')');
+    st(els.ripple, 'opacity', rip >= 0 ? (0.9 * (1 - rip)).toFixed(3) : '0');
+    st(els.ripple, 'transform', 'scale(' + (rip >= 0 ? .3 + rip * 1.2 : .3).toFixed(3) + ')');
+
+    // rótulos
+    for (i = 0; i < capEls.length; i++) {
+      var CA = CAPS[i][0], CB = CAPS[i][1];
+      var cpi = CA < 0 ? 1 : eo(seg(t, CA + .02, CA + .6)), cpo = eo(seg(t, CB - .3, CB + .05));
+      var cvv = (t >= CA && t < CB + .05) ? cpi * (1 - cpo) : 0;
+      st(capEls[i], 'opacity', cvv.toFixed(3));
+      st(capEls[i], 'transform', 'translateY(' + (motion ? (1 - cpi) * 14 - cpo * 8 : 0).toFixed(1) + 'px)');
+      st(capEls[i], 'filter', motion && cvv < .999 && cvv > 0 ? 'blur(' + ((1 - cvv) * 8).toFixed(1) + 'px)' : 'none');
+    }
+
+    // baraja
+    var c9 = Z;
+    for (i = 0; i < deckEls.length; i++) {
+      var gp = eo(seg(t, c9 + .1 + i * .07, c9 + 1.0 + i * .07)), fp = eio(seg(t, c9 + 1.15, c9 + 2.0));
+      var f = deckFrom[i], idx = i - 2;
+      var rot = lerp(f[2], 0, gp) + idx * 12 * fp + (motion ? Math.sin((t - c9) * 1.4 + i) * .6 * fp : 0);
+      var x2 = lerp(f[0], 0, gp), y2 = lerp(f[1], 0, gp) - (idx === 0 ? 14 * fp : 0);
+      if (!motion) { gp = t >= c9 ? 1 : 0; x2 = 0; y2 = 0; rot = t >= c9 ? idx * 12 : 0; }
+      st(deckEls[i], 'opacity', (gp > 0 ? Math.min(1, gp * 2) : 0).toFixed(3));
+      st(deckEls[i], 'transform', 'translate(' + x2.toFixed(1) + 'px,' + y2.toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg) scale(' + lerp(.7, 1, gp).toFixed(3) + ')');
+      st(deckEls[i], 'zIndex', String(10 - Math.abs(idx)));
+    }
+    var ee = eo(seg(t, c9 + .7, c9 + 1.4));
+    st(els.end, 'opacity', ee.toFixed(3)); st(els.end, 'visibility', ee > 0 ? 'visible' : 'hidden');
+    var cte = eo(seg(t, c9 + 1.6, c9 + 2.3));
+    st(els.cta, 'opacity', cte.toFixed(3)); st(els.cta, 'transform', 'translateY(' + ((1 - cte) * 14).toFixed(1) + 'px)');
+    var ctaOn = t >= c9 + 1.6 ? '0' : '-1'; sa(q('cta1'), 'tabindex', ctaOn); sa(q('cta2'), 'tabindex', ctaOn);
+  }
+
+  /* ---------- escala del lienzo ---------- */
+  function fit() { root.style.setProperty('--tr-k', (root.clientWidth / 1280).toFixed(5)); var dpr = Math.min(window.devicePixelRatio || 1, 2); warp.width = Math.round(root.clientWidth * dpr); warp.height = Math.round(root.clientHeight * dpr); }
+  if (window.ResizeObserver) new ResizeObserver(function () { fit(); render(curT()); }).observe(root); else window.addEventListener('resize', function () { fit(); render(curT()); });
+  fit();
+
+  /* ---------- efectos con Web Audio ---------- */
+  var actx = null, sfxGain = null, noiseBuf = null, muted = false;
+  function initSfx() {
+    if (actx) return;
+    var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    actx = new AC(); sfxGain = actx.createGain(); sfxGain.gain.value = SFX_VOL; sfxGain.connect(actx.destination);
+    noiseBuf = actx.createBuffer(1, actx.sampleRate, actx.sampleRate);
+    var ch = noiseBuf.getChannelData(0); for (var i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+  }
+  function env(g, t0, peak, a, d) { g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + a); g.gain.exponentialRampToValueAtTime(0.0001, t0 + a + d); }
+  function tone(f, t0, peak, d, type, f2) {
+    var o = actx.createOscillator(), g = actx.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t0);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + d); o.connect(g); g.connect(sfxGain); env(g, t0, peak, .006, d); o.start(t0); o.stop(t0 + d + .05);
+  }
+  function sfx(type) {
+    if (!actx || muted || actx.state !== 'running') return;
+    var t0 = actx.currentTime + .01;
+    if (type === 'click') tone(2100, t0, .35, .05, 'triangle', 900);
+    else if (type === 'pop') tone(720, t0, .22, .1, 'sine', 980);
+    else if (type === 'tick') tone(1400, t0, .1, .06, 'sine', 1700);
+    else if (type === 'notif') { tone(1046.5, t0, .3, .32); tone(1568, t0 + .09, .26, .4); }
+    else if (type === 'done') { tone(1046.5, t0, .22, .22); tone(1318.5, t0 + .07, .22, .24); tone(1568, t0 + .14, .26, .45); }
+    else if (type === 'riser') {
+      var rs = actx.createBufferSource(), rb = actx.createBiquadFilter(), rg = actx.createGain();
+      rs.buffer = noiseBuf; rs.loop = true; rb.type = 'bandpass'; rb.Q.value = 1.4;
+      rb.frequency.setValueAtTime(200, t0); rb.frequency.exponentialRampToValueAtTime(5000, t0 + 1.45);
+      rg.gain.setValueAtTime(0.0001, t0); rg.gain.exponentialRampToValueAtTime(.45, t0 + 1.4); rg.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.5);
+      rs.connect(rb); rb.connect(rg); rg.connect(sfxGain); rs.start(t0); rs.stop(t0 + 1.55);
+      tone(180, t0, .12, 1.4, 'sawtooth', 720);
+    }
+    else if (type === 'boom') {
+      var bo = actx.createOscillator(), bg = actx.createGain(); bo.type = 'sine';
+      bo.frequency.setValueAtTime(110, t0); bo.frequency.exponentialRampToValueAtTime(32, t0 + 1.1);
+      bg.gain.setValueAtTime(0.0001, t0); bg.gain.exponentialRampToValueAtTime(1.1, t0 + .02); bg.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.3);
+      bo.connect(bg); bg.connect(sfxGain); bo.start(t0); bo.stop(t0 + 1.4);
+      var bn = actx.createBufferSource(), bl = actx.createBiquadFilter(), bng = actx.createGain();
+      bn.buffer = noiseBuf; bl.type = 'lowpass'; bl.frequency.setValueAtTime(1800, t0); bl.frequency.exponentialRampToValueAtTime(120, t0 + .6);
+      bng.gain.setValueAtTime(.6, t0); bng.gain.exponentialRampToValueAtTime(0.0001, t0 + .7);
+      bn.connect(bl); bl.connect(bng); bng.connect(sfxGain); bn.start(t0); bn.stop(t0 + .75);
+    }
+    else if (type === 'whoosh') {
+      var s = actx.createBufferSource(), bp = actx.createBiquadFilter(), g = actx.createGain();
+      s.buffer = noiseBuf; bp.type = 'bandpass'; bp.Q.value = .9;
+      bp.frequency.setValueAtTime(300, t0); bp.frequency.exponentialRampToValueAtTime(2600, t0 + .28); bp.frequency.exponentialRampToValueAtTime(700, t0 + .6);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(.5, t0 + .2); g.gain.exponentialRampToValueAtTime(0.0001, t0 + .62);
+      s.connect(bp); bp.connect(g); g.connect(sfxGain); s.start(t0); s.stop(t0 + .7);
+    }
+  }
+
+  /* ---------- reloj: sigue a audio.currentTime ---------- */
+  var audio = null, useClock = false, clockBase = 0, clockStart = 0, state = 'cover', raf = 0, prevT = 0;
+  function curT() {
+    if (state === 'cover') return 0;
+    if (audio && !useClock) return audio.currentTime - MUSIC_OFFSET;
+    return clockBase + (state === 'playing' ? (performance.now() - clockStart) / 1000 : 0);
+  }
+  function setState(s) {
+    state = s;
+    root.classList.toggle('tr-is-on', s === 'playing' || s === 'paused');
+    root.classList.toggle('tr-is-loading', s === 'loading');
+    var playing = s === 'playing';
+    q('bpause').setAttribute('aria-label', playing ? 'Pausar' : 'Reanudar');
+    q('icpause').innerHTML = playing ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>' : '<path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/>';
+  }
+  function loop() {
+    if (state !== 'playing') return;
+    var t = curT();
+    if (t >= DURATION) { finish(); return; }
+    if (t - prevT > 0 && t - prevT < .35) for (var i = 0; i < EV.length; i++) if (EV[i][0] > prevT && EV[i][0] <= t) sfx(EV[i][1]);
+    prevT = t;
+    if (audio && !useClock) audio.volume = Math.max(0, Math.min(1, MUSIC_VOL * Math.min(1, t / .5 + .2) * (1 - seg(t, DURATION - 2.6, DURATION))));
+    render(t);
+    raf = requestAnimationFrame(loop);
+  }
+  function startLoop() { cancelAnimationFrame(raf); prevT = curT() - .001; raf = requestAnimationFrame(loop); }
+  function startClock() {
+    useClock = true; clockBase = 0; clockStart = performance.now();
+    setState('playing'); q('live').textContent = 'Reproduciendo recorrido'; startLoop();
+  }
+  function play() {
+    initSfx(); if (actx && actx.state === 'suspended') actx.resume();
+    if (state === 'cover') {
+      sfx('click');
+      // En el móvil se ve diminuto: el Play ya lo abre a pantalla completa.
+      if (!isFull() && root.clientWidth < 640 && window.matchMedia && window.matchMedia('(pointer: coarse)').matches) setFull(true);
+      if (useClock) { startClock(); return; }
+      if (!audio) {
+        audio = new Audio(); audio.preload = 'auto'; audio.setAttribute('playsinline', ''); audio.src = MUSIC_SRC;
+        audio.addEventListener('ended', finish);
+        audio.addEventListener('error', function () { if (state === 'loading') startClock(); });
+        audio.addEventListener('loadedmetadata', function () { if (audio.currentTime < MUSIC_OFFSET - .5) { try { audio.currentTime = MUSIC_OFFSET; } catch (e) { } } });
+      }
+      audio.muted = muted; audio.volume = MUSIC_VOL * .2;
+      try { audio.currentTime = MUSIC_OFFSET; } catch (e) { }
+      setState('loading');
+      var started = false;
+      var go = function () {
+        if (started || state !== 'loading') return; started = true;
+        if (audio.currentTime < MUSIC_OFFSET - .5) { try { audio.currentTime = MUSIC_OFFSET; } catch (e) { } }
+        setState('playing'); q('live').textContent = 'Reproduciendo recorrido'; startLoop();
+      };
+      audio.addEventListener('playing', go, { once: true });
+      // play() se llama dentro del clic: imprescindible para que suene en iPhone/Android
+      var pr = audio.play();
+      if (pr && pr.catch) pr.catch(function () { if (state === 'loading') startClock(); });
+      setTimeout(function () { if (state === 'loading') { if (!audio.paused) go(); else startClock(); } }, 8000);
+    } else if (state === 'paused') {
+      if (audio && !useClock) audio.play(); else clockStart = performance.now();
+      setState('playing'); startLoop();
+    }
+  }
+  function pause() {
+    if (state !== 'playing') return;
+    if (audio && !useClock) audio.pause(); else clockBase += (performance.now() - clockStart) / 1000;
+    setState('paused'); cancelAnimationFrame(raf); render(curT());
+  }
+  function finish() {
+    cancelAnimationFrame(raf);
+    if (audio) audio.pause();
+    clockBase = 0; setState('cover'); render(0);
+    q('live').textContent = 'Recorrido terminado';
+  }
+  q('play').addEventListener('click', play);
+  q('bpause').addEventListener('click', function () { sfx('click'); state === 'playing' ? pause() : play(); });
+  q('bmute').addEventListener('click', function () {
+    muted = !muted; if (audio) audio.muted = muted;
+    q('bmute').setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar');
+    q('icmute').innerHTML = muted ? '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>' : '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>';
+  });
+
+  /* ---------- pantalla completa ---------- */
+  // Fullscreen API sobre este documento (el iframe lleva allowfullscreen). Donde
+  // no existe (iPhone), se agranda el iframe sobre la página que lo contiene.
+  var docEl = document.documentElement;
+  var fsReq = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+  var fsExit = document.exitFullscreen || document.webkitExitFullscreen;
+  function fsEl() { return document.fullscreenElement || document.webkitFullscreenElement; }
+  function host() { try { return window.frameElement; } catch (e) { return null; } }
+  function isFull() { return docEl.classList.contains('tr-full'); }
+  function markFull(on) {
+    docEl.classList.toggle('tr-full', on);
+    var f = host();
+    if (f) { f.classList.toggle('is-max', on && !fsEl()); f.ownerDocument.documentElement.classList.toggle('trailer-max', on && !fsEl()); }
+    q('bfull').setAttribute('aria-label', on ? 'Salir de pantalla completa' : 'Pantalla completa');
+    q('icfull').innerHTML = on ? '<path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/>' : '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>';
+    fit(); render(curT());
+  }
+  function setFull(on) {
+    if (on) {
+      var real = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+      if (fsReq && real) {
+        var pr = fsReq.call(docEl);
+        if (pr && pr.then) pr.then(function () { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () { }); }, function () { markFull(true); });
+      }
+      markFull(true);
+    } else {
+      if (fsEl() && fsExit) fsExit.call(document);
+      markFull(false);
+    }
+  }
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (ev) {
+    document.addEventListener(ev, function () { if (!fsEl() && isFull()) markFull(false); else if (fsEl()) markFull(true); });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isFull() && !fsEl()) setFull(false); });
+  q('bfull').addEventListener('click', function () { sfx('click'); setFull(!isFull()); });
+
+  document.addEventListener('visibilitychange', function () { if (document.hidden) pause(); });
+  if (window.IntersectionObserver) new IntersectionObserver(function (es) { es.forEach(function (e) { if (!e.isIntersecting) pause(); }); }, { threshold: .25 }).observe(root);
+  if (RM.addEventListener) RM.addEventListener('change', function () { render(curT()); });
+
+  root.trSeek = function (t) { render(t); }; // útil para revisar fotogramas
+  render(0);
+})();
+</script>
+<!-- ========== TRÁILER PROCELAOS · copiar hasta aquí ========== -->
+</body>
+</html>

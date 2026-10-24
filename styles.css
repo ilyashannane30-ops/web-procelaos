@@ -1889,194 +1889,80 @@ button:focus-visible {
 }
 
 /* ==========================================================================
-   Galería de capturas — "Lo que podemos crear para ti"
+   Baraja en abanico — "Tareas que se repiten" (inicio)
 
-   Baraja en abanico: las 7 capturas, enmarcadas como ventanas, se abren
-   desde el centro al entrar en pantalla. Cada carta lleva en línea --o
-   (distancia al centro) y --a (su valor absoluto); el abanico sale de
-   multiplicarlos, sin JS. Al pulsar, el visor de abajo pasa una a una.
+   Las cartas se apilan en la misma celda de un grid, así la baraja mide lo
+   que la carta más alta, y se abren desde el centro al entrar en pantalla.
+   Cada carta lleva en línea --o (distancia al centro) y --a (su valor
+   absoluto); el abanico sale de multiplicarlos. Pulsar una la trae delante
+   (script.js pone is-front).
    ========================================================================== */
-.deck-wrap {
-  --card-w: min(34%, 380px);
-  --spread: 36%;   /* desplazamiento lateral por carta, sobre su ancho */
-  --tilt: 5deg;    /* giro por carta */
-  --drop: 14px;    /* caída por carta: dibuja el arco */
-  margin-top: 8px;
+.deck {
+  --card-w: min(380px, 40%);
+  --spread: 78%;   /* desplazamiento lateral por carta, sobre su ancho */
+  --tilt: 4deg;    /* giro por carta */
+  --drop: 12px;    /* caída por carta: dibuja el arco */
+  display: grid;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 28px 0 calc(var(--drop) + 16px);
   /* Las cartas giradas de los extremos asoman por los lados en móvil. */
   overflow-x: clip;
 }
 
-.deck {
-  position: relative;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  height: clamp(250px, 27vw, 350px);
-}
-
 .deck__item {
-  position: absolute;
-  left: 50%;
-  /* Hueco para la caída de las cartas de los extremos. */
-  bottom: calc(var(--drop) * 3 + 24px);
+  grid-area: 1 / 1;
+  justify-self: center;
+  display: flex;
   width: var(--card-w);
-  margin-left: calc(var(--card-w) / -2);
   z-index: calc(10 - var(--a));
   transform-origin: 50% 120%;
   /* Cerrada (antes de entrar en pantalla): todas apiladas en el centro. */
   transform: translateY(calc(var(--a) * 2px)) rotate(calc(var(--o) * 1deg));
   transition: transform 0.7s var(--ease-decel);
-  transition-delay: calc(var(--a) * 45ms);
+  transition-delay: calc(var(--a) * 60ms);
 }
 
-.plat.is-visible .deck__item {
+.deck.is-visible .deck__item {
   transform:
     translateX(calc(var(--o) * var(--spread)))
     translateY(calc(var(--a) * var(--drop)))
     rotate(calc(var(--o) * var(--tilt)));
 }
 
-/* Al pasar por encima, la carta sube, se endereza y se pone delante. Solo
-   con ratón: en táctil el hover se queda pegado tras el toque. */
-@media (hover: hover) {
-  .plat.is-visible .deck__item:hover {
-    z-index: 20;
-    transition-delay: 0s;
-    transform:
-      translateX(calc(var(--o) * var(--spread)))
-      translateY(-28px)
-      rotate(calc(var(--o) * var(--tilt) * 0.3))
-      scale(1.06);
-  }
-}
-
-.plat.is-visible .deck__item:focus-within {
+.deck.is-visible .deck__item.is-front {
   z-index: 20;
+  transition-delay: 0s;
+  transform:
+    translateX(calc(var(--o) * var(--spread)))
+    translateY(-16px)
+    rotate(0deg);
 }
 
-/* Al cambiar de pestaña, el panel nuevo arranca cerrado un instante para
-   que la baraja vuelva a abrirse (script.js pone y quita la clase). */
-.plat.is-visible .plat__panel.is-closed .deck__item {
-  transform: translateY(calc(var(--a) * 2px)) rotate(calc(var(--o) * 1deg));
-  transition: none;
-}
-
-/* Selector de plataformas */
-.plat__tabs {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 auto 8px;
-  padding: 5px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: rgba(28, 22, 17, 0.65);
-}
-
-.plat__tab {
-  padding: 9px 18px;
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
+/* Opaca: con el fondo translúcido de .card se transparentarían las de detrás. */
+.deck__card {
+  width: 100%;
+  background: var(--surface);
   cursor: pointer;
-  transition: background 0.2s var(--ease-decel), color 0.2s var(--ease-decel);
 }
 
-.plat__tab:hover { color: var(--text); }
-
-.plat__tab[aria-selected="true"] {
-  background: var(--accent);
-  color: #110C08;
+.deck__card:hover {
+  transform: none;
 }
 
-.plat__panel[hidden] { display: none; }
-
-/* Carta de reserva mientras no hay capturas de esa plataforma. */
-.deck__card--soon {
+.deck__item.is-front .deck__card {
+  border-color: var(--accent);
   cursor: default;
 }
 
-.deck__soon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 16 / 10;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  background: repeating-linear-gradient(-45deg, transparent 0 10px, rgba(255, 255, 255, 0.03) 10px 20px);
-}
-
-.deck__card {
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--surface);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  cursor: zoom-in;
-  transition: border-color 0.2s var(--ease-decel), box-shadow 0.2s var(--ease-decel);
-}
-
-.deck__card:hover,
 .deck__card:focus-visible {
-  border-color: var(--accent);
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent), 0 12px 40px rgba(248, 137, 75, 0.25);
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
-.deck__card:focus-visible { outline: none; }
-
-/* Marco "ventana de navegador": 3 puntos y el nombre real de la pantalla. */
-.deck__bar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 10px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-}
-
-.deck__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.deck__dot:nth-child(1) { background: #FF5F57; }
-.deck__dot:nth-child(2) { background: #FEBC2E; }
-.deck__dot:nth-child(3) { background: #28C840; }
-
-.deck__bar-title {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--text-secondary);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-/* En la carta basta con la parte de arriba de la captura; entera se ve
-   en el visor. */
-.deck__img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  object-position: top left;
-  pointer-events: none;
+/* El trazo de los iconos se dibuja al abrirse la baraja. */
+.deck.is-visible .card__icon svg * {
+  stroke-dashoffset: 0;
 }
 
 .deck__hint {
@@ -2086,234 +1972,57 @@ button:focus-visible {
   font-size: 0.9rem;
 }
 
+/* Tráiler: página aparte en iframe (trailer.html) para que sus estilos y
+   los de la web no se pisen. Se escala solo a lo ancho que tenga. */
+.trailer {
+  margin: clamp(24px, 4vw, 48px) auto 0;
+  max-width: 1100px;
+}
+
+.trailer__frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+/* Pantalla completa simulada (iPhone no deja usar la API real fuera de un
+   <video>): el propio tráiler pone estas clases desde dentro del iframe. */
+.trailer__frame.is-max {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: #000;
+}
+
+/* Un transform, aunque sea translateY(0), atrapa al position: fixed. */
+html.js .trailer.reveal.is-visible {
+  transform: none;
+}
+
+html.trailer-max,
+html.trailer-max body {
+  overflow: hidden;
+}
+
 @media (max-width: 720px) {
-  .deck-wrap {
-    --card-w: 58%;
-    --spread: 11%;
-    --tilt: 4deg;
+  .deck {
+    --card-w: 84%;
+    --spread: 8%;
+    --tilt: 3deg;
     --drop: 6px;
   }
-  .deck { height: clamp(200px, 52vw, 300px); }
-  .deck__bar-title { font-size: 0.6rem; }
-  .plat__tab { padding: 8px 12px; font-size: 0.8rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .deck__item { transition: none; }
-}
-
-/* ==========================================================================
-   Visor de capturas (carrusel)
-
-   Una pista horizontal con las 7 imágenes; se mueve con flechas, teclado,
-   puntos o arrastrando con el dedo / ratón.
-   ========================================================================== */
-.lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.lightbox[hidden] {
-  display: none;
-}
-
-.lightbox__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(5, 7, 13, 0.9);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  opacity: 0;
-  transition: opacity 0.25s var(--ease-decel);
-}
-
-.lightbox__dialog {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  width: min(1100px, 100%);
-  max-height: 100%;
-  opacity: 0;
-  transform: scale(0.92);
-  transition: opacity 0.28s var(--ease-decel), transform 0.28s var(--ease-decel);
-}
-
-.lightbox.is-open .lightbox__backdrop { opacity: 1; }
-.lightbox.is-open .lightbox__dialog { opacity: 1; transform: scale(1); }
-
-.lightbox__stage {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: var(--radius);
-  touch-action: pan-y;
-  cursor: grab;
-}
-
-.lightbox__stage.is-dragging { cursor: grabbing; }
-
-.lightbox__track {
-  display: flex;
-  transition: transform 0.45s var(--ease-decel);
-}
-
-.lightbox__stage.is-dragging .lightbox__track { transition: none; }
-
-.lightbox__slide {
-  flex: 0 0 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: min(68vh, 640px);
-  padding: 0 8px;
-}
-
-.lightbox__img {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
-  user-select: none;
-  -webkit-user-drag: none;
-  pointer-events: none;
-}
-
-.lightbox__nav {
-  position: absolute;
-  top: 50%;
-  width: 46px;
-  height: 46px;
-  margin-top: -23px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: rgba(28, 22, 17, 0.85);
-  color: var(--text);
-  cursor: pointer;
-  transition: border-color 0.2s var(--ease-decel), color 0.2s var(--ease-decel), opacity 0.2s;
-}
-
-.lightbox__nav--prev { left: 12px; }
-.lightbox__nav--next { right: 12px; }
-
-.lightbox__nav:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.lightbox__nav:disabled {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.lightbox__info {
-  text-align: center;
-  max-width: 560px;
-  padding: 0 8px;
-}
-
-.lightbox__count {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--accent);
-  letter-spacing: 0.08em;
-}
-
-.lightbox__title {
-  margin: 4px 0;
-  font-size: 1.15rem;
-  color: var(--text);
-}
-
-.lightbox__caption {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-}
-
-.lightbox__dots {
-  display: flex;
-  gap: 4px;
-}
-
-.lightbox__dot {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lightbox__dot::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
-  transition: background 0.2s, width 0.2s;
-}
-
-.lightbox__dot[aria-current="true"]::before {
-  width: 20px;
-  border-radius: 4px;
-  background: var(--accent);
-}
-
-.lightbox__close {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 2;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
-  transition: border-color 0.2s var(--ease-decel), color 0.2s var(--ease-decel), transform 0.2s var(--ease-decel);
-}
-
-.lightbox__close:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: scale(1.05);
-}
-
-@media (max-width: 720px) {
-  .lightbox { padding: 16px 0; }
-  .lightbox__slide { height: 56vh; padding: 0 16px; }
-  /* En móvil se pasa deslizando; las flechas tapan la captura. */
-  .lightbox__nav { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lightbox__backdrop,
-  .lightbox__dialog,
-  .lightbox__track {
-    transition: none !important;
-  }
 }
 
 /* ==========================================================================

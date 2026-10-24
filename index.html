@@ -185,28 +185,36 @@
         <h2 class="section__title split reveal">Tareas que se repiten, da igual el sector</h2>
         <p class="section__lead reveal">Tres ejemplos para empezar. El resto de tareas que solemos quitar de en medio están en la página completa.</p>
 
-        <div class="cards-grid cards-grid--3">
-          <article class="card reveal">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path pathLength="1" d="M14 3v5h5"/><path pathLength="1" d="M9 13h6M9 17h4"/></svg></span>
-            <h3>Se acabó copiar lo mismo dos veces</h3>
-            <p>Cada factura de proveedor, cada pedido, cada formulario que llega por email acaba tecleado a mano en un Excel o un ERP. El sistema lee el documento y lo coloca solo donde tiene que ir.</p>
-            <span class="card__tag">Facturas · pedidos · formularios</span>
-          </article>
+        <!-- Baraja en abanico (styles.css .deck, script.js inicializarBaraja):
+             --o es la distancia al centro y --a su valor absoluto. -->
+        <ul class="deck reveal" aria-label="Tres tareas de ejemplo">
+          <li class="deck__item" style="--o:-1;--a:1">
+            <article class="card deck__card" tabindex="0" aria-current="false">
+              <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path pathLength="1" d="M14 3v5h5"/><path pathLength="1" d="M9 13h6M9 17h4"/></svg></span>
+              <h3>Se acabó copiar lo mismo dos veces</h3>
+              <p>Cada factura de proveedor, cada pedido, cada formulario que llega por email acaba tecleado a mano en un Excel o un ERP. El sistema lee el documento y lo coloca solo donde tiene que ir.</p>
+              <span class="card__tag">Facturas · pedidos · formularios</span>
+            </article>
+          </li>
+          <li class="deck__item is-front" style="--o:0;--a:0">
+            <article class="card deck__card" tabindex="0" aria-current="true">
+              <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path pathLength="1" d="M9 11h6M9 14h4"/></svg></span>
+              <h3>Deja de contestar lo mismo diez veces al día</h3>
+              <p>Horario, precio, disponibilidad, cómo se hace un pedido... Un agente contesta al momento, a cualquier hora, y te avisa a ti solo cuando hace falta decidir algo.</p>
+              <span class="card__tag">WhatsApp · email · web</span>
+            </article>
+          </li>
+          <li class="deck__item" style="--o:1;--a:1">
+            <article class="card deck__card" tabindex="0" aria-current="false">
+              <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+              <h3>Los leads dejan de enfriarse en la bandeja</h3>
+              <p>Un cliente pregunta y, si nadie contesta en la hora siguiente, se va a mirar a otro lado. El sistema responde primero y avisa a quien tiene que cerrar.</p>
+              <span class="card__tag">Respuesta en minutos, no en horas</span>
+            </article>
+          </li>
+        </ul>
+        <p class="deck__hint">Pulsa una carta para traerla delante</p>
 
-          <article class="card reveal">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path pathLength="1" d="M9 11h6M9 14h4"/></svg></span>
-            <h3>Deja de contestar lo mismo diez veces al día</h3>
-            <p>Horario, precio, disponibilidad, cómo se hace un pedido... Un agente contesta al momento, a cualquier hora, y te avisa a ti solo cuando hace falta decidir algo.</p>
-            <span class="card__tag">WhatsApp · email · web</span>
-          </article>
-
-          <article class="card reveal">
-            <span class="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path pathLength="1" d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
-            <h3>Los leads dejan de enfriarse en la bandeja</h3>
-            <p>Un cliente pregunta y, si nadie contesta en la hora siguiente, se va a mirar a otro lado. El sistema responde primero y avisa a quien tiene que cerrar.</p>
-            <span class="card__tag">Respuesta en minutos, no en horas</span>
-          </article>
-        </div>
 
         <p class="section__outro reveal"><a href="/tareas">Ver las seis tareas que solemos quitar de en medio →</a></p>
       </div>
